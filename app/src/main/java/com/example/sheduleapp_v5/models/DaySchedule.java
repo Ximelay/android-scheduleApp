@@ -4,19 +4,19 @@ import java.util.List;
 
 public class DaySchedule {
     private String dayOfWeek;
-    private List<Lesson> lessonIndexes;
+    private int weekType;
+    private List<LessonIndex> lessonIndexes; // Уроки на этот день
 
+    // Геттеры
     public String getDayOfWeek() {
         return dayOfWeek;
     }
-    public void setDayOfWeek(String dayOfWeek) {
-        this.dayOfWeek = dayOfWeek;
+
+    public int getWeekType() {
+        return weekType;
     }
 
-    public List<Lesson> getLessonIndexes() {
+    public List<LessonIndex> getLessonIndexes() {
         return lessonIndexes;
-    }
-    public void setLessonIndexes(List<Lesson> lessonIndexes) {
-        this.lessonIndexes = lessonIndexes;
     }
 }

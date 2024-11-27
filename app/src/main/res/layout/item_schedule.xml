@@ -1,24 +1,54 @@
-<?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:padding="8dp">
+    android:padding="8dp"
+    android:background="?android:attr/selectableItemBackground">
 
+    <!-- День недели -->
+    <TextView
+        android:id="@+id/tvDayOfWeek"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textStyle="bold"
+        android:textColor="@color/day"
+        android:text="Понедельник"
+        android:layout_marginBottom="4dp"
+        android:textSize="16sp" />
+
+    <!-- Тип недели -->
+    <TextView
+        android:id="@+id/tvWeekType"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Тип недели: Круглая"
+        android:layout_marginBottom="8dp"
+        android:textSize="14sp" />
+
+    <!-- Разделение дней -->
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@android:color/darker_gray"
+        android:layout_marginBottom="8dp"/>
+
+    <!-- Информация о занятиях -->
     <TextView
         android:id="@+id/tvLessonName"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:text="Урок"
         android:textStyle="bold" />
 
     <TextView
         android:id="@+id/tvTime"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:text="Время" />
 
     <TextView
         android:id="@+id/tvTeacher"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
-
+        android:layout_height="wrap_content"
+        android:text="Преподаватель" />
 </LinearLayout>
