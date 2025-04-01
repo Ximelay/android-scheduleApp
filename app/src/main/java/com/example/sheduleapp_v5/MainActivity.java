@@ -1,7 +1,11 @@
 package com.example.sheduleapp_v5;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.widget.Button;
+
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -18,51 +22,41 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 public class MainActivity extends AppCompatActivity {
-    private RecyclerView recyclerView;
-    private ScheduleAdapter adapter;
+
+    private Button buttonSchedule;
+    private Button buttonPerformance;
+    private Button buttonMoodle;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        recyclerView = findViewById(R.id.recyclerView);
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        buttonSchedule = findViewById(R.id.button_schedule);
+        buttonPerformance = findViewById(R.id.button_performance);
+        buttonMoodle = findViewById(R.id.button_moodle);
 
-        ScheduleApi api = ApiClient.getRetrofitInstance().create(ScheduleApi.class);
-        api.getSchedule(732).enqueue(new Callback<ScheduleResponse>() {
+        buttonSchedule.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onResponse(Call<ScheduleResponse> call, Response<ScheduleResponse> response) {
-                if (response.isSuccessful() && response.body() != null) {
-                    // Логируем полученный JSON
-                    Log.d("API Response", "Response Body: " + response.body().toString());
-
-                    // Получаем список всех дней с расписанием
-                    List<DaySchedule> daySchedules = response.body().getItems();
-
-                    // Логируем каждый день и уроки
-                    for (DaySchedule day : daySchedules) {
-                        Log.d("DaySchedule", "Day: " + day.getDayOfWeek() + ", WeekType: " + day.getWeekType());
-                        if (day.getLessonIndexes() != null) {
-                            for (LessonIndex lessonIndex : day.getLessonIndexes()) {
-                                for (LessonItem lessonItem : lessonIndex.getItems()) {
-                                    Log.d("LessonItem", "Lesson: " + lessonItem.getLessonName());
-                                }
-                            }
-                        }
-                    }
-
-                    // Создаем адаптер с полученными данными
-                    adapter = new ScheduleAdapter(daySchedules);
-                    recyclerView.setAdapter(adapter);
-                } else {
-                    Log.e("API Error", "Response is empty or unsuccessful.");
-                }
+            public void onClick(View v) {
+                Intent intent = new Intent(MainActivity.this, ScheduleActivity.class);
+                startActivity(intent);
             }
+        });
 
+        buttonPerformance.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onFailure(Call<ScheduleResponse> call, Throwable t) {
-                Log.e("Api error", "Failed to load schedule", t);
+            public void onClick(View v) {
+                Intent intent = new Intent(MainActivity.this, PerformanceActivity.class);
+                startActivity(intent);
+            }
+        });
+
+        buttonMoodle.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(MainActivity.this, MoodleActivity.class);
+                startActivity(intent);
             }
         });
     }
