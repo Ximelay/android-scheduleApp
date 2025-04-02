@@ -35,10 +35,6 @@ public class ScheduleAdapter extends RecyclerView.Adapter<ScheduleAdapter.ViewHo
         // Отображаем день недели
         holder.tvDayOfWeek.setText(daySchedule.getDayOfWeek());
 
-        // Отображаем тип недели
-        String weekType = (daySchedule.getWeekType() == 1) ? "Круглая" : "Квадратная";
-        holder.tvWeekType.setText("Тип недели: " + weekType);
-
         // Строка для всех уроков в день
         StringBuilder lessonDetails = new StringBuilder();
 
@@ -63,12 +59,11 @@ public class ScheduleAdapter extends RecyclerView.Adapter<ScheduleAdapter.ViewHo
     }
 
     static class ViewHolder extends RecyclerView.ViewHolder {
-        TextView tvDayOfWeek, tvWeekType, tvLessonName;
+        TextView tvDayOfWeek, tvLessonName;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             tvDayOfWeek = itemView.findViewById(R.id.tvDayOfWeek);
-            tvWeekType = itemView.findViewById(R.id.tvWeekType);
             tvLessonName = itemView.findViewById(R.id.tvLessonName);
         }
     }
