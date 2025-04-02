@@ -3,12 +3,13 @@
     android:layout_height="wrap_content"
     android:orientation="vertical"
     android:padding="8dp"
-    android:background="?android:attr/selectableItemBackground">
+    android:background="?android:attr/selectableItemBackground"
+    android:layout_marginTop="8dp">
 
     <!-- День недели -->
     <TextView
         android:id="@+id/tvDayOfWeek"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textStyle="bold"
         android:textColor="@color/day"
@@ -16,14 +17,18 @@
         android:layout_marginBottom="4dp"
         android:textSize="16sp" />
 
-    <!-- Тип недели -->
+    <!-- Тип недели (всего один раз, в самом верху) -->
     <TextView
         android:id="@+id/tvWeekType"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Тип недели: Круглая"
         android:layout_marginBottom="8dp"
-        android:textSize="14sp" />
+        android:textSize="14sp"
+        android:background="@drawable/rounded_background_week_type"
+        android:padding="4dp"
+        android:textColor="@android:color/white"
+        android:visibility="gone"/>
 
     <!-- Разделение дней -->
     <View
@@ -32,23 +37,30 @@
         android:background="@android:color/darker_gray"
         android:layout_marginBottom="8dp"/>
 
-    <!-- Информация о занятиях -->
+    <!-- Информация о занятиях с улучшенным стилем -->
     <TextView
         android:id="@+id/tvLessonName"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Урок"
-        android:textStyle="bold" />
+        android:textStyle="bold"
+        android:textSize="14sp"
+        android:layout_marginBottom="4dp" />
 
     <TextView
         android:id="@+id/tvTime"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Время" />
+        android:text="Время"
+        android:textSize="12sp"
+        android:textColor="@android:color/darker_gray" />
 
     <TextView
         android:id="@+id/tvTeacher"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Преподаватель" />
+        android:text="Преподаватель"
+        android:textSize="12sp"
+        android:textColor="@android:color/darker_gray" />
+
 </LinearLayout>

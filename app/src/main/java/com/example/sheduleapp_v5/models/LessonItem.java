@@ -4,8 +4,10 @@ public class LessonItem {
     private String lessonName;
     private String teacherName;
     private String classroom;
+    private String comment;
+    private String subgroup;
+    private Integer weekType;
 
-    // Геттеры
     public String getLessonName() {
         return lessonName;
     }
@@ -16,5 +18,17 @@ public class LessonItem {
 
     public String getClassroom() {
         return classroom;
+    }
+
+    public String getComment() {
+        return comment;
+    }
+
+    public String getSubgroup() {
+        return subgroup;
+    }
+
+    public Integer getWeekType() {
+        return weekType;
     }
 }
