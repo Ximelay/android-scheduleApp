@@ -1,29 +1,36 @@
-package com.example.sheduleapp_v5;
-
-
-import com.example.sheduleapp_v5.models.LessonItem;
+package com.example.sheduleapp_v5.models;
 
 import java.util.List;
 
 public class DisplayLessonItem {
     public static final int TYPE_HEADER = 0;
     public static final int TYPE_LESSON = 1;
-    private int type;
 
+    private int type;
     private String dayOfWeek;
     private String startTime;
     private String endTime;
     private List<LessonItem> lessons;
     private boolean isFirstOfDay;
-    private int currentWeekType; // <--- новое поле
+    private int currentWeekType;
+    private boolean visible = true;
+    private String dayId;
 
-    public DisplayLessonItem(String dayOfWeek, String startTime, String endTime, List<LessonItem> lessons, boolean isFirstOfDay, int currentWeekType) {
+    public DisplayLessonItem(int type, String dayOfWeek, String startTime,
+                             String endTime, List<LessonItem> lessons, boolean isFirstOfDay,
+                             int currentWeekType) {
+        this.type = type;
         this.dayOfWeek = dayOfWeek;
         this.startTime = startTime;
         this.endTime = endTime;
         this.lessons = lessons;
         this.isFirstOfDay = isFirstOfDay;
         this.currentWeekType = currentWeekType;
+        this.dayId = dayOfWeek;
+    }
+
+    public int getType() {
+        return type;
     }
 
     public String getDayOfWeek() {
@@ -50,7 +57,15 @@ public class DisplayLessonItem {
         return currentWeekType;
     }
 
-    public int getType() {
-        return type;
+    public boolean isVisible() {
+        return visible;
+    }
+
+    public void setVisible(boolean visible) {
+        this.visible = visible;
+    }
+
+    public String getDayId() {
+        return dayId;
     }
 }

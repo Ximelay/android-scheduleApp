@@ -8,18 +8,6 @@
     android:background="@drawable/lesson_background">
 
     <TextView
-        android:id="@+id/tvDay"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Понедельник"
-        android:textStyle="bold"
-        android:textSize="16sp"
-        android:textColor="@color/day"
-        android:layout_marginBottom="8dp"
-        android:paddingBottom="4dp"
-        android:background="@android:color/transparent" />
-
-    <TextView
         android:id="@+id/tvTime"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

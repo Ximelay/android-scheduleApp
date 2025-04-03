@@ -1,26 +1,41 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="#121212">
 
-    <!-- TextView для отображения типа недели -->
-    <TextView
-        android:id="@+id/tvWeekType"
-        android:layout_width="wrap_content"
+    <!-- Фиксированный блок с типом и диапазоном недели -->
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Тип недели: Квадратная"
-        android:textSize="18sp"
-        android:textStyle="bold"
-        android:layout_margin="16dp"
-        android:layout_alignParentTop="true"
-        android:gravity="center"
-        android:textColor="@android:color/white"/>
+        android:orientation="vertical"
+        android:padding="16dp">
 
-    <!-- RecyclerView для отображения расписания -->
+        <TextView
+            android:id="@+id/tvWeekType"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Тип недели: Квадратная"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:textColor="@android:color/white" />
+
+        <TextView
+            android:id="@+id/tvWeekRange"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="[24 мар–30 мар]"
+            android:textSize="16sp"
+            android:layout_marginTop="4dp"
+            android:textColor="@android:color/white" />
+    </LinearLayout>
+
+    <!-- Прокручиваемое расписание -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerView"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_below="@id/tvWeekType"
-        android:layout_marginTop="16dp"/>
-</RelativeLayout>
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:padding="8dp"/>
+</LinearLayout>

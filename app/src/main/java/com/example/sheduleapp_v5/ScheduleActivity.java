@@ -4,21 +4,19 @@ import android.os.Bundle;
 import android.util.Log;
 import android.widget.TextView;
 
-import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.sheduleapp_v5.adapters.LessonAdapter;
 import com.example.sheduleapp_v5.adapters.ScheduleAdapter;
 import com.example.sheduleapp_v5.models.DaySchedule;
+import com.example.sheduleapp_v5.models.DisplayLessonItem;
 import com.example.sheduleapp_v5.models.LessonIndex;
 import com.example.sheduleapp_v5.models.ScheduleResponse;
 import com.example.sheduleapp_v5.network.ApiClient;
 import com.example.sheduleapp_v5.network.ScheduleApi;
+import com.example.sheduleapp_v5.utils.StickyHeaderDecoration;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,6 +30,7 @@ public class ScheduleActivity extends AppCompatActivity {
     private RecyclerView recyclerView;
     private ScheduleAdapter adapter;
     private TextView tvWeekType; // Для отображения типа недели
+    private TextView tvWeekRange;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,6 +39,7 @@ public class ScheduleActivity extends AppCompatActivity {
 
         recyclerView = findViewById(R.id.recyclerView);
         tvWeekType = findViewById(R.id.tvWeekType); // Для отображения типа недели
+        tvWeekRange = findViewById(R.id.tvWeekRange);
 
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
@@ -58,26 +58,41 @@ public class ScheduleActivity extends AppCompatActivity {
 
                     int currentWeekType = scheduleResponse.getCurrentWeekType();
 
-                    tvWeekType.setText("Тип недели: " + (currentWeekType == 1 ? "Круглая" : "Треугольная"));
+                    String weekLabel = currentWeekType == 1 ? "Круглая" : "Треугольная";
+                    tvWeekType.setText("Тип недели: " + weekLabel);
+                    tvWeekRange.setText("[" + scheduleResponse.getCurrentWeekName() + "]");
 
                     List<DisplayLessonItem> displayItems = new ArrayList<>();
                     for (DaySchedule day : daySchedules) {
-                        boolean first = true;
+                        // Добавляем заголовок дня
+                        displayItems.add(new DisplayLessonItem(
+                                DisplayLessonItem.TYPE_HEADER,
+                                day.getDayOfWeek(),
+                                null,
+                                null,
+                                null,
+                                false,
+                                currentWeekType
+                        ));
+
+                        // Добавляем пары
                         for (LessonIndex index : day.getLessonIndexes()) {
-                            DisplayLessonItem item = new DisplayLessonItem(
+                            displayItems.add(new DisplayLessonItem(
+                                    DisplayLessonItem.TYPE_LESSON,
                                     day.getDayOfWeek(),
                                     index.getLessonStartTime(),
                                     index.getLessonEndTime(),
                                     index.getItems(),
-                                    first,
-                                    currentWeekType // ⬅️ передаём сюда
-                            );
-                            displayItems.add(item);
-                            first = false;
+                                    false,
+                                    currentWeekType
+                            ));
                         }
                     }
 
-                    recyclerView.setAdapter(new LessonAdapter(displayItems));
+                    LessonAdapter lessonAdapter = new LessonAdapter(displayItems);
+                    recyclerView.setAdapter(lessonAdapter);
+                    recyclerView.addItemDecoration(new StickyHeaderDecoration(lessonAdapter));
+
                 } else {
                     Log.e("API", "Empty or failed response");
                 }

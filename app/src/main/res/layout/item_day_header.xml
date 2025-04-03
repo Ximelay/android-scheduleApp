@@ -1,11 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
-<TextView xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/tvDayHeader"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/headerContainer"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:text="Понедельник"
-    android:textSize="18sp"
-    android:textStyle="bold"
+    android:orientation="horizontal"
     android:padding="12dp"
-    android:textColor="@color/day"
-    android:background="#202020"/>
+    android:layout_marginBottom="8dp"
+    android:background="#202020"
+    android:gravity="center_vertical">
+
+    <TextView
+        android:id="@+id/tvDayHeader"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:text="Понедельник"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:textColor="@color/day" />
+
+    <ImageView
+        android:id="@+id/ivArrow"
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:src="@drawable/ic_arrow_down"
+        android:rotation="0"
+        android:contentDescription="Стрелка"/>
+</LinearLayout>
