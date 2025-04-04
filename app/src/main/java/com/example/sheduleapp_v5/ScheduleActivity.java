@@ -2,7 +2,12 @@ package com.example.sheduleapp_v5;
 
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -16,6 +21,7 @@ import com.example.sheduleapp_v5.models.LessonIndex;
 import com.example.sheduleapp_v5.models.ScheduleResponse;
 import com.example.sheduleapp_v5.network.ApiClient;
 import com.example.sheduleapp_v5.network.ScheduleApi;
+import com.example.sheduleapp_v5.utils.GroupUtils;
 import com.example.sheduleapp_v5.utils.StickyHeaderDecoration;
 
 import java.util.ArrayList;
@@ -29,8 +35,12 @@ public class ScheduleActivity extends AppCompatActivity {
 
     private RecyclerView recyclerView;
     private ScheduleAdapter adapter;
-    private TextView tvWeekType; // Для отображения типа недели
+    private TextView tvWeekType;
     private TextView tvWeekRange;
+    private AutoCompleteTextView etGroupId;
+    private Button btnSearchGroup;
+    private ArrayAdapter<String> adapterGroup;
+    private List<String> groupNames;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,15 +48,70 @@ public class ScheduleActivity extends AppCompatActivity {
         setContentView(R.layout.activity_schedule);
 
         recyclerView = findViewById(R.id.recyclerView);
-        tvWeekType = findViewById(R.id.tvWeekType); // Для отображения типа недели
+        tvWeekType = findViewById(R.id.tvWeekType);
         tvWeekRange = findViewById(R.id.tvWeekRange);
+        etGroupId = findViewById(R.id.etGroupId);
+        btnSearchGroup = findViewById(R.id.btnSearchGroup);
+
+        groupNames = new ArrayList<>(GroupUtils.getAllGroups().keySet());
+
+        // Инициализация адаптера для AutoCompleteTextView
+        adapterGroup = new ArrayAdapter<>(this, android.R.layout.simple_dropdown_item_1line, groupNames);
+        etGroupId.setAdapter(adapterGroup);
 
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
-        // Загружаем расписание для группы 732
-        fetchSchedule(732); // Пример: группа 732
+        // Поиск группы по кнопке
+        btnSearchGroup.setOnClickListener(v -> {
+            String groupIdStr = etGroupId.getText().toString().trim();
+
+            if (!groupIdStr.isEmpty()) {
+                Integer groupId = GroupUtils.getGroupId(groupIdStr);
+                if (groupId != null) {
+                    fetchSchedule(groupId);
+                } else {
+                    Toast.makeText(this, "Группа не найдена!", Toast.LENGTH_SHORT).show();
+                }
+            } else {
+                Toast.makeText(this, "Пожалуйста, введите номер группы", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        // Настройка слушателя для выбора группы
+        etGroupId.setThreshold(1);
+        etGroupId.setOnItemClickListener((parent, view, position, id) -> {
+            String selectedGroup = (String) parent.getItemAtPosition(position);
+            Integer groupId = GroupUtils.getGroupId(selectedGroup);
+            fetchSchedule(groupId);
+        });
+
+        // Добавление обработчика текстового изменения в поле ввода
+        etGroupId.addTextChangedListener(new android.text.TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int start, int before, int count) {}
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int start, int before, int count) {
+                String query = charSequence.toString().trim();
+                if (!query.isEmpty()) {
+                    List<String> filteredGroups = GroupUtils.getFilteredGroups(query);
+                    // Обновляем данные адаптера без пересоздания его
+                    adapterGroup.clear();
+                    adapterGroup.addAll(filteredGroups);
+                    adapterGroup.notifyDataSetChanged(); // Уведомляем об изменении данных
+                } else {
+                    adapterGroup.clear();
+                    adapterGroup.addAll(groupNames);
+                    adapterGroup.notifyDataSetChanged();
+                }
+            }
+
+            @Override
+            public void afterTextChanged(android.text.Editable editable) {}
+        });
     }
 
+    // Получения расписания группы
     private void fetchSchedule(int groupId) {
         ScheduleApi api = ApiClient.getRetrofitInstance().create(ScheduleApi.class);
         api.getSchedule(groupId).enqueue(new Callback<ScheduleResponse>() {
@@ -57,7 +122,6 @@ public class ScheduleActivity extends AppCompatActivity {
                     List<DaySchedule> daySchedules = scheduleResponse.getItems();
 
                     int currentWeekType = scheduleResponse.getCurrentWeekType();
-
                     String weekLabel = currentWeekType == 1 ? "Круглая" : "Треугольная";
                     tvWeekType.setText("Тип недели: " + weekLabel);
                     tvWeekRange.setText("[" + scheduleResponse.getCurrentWeekName() + "]");
