@@ -5,6 +5,42 @@
     android:orientation="vertical"
     android:background="#121212">
 
+    <!-- Блок для ввода номера группы -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="8dp">
+
+    <AutoCompleteTextView
+        android:id="@+id/etGroupId"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:hint="Введите номер группы"
+        android:textColor="#FFFFFF"
+        android:textColorHint="#000000"
+        android:background="@android:color/darker_gray"
+        android:padding="8dp"
+        android:textSize="16sp"
+        android:drawableLeft="@android:drawable/ic_menu_search"
+        android:drawablePadding="8dp"
+        android:completionThreshold="1" />
+
+        <Button
+            android:id="@+id/btnSearchGroup"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Поиск"
+            android:textColor="#FFFFFF"
+            android:backgroundTint="#FF5722"
+            android:layout_marginStart="8dp"
+            android:paddingHorizontal="16dp"
+            android:paddingVertical="12dp"
+            android:textSize="16sp"
+            android:layout_gravity="center_vertical"/>
+    </LinearLayout>
+
     <!-- Фиксированный блок с типом и диапазоном недели -->
     <LinearLayout
         android:layout_width="match_parent"
@@ -16,19 +52,19 @@
             android:id="@+id/tvWeekType"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Тип недели: Квадратная"
+            android:text="Тип недели: "
             android:textSize="18sp"
             android:textStyle="bold"
-            android:textColor="@android:color/white" />
+            android:textColor="#FFFFFF" /> <!-- Белый цвет для текста -->
 
         <TextView
             android:id="@+id/tvWeekRange"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="[24 мар–30 мар]"
+            android:text="[01 мес–07 мес]"
             android:textSize="16sp"
             android:layout_marginTop="4dp"
-            android:textColor="@android:color/white" />
+            android:textColor="#B0B0B0" /> <!-- Цвет для диапазона недели (серый) -->
     </LinearLayout>
 
     <!-- Прокручиваемое расписание -->
@@ -37,5 +73,6 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:padding="8dp"/>
+        android:padding="8dp" />
+
 </LinearLayout>
