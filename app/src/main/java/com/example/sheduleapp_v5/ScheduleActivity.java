@@ -153,7 +153,7 @@ public class ScheduleActivity extends AppCompatActivity {
                         }
                     }
 
-                    LessonAdapter lessonAdapter = new LessonAdapter(displayItems);
+                    LessonAdapter lessonAdapter = new LessonAdapter(ScheduleActivity.this, displayItems);
                     recyclerView.setAdapter(lessonAdapter);
                     recyclerView.addItemDecoration(new StickyHeaderDecoration(lessonAdapter));
 

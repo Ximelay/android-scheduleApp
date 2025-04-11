@@ -1,8 +1,11 @@
 package com.example.sheduleapp_v5.adapters;
 
+import android.app.AlertDialog;
+import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -11,6 +14,7 @@ import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.sheduleapp_v5.R;
+import com.example.sheduleapp_v5.db.NoteRepository;
 import com.example.sheduleapp_v5.models.DisplayLessonItem;
 import com.example.sheduleapp_v5.models.LessonItem;
 import com.example.sheduleapp_v5.utils.LessonDiffUtil;
@@ -23,12 +27,19 @@ public class LessonAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
     private List<DisplayLessonItem> allItems;
     private List<DisplayLessonItem> visibleItems;
 
-    public LessonAdapter(List<DisplayLessonItem> lessonList) {
+    private final NoteRepository noteRepository;
+
+    public LessonAdapter(Context context, List<DisplayLessonItem> lessonList) {
         this.allItems = lessonList;
         this.visibleItems = new ArrayList<>();
+        this.noteRepository = new NoteRepository(context);
 
         for (DisplayLessonItem item : lessonList) {
             if (item.getType() == DisplayLessonItem.TYPE_HEADER || item.isVisible()) {
+                if(item.getType() == DisplayLessonItem.TYPE_LESSON) {
+                    String key = getLessonKey(item);
+                    item.setNote(noteRepository.loadNote(key));
+                }
                 visibleItems.add(item);
             }
         }
@@ -140,6 +151,28 @@ public class LessonAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             if (hasWeek2) {
                 lessonHolder.iconTriangle.setImageResource(currentWeekType == 2 ? R.drawable.ic_triangle_filled : R.drawable.ic_triangle_outline);
             }
+
+            lessonHolder.itemView.setOnLongClickListener(v -> {
+                Context context = v.getContext();
+                AlertDialog.Builder builderDialog = new AlertDialog.Builder(context);
+                builderDialog.setTitle("Добавить разметку");
+
+                final EditText input = new EditText(context);
+                input.setText(item.getNote());
+                builderDialog.setView(input);
+
+                builderDialog.setPositiveButton("Сохранить", ((dialog, which) -> {
+                    String note = input.getText().toString();
+                    item.setNote(note);
+                    noteRepository.saveNote(getLessonKey(item), note);
+                    notifyItemChanged(holder.getAdapterPosition());
+                }));
+
+                builderDialog.setNegativeButton("Отмена", ((dialog, which) -> dialog.cancel()));
+
+                builderDialog.show();
+                return true;
+            });
         }
     }
 
@@ -186,6 +219,10 @@ public class LessonAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             }
         }
         return false;
+    }
+
+    private String getLessonKey(DisplayLessonItem item) {
+        return item.getDayId() + "_" + item.getStartTime() + "_" + item.getEndTime();
     }
 
     public List<DisplayLessonItem> getLessonList() {
