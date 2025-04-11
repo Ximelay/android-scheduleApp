@@ -1,7 +1,6 @@
 plugins {
     alias(libs.plugins.android.application)
 }
-
 android {
     namespace = "com.example.sheduleapp_v5"
     compileSdk = 34
@@ -30,6 +29,9 @@ android {
         targetCompatibility = JavaVersion.VERSION_11
     }
 }
+configurations.all {
+    exclude(group = "com.intellij", module = "annotations")
+}
 
 dependencies {
 
@@ -44,4 +46,9 @@ dependencies {
     implementation (libs.retrofit)
     implementation (libs.converter.gson)
     implementation (libs.logging.interceptor)
+
+    implementation(libs.room.runtime)
+    annotationProcessor(libs.room.compiler)
+    implementation(libs.room.ktx)
+    implementation(libs.jetbrains.annotations)
 }

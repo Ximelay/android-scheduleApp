@@ -15,6 +15,8 @@ public class DisplayLessonItem {
     private int currentWeekType;
     private boolean visible = true;
     private String dayId;
+    private String note = "";
+
 
     public DisplayLessonItem(int type, String dayOfWeek, String startTime,
                              String endTime, List<LessonItem> lessons, boolean isFirstOfDay,
@@ -67,5 +69,13 @@ public class DisplayLessonItem {
 
     public String getDayId() {
         return dayId;
+    }
+
+    public String getNote() {
+        return note;
+    }
+
+    public void setNote(String note) {
+        this.note = note;
     }
 }
