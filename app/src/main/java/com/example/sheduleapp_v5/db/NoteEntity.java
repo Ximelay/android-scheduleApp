@@ -8,9 +8,13 @@ public class NoteEntity {
 
     public String lessonKey;
     public String text;
+    public long createAt;
+    public long remindAtMillis;
 
-    public NoteEntity(String lessonKey, String text) {
+    public NoteEntity(String lessonKey, String text, Long remindAtMillis) {
         this.lessonKey = lessonKey;
         this.text = text;
+        this.createAt = System.currentTimeMillis();
+        this.remindAtMillis = (remindAtMillis != null) ? remindAtMillis : 0L;
     }
 }

@@ -5,6 +5,8 @@ import androidx.room.Insert;
 import androidx.room.OnConflictStrategy;
 import androidx.room.Query;
 
+import java.util.List;
+
 @Dao
 public interface NoteDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
@@ -12,4 +14,7 @@ public interface NoteDao {
 
     @Query("SELECT * FROM notes WHERE lessonKey = :lessonKey LIMIT 1")
     NoteEntity getNoteForLesson(String lessonKey);
+
+    @Query("SELECT * FROM notes")
+    List<NoteEntity> getAllNotes();
 }

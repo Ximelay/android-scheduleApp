@@ -18,6 +18,7 @@ import com.example.sheduleapp_v5.db.NoteRepository;
 import com.example.sheduleapp_v5.models.DisplayLessonItem;
 import com.example.sheduleapp_v5.models.LessonItem;
 import com.example.sheduleapp_v5.utils.LessonDiffUtil;
+import com.example.sheduleapp_v5.work.ReminderScheduler;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -152,19 +153,54 @@ public class LessonAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                 lessonHolder.iconTriangle.setImageResource(currentWeekType == 2 ? R.drawable.ic_triangle_filled : R.drawable.ic_triangle_outline);
             }
 
+            if(item.getNote() != null & !item.getNote().trim().isEmpty()) {
+                lessonHolder.ivNoteIcon.setVisibility(View.VISIBLE);
+                lessonHolder.ivNoteIcon.setOnClickListener( v -> {
+                    new AlertDialog.Builder(v.getContext())
+                            .setTitle("Заметка")
+                            .setMessage(item.getNote())
+                            .setPositiveButton("ОК", null)
+                            .show();
+                });
+            } else {
+                lessonHolder.ivNoteIcon.setVisibility(View.GONE);
+            }
+
             lessonHolder.itemView.setOnLongClickListener(v -> {
                 Context context = v.getContext();
                 AlertDialog.Builder builderDialog = new AlertDialog.Builder(context);
-                builderDialog.setTitle("Добавить разметку");
+                builderDialog.setTitle("Добавить заметку");
 
-                final EditText input = new EditText(context);
-                input.setText(item.getNote());
-                builderDialog.setView(input);
+                View dialogView = LayoutInflater.from(context).inflate(R.layout.dialog_note_input, null);
+                EditText etNote = dialogView.findViewById(R.id.etNote);
+                EditText etMinutes = dialogView.findViewById(R.id.etMinutes);
+
+                etNote.setText(item.getNote());
+
+                builderDialog.setView(dialogView);
 
                 builderDialog.setPositiveButton("Сохранить", ((dialog, which) -> {
-                    String note = input.getText().toString();
+                    String note = etNote.getText().toString().trim();
+                    String minutesStr = etMinutes.getText().toString().trim();
+
                     item.setNote(note);
-                    noteRepository.saveNote(getLessonKey(item), note);
+                    Long remindAt = null;
+
+                    if (!minutesStr.isEmpty()) {
+                        try {
+                            long minutes = Long.parseLong(minutesStr);
+                            remindAt = System.currentTimeMillis() + minutes * 60 * 1000;
+                        } catch (NumberFormatException e) {
+                            // можно показать Toast, но не обязательно
+                        }
+                    }
+
+                    noteRepository.saveNote(getLessonKey(item), note, remindAt);
+
+                    if (remindAt != null) {
+                        ReminderScheduler.scheduleReminder(context, getLessonKey(item), note, remindAt);
+                    }
+
                     notifyItemChanged(holder.getAdapterPosition());
                 }));
 
@@ -242,7 +278,7 @@ public class LessonAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
     static class LessonViewHolder extends RecyclerView.ViewHolder {
         TextView tvTime, tvDetails;
-        ImageView iconCircle, iconTriangle;
+        ImageView iconCircle, iconTriangle, ivNoteIcon;
 
         public LessonViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -250,6 +286,7 @@ public class LessonAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             tvDetails = itemView.findViewById(R.id.tvDetails);
             iconCircle = itemView.findViewById(R.id.iconCircle);
             iconTriangle = itemView.findViewById(R.id.iconTriangle);
+            ivNoteIcon = itemView.findViewById(R.id.ivNoteIcon);
         }
     }
 }
