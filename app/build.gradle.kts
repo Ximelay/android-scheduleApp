@@ -3,12 +3,12 @@ plugins {
 }
 android {
     namespace = "com.example.sheduleapp_v5"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "com.example.sheduleapp_v5"
-        minSdk = 33
-        targetSdk = 34
+        minSdk = 26
+        targetSdk = 35
         versionCode = 1
         versionName = "1.0"
 
@@ -50,5 +50,8 @@ dependencies {
     implementation(libs.room.runtime)
     annotationProcessor(libs.room.compiler)
     implementation(libs.room.ktx)
+
     implementation(libs.jetbrains.annotations)
+
+    implementation(libs.work)
 }
