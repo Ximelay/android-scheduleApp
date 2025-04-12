@@ -1,10 +1,14 @@
 package com.example.sheduleapp_v5.adapters;
 
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
+import android.app.DatePickerDialog;
+import android.app.TimePickerDialog;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -21,6 +25,7 @@ import com.example.sheduleapp_v5.utils.LessonDiffUtil;
 import com.example.sheduleapp_v5.work.ReminderScheduler;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 public class LessonAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
@@ -173,32 +178,48 @@ public class LessonAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
                 View dialogView = LayoutInflater.from(context).inflate(R.layout.dialog_note_input, null);
                 EditText etNote = dialogView.findViewById(R.id.etNote);
-                EditText etMinutes = dialogView.findViewById(R.id.etMinutes);
+                Button btnPickDate = dialogView.findViewById(R.id.btnPickDate);
+                TextView tvSelectedDate = dialogView.findViewById(R.id.tvSelectedDate);
+                Button btnPickTime = dialogView.findViewById(R.id.btnPickTime);
+                TextView tvSelectedTime = dialogView.findViewById(R.id.tvSelectedTime);
 
                 etNote.setText(item.getNote());
+
+                final Calendar calendar = Calendar.getInstance();
+                final long[] remindAt = {0};
+
+                btnPickDate.setOnClickListener(view -> {
+                    DatePickerDialog datePickerDialog = new DatePickerDialog(context, (datePicker, year, month, dayOfMonth) -> {
+                        calendar.set(Calendar.YEAR, year);
+                        calendar.set(Calendar.MONTH, month);
+                        calendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
+                        tvSelectedDate.setText(String.format("Выбрано: %02d.%02d.%d", dayOfMonth, month + 1, year));
+                    }, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH));
+                    datePickerDialog.show();
+                });
+
+                btnPickTime.setOnClickListener(view -> {
+                    TimePickerDialog timePickerDialog = new TimePickerDialog(context, (timePicker, hourOfDay, minute) -> {
+                        calendar.set(Calendar.HOUR_OF_DAY, hourOfDay);
+                        calendar.set(Calendar.MINUTE, minute);
+                        calendar.set(Calendar.SECOND, 0);
+                        remindAt[0] = calendar.getTimeInMillis();
+                        tvSelectedTime.setText(String.format("Выбрано: %02d:%02d", hourOfDay, minute));
+                    }, calendar.get(Calendar.HOUR_OF_DAY), calendar.get(Calendar.MINUTE), true);
+                    timePickerDialog.show();
+                });
 
                 builderDialog.setView(dialogView);
 
                 builderDialog.setPositiveButton("Сохранить", ((dialog, which) -> {
                     String note = etNote.getText().toString().trim();
-                    String minutesStr = etMinutes.getText().toString().trim();
 
                     item.setNote(note);
-                    Long remindAt = null;
 
-                    if (!minutesStr.isEmpty()) {
-                        try {
-                            long minutes = Long.parseLong(minutesStr);
-                            remindAt = System.currentTimeMillis() + minutes * 60 * 1000;
-                        } catch (NumberFormatException e) {
-                            // можно показать Toast, но не обязательно
-                        }
-                    }
+                    noteRepository.saveNote(getLessonKey(item), note, remindAt[0]);
 
-                    noteRepository.saveNote(getLessonKey(item), note, remindAt);
-
-                    if (remindAt != null) {
-                        ReminderScheduler.scheduleReminder(context, getLessonKey(item), note, remindAt);
+                    if (remindAt[0] > 0) {
+                        ReminderScheduler.scheduleReminder(context, getLessonKey(item), note, remindAt[0]);
                     }
 
                     notifyItemChanged(holder.getAdapterPosition());

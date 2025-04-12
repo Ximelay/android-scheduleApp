@@ -16,6 +16,8 @@ import com.example.sheduleapp_v5.models.LessonItem;
 import com.example.sheduleapp_v5.models.ScheduleResponse;
 import com.example.sheduleapp_v5.network.ApiClient;
 import com.example.sheduleapp_v5.network.ScheduleApi;
+import com.example.sheduleapp_v5.work.ReminderScheduler;
+
 import java.util.List;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -31,6 +33,9 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        ReminderScheduler.scheduleWeeklyCleanup(this);
+
 
         buttonSchedule = findViewById(R.id.button_schedule);
         buttonPerformance = findViewById(R.id.button_performance);
