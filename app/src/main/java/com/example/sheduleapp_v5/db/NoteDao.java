@@ -18,6 +18,9 @@ public interface NoteDao {
     @Query("SELECT * FROM notes")
     List<NoteEntity> getAllNotes();
 
+    @Query("DELETE FROM notes WHERE lessonKey = :lessonKey")
+    void deleteByLessonKey(String lessonKey);
+
     @Query("DELETE FROM notes")
     void deleteAllNotes();
 }
