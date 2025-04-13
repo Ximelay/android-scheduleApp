@@ -27,6 +27,7 @@ import com.example.sheduleapp_v5.models.ScheduleResponse;
 import com.example.sheduleapp_v5.network.ApiClient;
 import com.example.sheduleapp_v5.network.ScheduleApi;
 import com.example.sheduleapp_v5.utils.GroupUtils;
+import com.example.sheduleapp_v5.utils.PreferenceManager;
 import com.example.sheduleapp_v5.utils.StickyHeaderDecoration;
 
 import java.util.ArrayList;
@@ -60,6 +61,8 @@ public class ScheduleActivity extends AppCompatActivity {
             }
         }
 
+        PreferenceManager preferenceManager = new PreferenceManager(this);
+
         recyclerView = findViewById(R.id.recyclerView);
         tvWeekType = findViewById(R.id.tvWeekType);
         tvWeekRange = findViewById(R.id.tvWeekRange);
@@ -74,6 +77,15 @@ public class ScheduleActivity extends AppCompatActivity {
 
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
+        String defaultGroup = preferenceManager.getDefaultGroup();
+        if(defaultGroup != null) {
+            etGroupId.setText(defaultGroup);
+            Integer groupId = GroupUtils.getGroupId(defaultGroup);
+            if(groupId != null) {
+                fetchSchedule(groupId);
+            }
+        }
+
         // Поиск группы по кнопке
         btnSearchGroup.setOnClickListener(v -> {
             String groupIdStr = etGroupId.getText().toString().trim();
@@ -81,6 +93,7 @@ public class ScheduleActivity extends AppCompatActivity {
             if (!groupIdStr.isEmpty()) {
                 Integer groupId = GroupUtils.getGroupId(groupIdStr);
                 if (groupId != null) {
+                    preferenceManager.setDefaultGroup(groupIdStr);
                     fetchSchedule(groupId);
                 } else {
                     Toast.makeText(this, "Группа не найдена!", Toast.LENGTH_SHORT).show();
