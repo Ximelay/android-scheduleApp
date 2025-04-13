@@ -18,6 +18,10 @@ public class NoteRepository {
         return note != null ? note.text : "";
     }
 
+    public void deleteNote(String key) {
+        noteDao.deleteByLessonKey(key);
+    }
+
     public NoteEntity getNoteEntity(String key) {
         return noteDao.getNoteForLesson(key);
     }

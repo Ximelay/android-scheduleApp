@@ -213,13 +213,27 @@ public class LessonAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
                 builderDialog.setPositiveButton("Сохранить", ((dialog, which) -> {
                     String note = etNote.getText().toString().trim();
-
                     item.setNote(note);
 
                     noteRepository.saveNote(getLessonKey(item), note, remindAt[0]);
 
                     if (remindAt[0] > 0) {
-                        ReminderScheduler.scheduleReminder(context, getLessonKey(item), note, remindAt[0]);
+                        // Формируем информацию о паре
+                        String lessonName = "Занятие";
+                        if (!item.getLessons().isEmpty()) {
+                            LessonItem firstLesson = item.getLessons().get(0);
+                            lessonName = firstLesson.getLessonName() != null ?
+                                    firstLesson.getLessonName() : "—";
+                        }
+                        String lessonTime = item.getStartTime() + " - " + item.getEndTime();
+
+                        // Обновленный вызов
+                        ReminderScheduler.scheduleReminder(context,
+                                getLessonKey(item),
+                                note,
+                                lessonName,
+                                lessonTime,
+                                remindAt[0]);
                     }
 
                     notifyItemChanged(holder.getAdapterPosition());
