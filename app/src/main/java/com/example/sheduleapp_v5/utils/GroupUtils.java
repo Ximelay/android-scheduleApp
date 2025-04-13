@@ -62,9 +62,9 @@ public class GroupUtils {
         String[] parts = groupName.split("-");
         if (parts.length > 1) {
             try {
-                String coursePart = parts[0]; // "И"
-                return Integer.parseInt(coursePart.substring(1)); // Извлекаем курс из первой буквы, например, "И" -> 3 для "И-322"
-            } catch (NumberFormatException e) {
+                // Извлекаем первую цифру из номера группы
+                return Integer.parseInt(parts[1].substring(0, 1));
+            } catch (NumberFormatException | IndexOutOfBoundsException e) {
                 return 0; // Если не удается распарсить курс, возвращаем 0
             }
         }
