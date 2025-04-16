@@ -8,7 +8,7 @@
         android:id="@+id/button_schedule"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Расписание"
+        android:text="@string/schedule"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="100dp" />
 
@@ -16,7 +16,7 @@
         android:id="@+id/button_performance"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Успеваемость"
+        android:text="@string/performance"
         android:layout_below="@+id/button_schedule"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="30dp" />
@@ -25,9 +25,18 @@
         android:id="@+id/button_moodle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Moodle"
+        android:text="@string/moodle"
         android:layout_below="@+id/button_performance"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="30dp" />
+
+    <Switch
+        android:id="@+id/theme_switch"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Темная тема"
+        android:layout_below="@+id/button_moodle"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="50dp" />
 
 </RelativeLayout>

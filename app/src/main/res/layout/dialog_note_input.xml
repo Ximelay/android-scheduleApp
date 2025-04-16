@@ -7,7 +7,7 @@
 
     <EditText
         android:id="@+id/etNote"
-        android:hint="Заметка"
+        android:hint="@string/note"
         android:inputType="textMultiLine"
         android:lines="3"
         android:gravity="top"
@@ -16,28 +16,28 @@
 
     <Button
         android:id="@+id/btnPickDate"
-        android:text="Выбрать дату"
+        android:text="@string/selectDate"
         android:layout_marginTop="16dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 
     <TextView
         android:id="@+id/tvSelectedDate"
-        android:text="Дата не выбрана"
+        android:text="@string/selectNoDate"
         android:layout_marginTop="8dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 
     <Button
         android:id="@+id/btnPickTime"
-        android:text="Выбрать время"
+        android:text="@string/selectTime"
         android:layout_marginTop="16dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 
     <TextView
         android:id="@+id/tvSelectedTime"
-        android:text="Время не выбрано"
+        android:text="@string/selectNoTime"
         android:layout_marginTop="8dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />

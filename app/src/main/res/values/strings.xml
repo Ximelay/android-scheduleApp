@@ -1,3 +1,19 @@
 <resources>
     <string name="app_name">SheduleApp_v5</string>
+    <string name="schedule">Расписание</string>
+    <string name="performance">Успеваемость</string>
+    <string name="moodle">Moodle</string>
+
+    <string name="numberOfGroup">Введите номер группы</string>
+    <string name="search">Поиск</string>
+    <string name="typeOfWeek">Тип недели: </string>
+    <string name="numbersOfMonth">[01 мес–07 мес]</string>
+
+    <string name="note">Заметка</string>
+    <string name="selectDate">Выбрать дату</string>
+    <string name="selectNoDate">Дата не выбрана</string>
+    <string name="selectTime">Выбрать время</string>
+    <string name="selectNoTime">Время не выбрано</string>
+
+    <string name="monday">Понедельник</string>
 </resources>
