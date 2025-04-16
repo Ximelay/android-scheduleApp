@@ -3,7 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="#121212">
+    android:background="@color/backgroundSchedule">
 
     <!-- Блок для ввода номера группы -->
     <LinearLayout
@@ -17,9 +17,9 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
-        android:hint="Введите номер группы"
-        android:textColor="#FFFFFF"
-        android:textColorHint="#000000"
+        android:hint="@string/numberOfGroup"
+        android:textColor="@color/text"
+        android:textColorHint="@color/textHint"
         android:background="@android:color/darker_gray"
         android:padding="8dp"
         android:textSize="16sp"
@@ -31,9 +31,9 @@
             android:id="@+id/btnSearchGroup"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Поиск"
-            android:textColor="#FFFFFF"
-            android:backgroundTint="#FF5722"
+            android:text="@string/search"
+            android:textColor="@color/text"
+            android:backgroundTint="@color/textButtonHint"
             android:layout_marginStart="8dp"
             android:paddingHorizontal="16dp"
             android:paddingVertical="12dp"
@@ -52,19 +52,19 @@
             android:id="@+id/tvWeekType"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Тип недели: "
+            android:text="@string/typeOfWeek"
             android:textSize="18sp"
             android:textStyle="bold"
-            android:textColor="#FFFFFF" /> <!-- Белый цвет для текста -->
+            android:textColor="@color/text" /> <!-- Белый цвет для текста -->
 
         <TextView
             android:id="@+id/tvWeekRange"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="[01 мес–07 мес]"
+            android:text="@string/numbersOfMonth"
             android:textSize="16sp"
             android:layout_marginTop="4dp"
-            android:textColor="#B0B0B0" /> <!-- Цвет для диапазона недели (серый) -->
+            android:textColor="@color/weeklyRange" /> <!-- Цвет для диапазона недели (серый) -->
     </LinearLayout>
 
     <!-- Прокручиваемое расписание -->
