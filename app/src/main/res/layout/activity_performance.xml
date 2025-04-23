@@ -7,11 +7,28 @@
     android:layout_height="match_parent"
     tools:context=".PerformanceActivity">
 
-    <TextView
-        android:id="@+id/performance_text"
+    <EditText
+        android:id="@+id/phoneNumberInput"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Введите номер телефона"
+        android:inputType="phone"
+        android:layout_margin="16dp" />
+
+    <Button
+        android:id="@+id/fetchButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/performance"
-        android:layout_centerInParent="true" />
+        android:text="Показать успеавемость"
+        android:layout_below="@+id/phoneNumberInput"
+        android:layout_marginTop="16dp"
+        android:layout_centerHorizontal="true" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/performanceRecyclerView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/fetchButton"
+        android:layout_marginTop="16dp" />
 
 </RelativeLayout>

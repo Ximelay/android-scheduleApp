@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+    <color name="dark_backgroundSchedule">#121212</color>
+    <color name="dark_text">#FFFFFF</color>
+    <color name="dark_textHint">#BBBBBB</color>
+    <color name="dark_textButtonHint">#BB86FC</color>
+    <color name="dark_weeklyRange">#BBBBBB</color>
+</resources>
