@@ -3,37 +3,36 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="@color/backgroundSchedule">
+    android:background="?attr/backgroundScheduleColor">
 
-    <!-- Блок для ввода номера группы -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:padding="8dp">
 
-    <AutoCompleteTextView
-        android:id="@+id/etGroupId"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:hint="@string/numberOfGroup"
-        android:textColor="@color/text"
-        android:textColorHint="@color/textHint"
-        android:background="@android:color/darker_gray"
-        android:padding="8dp"
-        android:textSize="16sp"
-        android:drawableLeft="@android:drawable/ic_menu_search"
-        android:drawablePadding="8dp"
-        android:completionThreshold="1" />
+        <AutoCompleteTextView
+            android:id="@+id/etGroupId"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:hint="@string/numberOfGroup"
+            android:textColor="?attr/textColor"
+            android:textColorHint="?attr/textHintColor"
+            android:background="@android:color/darker_gray"
+            android:padding="8dp"
+            android:textSize="16sp"
+            android:drawableLeft="@android:drawable/ic_menu_search"
+            android:drawablePadding="8dp"
+            android:completionThreshold="1" />
 
         <Button
             android:id="@+id/btnSearchGroup"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/search"
-            android:textColor="@color/text"
-            android:backgroundTint="@color/textButtonHint"
+            android:textColor="?attr/textColor"
+            android:backgroundTint="?attr/textButtonHintColor"
             android:layout_marginStart="8dp"
             android:paddingHorizontal="16dp"
             android:paddingVertical="12dp"
@@ -41,7 +40,6 @@
             android:layout_gravity="center_vertical"/>
     </LinearLayout>
 
-    <!-- Фиксированный блок с типом и диапазоном недели -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -55,7 +53,7 @@
             android:text="@string/typeOfWeek"
             android:textSize="18sp"
             android:textStyle="bold"
-            android:textColor="@color/text" /> <!-- Белый цвет для текста -->
+            android:textColor="?attr/textColor" />
 
         <TextView
             android:id="@+id/tvWeekRange"
@@ -64,10 +62,9 @@
             android:text="@string/numbersOfMonth"
             android:textSize="16sp"
             android:layout_marginTop="4dp"
-            android:textColor="@color/weeklyRange" /> <!-- Цвет для диапазона недели (серый) -->
+            android:textColor="?attr/weeklyRangeColor" />
     </LinearLayout>
 
-    <!-- Прокручиваемое расписание -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerView"
         android:layout_width="match_parent"

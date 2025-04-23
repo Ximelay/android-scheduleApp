@@ -1,7 +1,9 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <!-- Base application theme. -->
     <style name="Base.Theme.SheduleApp_v5" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- Customize your dark theme here. -->
-        <!-- <item name="colorPrimary">@color/my_dark_primary</item> -->
+        <item name="backgroundScheduleColor">@color/dark_backgroundSchedule</item>
+        <item name="textColor">@color/dark_text</item>
+        <item name="textHintColor">@color/dark_textHint</item>
+        <item name="textButtonHintColor">@color/dark_textButtonHint</item>
+        <item name="weeklyRangeColor">@color/dark_weeklyRange</item>
     </style>
 </resources>
