@@ -1,5 +1,7 @@
 package com.example.sheduleapp_v5.utils;
 
+import android.content.Context;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -8,13 +10,10 @@ import java.util.List;
 import java.util.Map;
 
 public class GroupUtils {
-    private static final Map<String, Integer> groupIdMap = new HashMap<>();
+    private static Map<String, Integer> groupIdMap;
 
-    // Сюда вводим группу и её уникальный номер
-    static {
-        groupIdMap.put("И-322", 732);
-        groupIdMap.put("И-223", 743);
-        groupIdMap.put("И-124", 754);
+    public static void init(Context context) {
+        groupIdMap = DataProvider.loadGroups(context);
     }
 
     public static Integer getGroupId(String groupName) {
