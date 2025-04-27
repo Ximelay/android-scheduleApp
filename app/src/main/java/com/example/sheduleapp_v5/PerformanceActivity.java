@@ -6,11 +6,13 @@ import android.telephony.PhoneNumberFormattingTextWatcher;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
+import android.view.animation.AlphaAnimation;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -24,6 +26,7 @@ import com.example.sheduleapp_v5.adapters.PerformanceAdapter;
 import com.example.sheduleapp_v5.models.PerformanceResponse;
 import com.example.sheduleapp_v5.network.ApiClient;
 import com.example.sheduleapp_v5.network.PerformanceApi;
+import com.example.sheduleapp_v5.utils.PreferenceManager;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -40,6 +43,7 @@ public class PerformanceActivity extends AppCompatActivity {
     private Button fetchButton;
     private RecyclerView performanceRecyclerView;
     private PerformanceAdapter performanceAdapter;
+    private ProgressBar loadingProgressBar;
     private List<PerformanceResponse.Plan> allPlans;  // Сохраняем все планы для фильтрации
 
     @Override
@@ -50,25 +54,33 @@ public class PerformanceActivity extends AppCompatActivity {
         phoneNumberInput = findViewById(R.id.phoneNumberInput);
         fetchButton = findViewById(R.id.fetchButton);
         performanceRecyclerView = findViewById(R.id.performanceRecyclerView);
+        loadingProgressBar = findViewById(R.id.loadingProgressBar);
 
         performanceRecyclerView.setLayoutManager(new LinearLayoutManager(this));
 
+        // Используем PreferenceManager для получения сохраненного номера телефона
+        PreferenceManager preferenceManager = new PreferenceManager(this);
+        String savedPhoneNumber = preferenceManager.getPhoneNumber();
+
+        if (savedPhoneNumber != null && !savedPhoneNumber.isEmpty()) {
+            phoneNumberInput.setText(savedPhoneNumber);
+        }
+
         fetchButton.setOnClickListener(v -> fetchPerformanceData());
 
-        Spinner semesterSpinner = findViewById(R.id.semesterSpinner);  // Spinner для выбора полугодия
+        Spinner semesterSpinner = findViewById(R.id.semesterSpinner);
         semesterSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
                 String selectedSemester = (String) parentView.getItemAtPosition(position);
-                filterBySemester(allPlans, selectedSemester);  // Фильтрация по полугодию
+                filterBySemester(allPlans, selectedSemester);
             }
 
             @Override
-            public void onNothingSelected(AdapterView<?> parentView) {
-                // Не нужно ничего делать, если ничего не выбрано
-            }
+            public void onNothingSelected(AdapterView<?> parentView) {}
         });
 
+        // Добавление TextWatcher для номера телефона
         phoneNumberInput.addTextChangedListener(new TextWatcher() {
             private boolean isFormatting;
             private int cursorPosition;
@@ -79,7 +91,7 @@ public class PerformanceActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) { }
+            public void onTextChanged(CharSequence s, int start, int before, int count) {}
 
             @Override
             public void afterTextChanged(Editable s) {
@@ -90,7 +102,7 @@ public class PerformanceActivity extends AppCompatActivity {
                 String raw = s.toString().replaceAll("[^\\d]", ""); // только цифры
 
                 if (raw.startsWith("7")) {
-                    raw = raw.substring(1); // удаляем лишнюю 7 если пользователь ввел
+                    raw = raw.substring(1); // удаляем лишнюю 7, если пользователь ввел
                 }
                 if (raw.length() > 10) {
                     raw = raw.substring(0, 10);
@@ -112,16 +124,22 @@ public class PerformanceActivity extends AppCompatActivity {
                 }
 
                 phoneNumberInput.removeTextChangedListener(this);
-                phoneNumberInput.setTextKeepState(formatted.toString()); // <-- важно: сохраняем позицию курсора
+                phoneNumberInput.setTextKeepState(formatted.toString()); // сохраняем позицию курсора
                 phoneNumberInput.setSelection(phoneNumberInput.getText().length());
                 phoneNumberInput.addTextChangedListener(this);
 
+                // Сохраняем номер телефона через PreferenceManager
+                PreferenceManager preferenceManager = new PreferenceManager(PerformanceActivity.this);
+                preferenceManager.setPhoneNumber(formatted.toString());
                 isFormatting = false;
             }
         });
     }
 
     private void fetchPerformanceData() {
+
+        showProgressBar();
+
         String rawPhone = phoneNumberInput.getText().toString().replaceAll("[^\\d]", ""); // убираем все символы кроме цифр
 
         // Убираем лишнюю семёрку в начале, если она есть
@@ -131,6 +149,7 @@ public class PerformanceActivity extends AppCompatActivity {
 
         if (rawPhone.length() != 10) {
             Toast.makeText(this, "Введите корректный номер (10 цифр)", Toast.LENGTH_SHORT).show();
+            hideProgressBar();
             return;
         }
 
@@ -138,6 +157,7 @@ public class PerformanceActivity extends AppCompatActivity {
         apiService.getPerformance(rawPhone).enqueue(new Callback<PerformanceResponse>() {
             @Override
             public void onResponse(Call<PerformanceResponse> call, Response<PerformanceResponse> response) {
+                hideProgressBar();
                 if (response.isSuccessful()) {
                     PerformanceResponse performance = response.body();
                     allPlans = performance.getPlans();
@@ -150,6 +170,7 @@ public class PerformanceActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(Call<PerformanceResponse> call, Throwable t) {
+                hideProgressBar();
                 Toast.makeText(PerformanceActivity.this, "Ошибка сети", Toast.LENGTH_SHORT).show();
             }
         });
@@ -209,5 +230,19 @@ public class PerformanceActivity extends AppCompatActivity {
             }
         }
         return new ArrayList<>(semesterNames);
+    }
+
+    private void showProgressBar() {
+        loadingProgressBar.setVisibility(View.VISIBLE);
+        AlphaAnimation fadeIn = new AlphaAnimation(0.0f, 1.0f);
+        fadeIn.setDuration(300); // Длительность анимации
+        loadingProgressBar.startAnimation(fadeIn);
+    }
+
+    private void hideProgressBar() {
+        AlphaAnimation fadeOut = new AlphaAnimation(1.0f, 0.0f);
+        fadeOut.setDuration(300); // Длительность анимации
+        loadingProgressBar.startAnimation(fadeOut);
+        loadingProgressBar.setVisibility(View.GONE);
     }
 }
