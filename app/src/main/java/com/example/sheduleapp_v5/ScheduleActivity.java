@@ -4,10 +4,13 @@ import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.view.animation.AlphaAnimation;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.Manifest;
@@ -46,6 +49,7 @@ public class ScheduleActivity extends AppCompatActivity {
     private TextView tvWeekRange;
     private AutoCompleteTextView etSearch;
     private Button btnSearch;
+    private ProgressBar loadingProgressBar;
     private ArrayAdapter<String> adapterSearch;
     private List<String> searchList;
 
@@ -72,6 +76,7 @@ public class ScheduleActivity extends AppCompatActivity {
         tvWeekRange = findViewById(R.id.tvWeekRange);
         etSearch = findViewById(R.id.etSearch);
         btnSearch = findViewById(R.id.btnSearch);
+        loadingProgressBar = findViewById(R.id.loadingProgressBar);
 
         searchList = new ArrayList<>();
 
@@ -155,10 +160,13 @@ public class ScheduleActivity extends AppCompatActivity {
 
     // Получения расписания группы
     private void fetchSchedule(int groupId) {
+        showProgressBar();
+
         ScheduleApi api = ApiClient.getRetrofitInstance().create(ScheduleApi.class);
         api.getSchedule(groupId).enqueue(new Callback<ScheduleResponse>() {
             @Override
             public void onResponse(Call<ScheduleResponse> call, Response<ScheduleResponse> response) {
+                hideProgressBar();
                 if (response.isSuccessful() && response.body() != null) {
                     ScheduleResponse scheduleResponse = response.body();
                     List<DaySchedule> daySchedules = scheduleResponse.getItems();
@@ -206,6 +214,7 @@ public class ScheduleActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(Call<ScheduleResponse> call, Throwable t) {
+                hideProgressBar();
                 Log.e("API", "Failed to fetch schedule", t);
             }
         });
@@ -263,5 +272,18 @@ public class ScheduleActivity extends AppCompatActivity {
                 Log.e("API", "Failed to fetch schedule", t);
             }
         });
+    }
+    private void showProgressBar() {
+        loadingProgressBar.setVisibility(View.VISIBLE);
+        AlphaAnimation fadeIn = new AlphaAnimation(0.0f, 1.0f);
+        fadeIn.setDuration(200);  // Длительность анимации
+        loadingProgressBar.startAnimation(fadeIn);
+    }
+
+    private void hideProgressBar() {
+        AlphaAnimation fadeOut = new AlphaAnimation(1.0f, 0.0f);
+        fadeOut.setDuration(200);  // Длительность анимации
+        loadingProgressBar.startAnimation(fadeOut);
+        loadingProgressBar.setVisibility(View.GONE);
     }
 }
