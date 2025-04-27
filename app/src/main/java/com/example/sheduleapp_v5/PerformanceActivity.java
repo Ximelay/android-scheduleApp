@@ -235,13 +235,13 @@ public class PerformanceActivity extends AppCompatActivity {
     private void showProgressBar() {
         loadingProgressBar.setVisibility(View.VISIBLE);
         AlphaAnimation fadeIn = new AlphaAnimation(0.0f, 1.0f);
-        fadeIn.setDuration(300); // Длительность анимации
+        fadeIn.setDuration(200); // Длительность анимации
         loadingProgressBar.startAnimation(fadeIn);
     }
 
     private void hideProgressBar() {
         AlphaAnimation fadeOut = new AlphaAnimation(1.0f, 0.0f);
-        fadeOut.setDuration(300); // Длительность анимации
+        fadeOut.setDuration(200); // Длительность анимации
         loadingProgressBar.startAnimation(fadeOut);
         loadingProgressBar.setVisibility(View.GONE);
     }
