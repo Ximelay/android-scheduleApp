@@ -46,9 +46,18 @@ public class PerformanceResponse {
             }
 
             public static class PlanCell {
+                private String rowIndex;
                 private String rowName;
                 private Attestation attestation;
                 private List<Sheet> sheets;
+
+                public String getRowIndex() {
+                    return rowIndex;
+                }
+
+                public void setRowIndex(String rowIndex) {
+                    this.rowIndex = rowIndex;
+                }
 
                 public String getRowName() {
                     return rowName;

@@ -3,6 +3,7 @@
     <string name="schedule">Расписание</string>
     <string name="performance">Успеваемость</string>
     <string name="moodle">Moodle</string>
+    <string name="theme_switch">Тёмная тема</string>
 
     <string name="numberOfGroup">Введите номер группы</string>
     <string name="search">Поиск</string>
@@ -14,6 +15,17 @@
     <string name="selectNoDate">Дата не выбрана</string>
     <string name="selectTime">Выбрать время</string>
     <string name="selectNoTime">Время не выбрано</string>
+
+    <string name="phoneNumberInput">Введите номер телефона (без +7)</string>
+    <string name="fetchButton">Показать успеваемость</string>
+    <string name="subjectNameTextView">Название предмета</string>
+    <string name="teacherNameTextView">Преподаватель: ФИО</string>
+    <string name="attestationTextView">Аттестация: Статус</string>
+
+    <string name="subjectNameLesson">Название дисциплины</string>
+    <string name="subjectCodeTextView">Код дисциплины</string>
+    <string name="attendanceTextView">Посещаемость: x%</string>
+    <string name="attestationStatusTextView">Итог: x</string>
 
     <string name="monday">Понедельник</string>
 </resources>

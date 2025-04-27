@@ -34,7 +34,7 @@
         android:id="@+id/theme_switch"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Темная тема"
+        android:text="@string/theme_switch"
         android:layout_below="@+id/button_moodle"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="50dp" />
