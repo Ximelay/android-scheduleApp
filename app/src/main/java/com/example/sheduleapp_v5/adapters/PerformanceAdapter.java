@@ -41,7 +41,11 @@ public class PerformanceAdapter extends RecyclerView.Adapter<PerformanceAdapter.
         // Название предмета
         holder.subjectName.setText(planCell.getRowName());
 
-        holder.subjectCodeTextView.setText(planCell.getSheets().get(0).getTeacherName());
+        if (planCell.getSheets() != null && !planCell.getSheets().isEmpty()) {
+            holder.subjectCodeTextView.setText(planCell.getSheets().get(0).getTeacherName());
+        } else {
+            holder.subjectCodeTextView.setText("Неизвестен"); // Покажем текст по умолчанию, если список пуст
+        }
 
         // Проверка итоговой оценки
         String attestationText;
