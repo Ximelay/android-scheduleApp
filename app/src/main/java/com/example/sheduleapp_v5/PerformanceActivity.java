@@ -1,10 +1,21 @@
 package com.example.sheduleapp_v5;
 
+import android.content.DialogInterface;
 import android.os.Bundle;
+import android.telephony.PhoneNumberFormattingTextWatcher;
+import android.text.Editable;
+import android.text.TextWatcher;
+import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
+import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -13,6 +24,11 @@ import com.example.sheduleapp_v5.adapters.PerformanceAdapter;
 import com.example.sheduleapp_v5.models.PerformanceResponse;
 import com.example.sheduleapp_v5.network.ApiClient;
 import com.example.sheduleapp_v5.network.PerformanceApi;
+
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -24,6 +40,7 @@ public class PerformanceActivity extends AppCompatActivity {
     private Button fetchButton;
     private RecyclerView performanceRecyclerView;
     private PerformanceAdapter performanceAdapter;
+    private List<PerformanceResponse.Plan> allPlans;  // Сохраняем все планы для фильтрации
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,22 +54,95 @@ public class PerformanceActivity extends AppCompatActivity {
         performanceRecyclerView.setLayoutManager(new LinearLayoutManager(this));
 
         fetchButton.setOnClickListener(v -> fetchPerformanceData());
+
+        Spinner semesterSpinner = findViewById(R.id.semesterSpinner);  // Spinner для выбора полугодия
+        semesterSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
+                String selectedSemester = (String) parentView.getItemAtPosition(position);
+                filterBySemester(allPlans, selectedSemester);  // Фильтрация по полугодию
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parentView) {
+                // Не нужно ничего делать, если ничего не выбрано
+            }
+        });
+
+        phoneNumberInput.addTextChangedListener(new TextWatcher() {
+            private boolean isFormatting;
+            private int cursorPosition;
+
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+                cursorPosition = phoneNumberInput.getSelectionStart();
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) { }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                if (isFormatting) return;
+
+                isFormatting = true;
+
+                String raw = s.toString().replaceAll("[^\\d]", ""); // только цифры
+
+                if (raw.startsWith("7")) {
+                    raw = raw.substring(1); // удаляем лишнюю 7 если пользователь ввел
+                }
+                if (raw.length() > 10) {
+                    raw = raw.substring(0, 10);
+                }
+
+                StringBuilder formatted = new StringBuilder();
+                formatted.append("+7 ");
+                if (raw.length() > 0) {
+                    formatted.append("(").append(raw.substring(0, Math.min(3, raw.length())));
+                }
+                if (raw.length() >= 4) {
+                    formatted.append(") ").append(raw.substring(3, Math.min(6, raw.length())));
+                }
+                if (raw.length() >= 7) {
+                    formatted.append("-").append(raw.substring(6, Math.min(8, raw.length())));
+                }
+                if (raw.length() >= 9) {
+                    formatted.append("-").append(raw.substring(8, Math.min(10, raw.length())));
+                }
+
+                phoneNumberInput.removeTextChangedListener(this);
+                phoneNumberInput.setTextKeepState(formatted.toString()); // <-- важно: сохраняем позицию курсора
+                phoneNumberInput.setSelection(phoneNumberInput.getText().length());
+                phoneNumberInput.addTextChangedListener(this);
+
+                isFormatting = false;
+            }
+        });
     }
 
     private void fetchPerformanceData() {
-        String phoneNumber = phoneNumberInput.getText().toString().trim();
-        if (phoneNumber.isEmpty()) {
-            Toast.makeText(this, "Введите номер телефона", Toast.LENGTH_SHORT).show();
+        String rawPhone = phoneNumberInput.getText().toString().replaceAll("[^\\d]", ""); // убираем все символы кроме цифр
+
+        // Убираем лишнюю семёрку в начале, если она есть
+        if (rawPhone.startsWith("7") && rawPhone.length() == 11) {
+            rawPhone = rawPhone.substring(1); // Оставляем только последние 10 цифр
+        }
+
+        if (rawPhone.length() != 10) {
+            Toast.makeText(this, "Введите корректный номер (10 цифр)", Toast.LENGTH_SHORT).show();
             return;
         }
 
         PerformanceApi apiService = ApiClient.getRetrofitInstance().create(PerformanceApi.class);
-        apiService.getPerformance(phoneNumber).enqueue(new Callback<PerformanceResponse>() {
+        apiService.getPerformance(rawPhone).enqueue(new Callback<PerformanceResponse>() {
             @Override
             public void onResponse(Call<PerformanceResponse> call, Response<PerformanceResponse> response) {
                 if (response.isSuccessful()) {
                     PerformanceResponse performance = response.body();
+                    allPlans = performance.getPlans();
                     updateRecyclerView(performance);
+                    setupSemesterSpinner(allPlans);
                 } else {
                     Toast.makeText(PerformanceActivity.this, "Ошибка загрузки данных", Toast.LENGTH_SHORT).show();
                 }
@@ -67,8 +157,57 @@ public class PerformanceActivity extends AppCompatActivity {
 
     private void updateRecyclerView(PerformanceResponse performance) {
         if (performance != null && performance.getPlans() != null) {
-            performanceAdapter = new PerformanceAdapter(performance.getPlans());
+            List<PerformanceResponse.Plan.Period.PlanCell> planCells = new ArrayList<>();
+            for (PerformanceResponse.Plan plan : performance.getPlans()) {
+                for (PerformanceResponse.Plan.Period period : plan.getPeriods()) {
+                    planCells.addAll(getPlanCellsFromPeriod(period));
+                }
+            }
+
+            performanceAdapter = new PerformanceAdapter(this, planCells);
             performanceRecyclerView.setAdapter(performanceAdapter);
         }
+    }
+
+    private void filterBySemester(List<PerformanceResponse.Plan> allPlans, String semesterName) {
+        List<PerformanceResponse.Plan.Period.PlanCell> filteredPlanCells = new ArrayList<>();
+        for (PerformanceResponse.Plan plan : allPlans) {
+            for (PerformanceResponse.Plan.Period period : plan.getPeriods()) {
+                if (period.getName().equals(semesterName)) {
+                    filteredPlanCells.addAll(getPlanCellsFromPeriod(period));
+                }
+            }
+        }
+        performanceAdapter = new PerformanceAdapter(this, filteredPlanCells);
+        performanceRecyclerView.setAdapter(performanceAdapter);
+    }
+
+    private List<PerformanceResponse.Plan.Period.PlanCell> getPlanCellsFromPeriod(PerformanceResponse.Plan.Period period) {
+        List<PerformanceResponse.Plan.Period.PlanCell> planCells = new ArrayList<>();
+        for (PerformanceResponse.Plan.Period.PlanCell planCell : period.getPlanCells()) {
+            planCells.add(planCell);
+        }
+        return planCells;
+    }
+
+    private void setupSemesterSpinner(List<PerformanceResponse.Plan> allPlans) {
+        List<String> semesterNames = getSemesterNames(allPlans);
+
+        semesterNames.sort(String::compareTo);
+
+        Spinner semesterSpinner = findViewById(R.id.semesterSpinner);
+        ArrayAdapter<String> semesterAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, semesterNames);
+        semesterAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        semesterSpinner.setAdapter(semesterAdapter);
+    }
+
+    private List<String> getSemesterNames(List<PerformanceResponse.Plan> plans) {
+        Set<String> semesterNames = new HashSet<>();
+        for (PerformanceResponse.Plan plan : plans) {
+            for (PerformanceResponse.Plan.Period period : plan.getPeriods()) {
+                semesterNames.add(period.getName());
+            }
+        }
+        return new ArrayList<>(semesterNames);
     }
 }

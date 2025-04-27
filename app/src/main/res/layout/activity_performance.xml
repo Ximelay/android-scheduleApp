@@ -1,8 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".PerformanceActivity">
@@ -11,7 +9,7 @@
         android:id="@+id/phoneNumberInput"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Введите номер телефона"
+        android:hint="@string/phoneNumberInput"
         android:inputType="phone"
         android:layout_margin="16dp" />
 
@@ -19,8 +17,17 @@
         android:id="@+id/fetchButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Показать успеавемость"
+        android:text="@string/fetchButton"
         android:layout_below="@+id/phoneNumberInput"
+        android:layout_marginTop="16dp"
+        android:layout_centerHorizontal="true" />
+
+    <!-- Spinner для выбора полугодия -->
+    <Spinner
+        android:id="@+id/semesterSpinner"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/fetchButton"
         android:layout_marginTop="16dp"
         android:layout_centerHorizontal="true" />
 
@@ -28,7 +35,7 @@
         android:id="@+id/performanceRecyclerView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/fetchButton"
+        android:layout_below="@+id/semesterSpinner"
         android:layout_marginTop="16dp" />
 
 </RelativeLayout>
