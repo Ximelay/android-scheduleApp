@@ -16,6 +16,9 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.sheduleapp_v5.R;
 import com.example.sheduleapp_v5.models.PerformanceResponse;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 
 public class PerformanceAdapter extends RecyclerView.Adapter<PerformanceAdapter.PerformanceViewHolder> {
@@ -41,6 +44,14 @@ public class PerformanceAdapter extends RecyclerView.Adapter<PerformanceAdapter.
         // Название предмета
         holder.subjectName.setText(planCell.getRowName());
 
+        double percentage = 0;
+        if (planCell.getSheets() != null && !planCell.getSheets().isEmpty()) {
+            List<PerformanceResponse.Plan.Period.PlanCell.Sheet.Lesson> lessons = planCell.getSheets().get(0).getLessons();
+            percentage = calculatePerformancePercentage(lessons);  // Вычисляем процент с учетом НУ
+        }
+
+        holder.percentageTextView.setText(String.format("%.2f%%", percentage));
+
         if (planCell.getSheets() != null && !planCell.getSheets().isEmpty()) {
             holder.subjectCodeTextView.setText(planCell.getSheets().get(0).getTeacherName());
         } else {
@@ -64,6 +75,19 @@ public class PerformanceAdapter extends RecyclerView.Adapter<PerformanceAdapter.
         holder.attestationStatus.setText(isAttested ? "Аттестован ✔️" : "Не аттестован ❌");
 
         holder.itemView.setOnClickListener(v -> showSubjectDetailDialog(planCell));
+    }
+
+    private String formatDate(String dateString) {
+        SimpleDateFormat inputFormat = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss.SSS");
+        SimpleDateFormat outputFormat = new SimpleDateFormat("dd.MM.yyyy");
+
+        try {
+            Date date = inputFormat.parse(dateString);
+            return outputFormat.format(date);
+        } catch (ParseException e) {
+            e.printStackTrace();
+            return dateString; // если ошибка парсинга, вернуть как есть
+        }
     }
 
     @Override
@@ -107,10 +131,10 @@ public class PerformanceAdapter extends RecyclerView.Adapter<PerformanceAdapter.
 
                 TextView lessonView = new TextView(context);
                 lessonView.setTextSize(16);
-                lessonView.setText(
-                        "📅 " + lesson.getLessonDate() + "\n"
-                                + "📚 " + lesson.getThemePlanName()
-                );
+
+                // Отображаем только дату
+                String lessonDate = lesson.getLessonDate(); // Получаем дату
+                lessonView.setText("📅 " + formatDate(lessonDate) + "\n" + "📚 " + lesson.getThemePlanName());
 
                 TextView markView = new TextView(context);
                 markView.setTextSize(16);
@@ -141,8 +165,33 @@ public class PerformanceAdapter extends RecyclerView.Adapter<PerformanceAdapter.
                 .show();
     }
 
+    private double calculatePerformancePercentage(List<PerformanceResponse.Plan.Period.PlanCell.Sheet.Lesson> lessons) {
+        int totalCount = 0; // Сколько пар реально учитываем
+        int attendedCount = 0; // Сколько пар посещено
+
+        for (PerformanceResponse.Plan.Period.PlanCell.Sheet.Lesson lesson : lessons) {
+            String markName = lesson.getMarkName();
+
+            if ("НУ".equalsIgnoreCase(markName)) {
+                // НУ — уважаемая причина, не считаем ни туда, ни сюда
+                continue;
+            }
+
+            // Увеличиваем счетчик всех пар (за исключением НУ)
+            totalCount++;
+
+            if (markName == null || !"Н".equalsIgnoreCase(markName)) {
+                // Если нет отметки ИЛИ это не "Н", считаем что посещено
+                attendedCount++;
+            }
+            // Если "Н" — не увеличиваем attendedCount
+        }
+
+        return (totalCount == 0) ? 0 : (double) attendedCount / totalCount * 100;
+    }
+
     public static class PerformanceViewHolder extends RecyclerView.ViewHolder {
-        TextView subjectName, attendanceText, attestationStatus, subjectCodeTextView;
+        TextView subjectName, attendanceText, attestationStatus, subjectCodeTextView, percentageTextView;
 
         public PerformanceViewHolder(View itemView) {
             super(itemView);
@@ -150,6 +199,7 @@ public class PerformanceAdapter extends RecyclerView.Adapter<PerformanceAdapter.
             attendanceText = itemView.findViewById(R.id.attendanceTextView);
             attestationStatus = itemView.findViewById(R.id.attestationStatusTextView);
             subjectCodeTextView = itemView.findViewById(R.id.subjectCodeTextView);
+            percentageTextView = itemView.findViewById(R.id.percentageTextView);
         }
     }
 }

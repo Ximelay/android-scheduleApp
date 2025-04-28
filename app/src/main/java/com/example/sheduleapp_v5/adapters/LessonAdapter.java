@@ -1,6 +1,5 @@
 package com.example.sheduleapp_v5.adapters;
 
-import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;

@@ -46,4 +46,16 @@
         android:layout_centerInParent="true"
         android:visibility="gone" />
 
+    <TextView
+        android:id="@+id/tvNoData"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Нет данных"
+        android:textSize="18sp"
+        android:textColor="?attr/textColor"
+        android:layout_below="@+id/performanceRecyclerView"
+        android:layout_marginTop="16dp"
+        android:layout_centerHorizontal="true"
+        android:visibility="gone" />
+
 </RelativeLayout>

@@ -23,9 +23,9 @@
     <string name="attestationTextView">Аттестация: Статус</string>
 
     <string name="subjectNameLesson">Название дисциплины</string>
-    <string name="subjectCodeTextView">Код дисциплины</string>
-    <string name="attendanceTextView">Посещаемость: x%</string>
-    <string name="attestationStatusTextView">Итог: x</string>
+    <string name="subjectCodeTextView">Фамилия преподавателя</string>
+    <string name="attendanceTextView">Итоговая оценка:</string>
+    <string name="attestationStatusTextView">Атт/НеАтт</string>
 
     <string name="monday">Понедельник</string>
 </resources>

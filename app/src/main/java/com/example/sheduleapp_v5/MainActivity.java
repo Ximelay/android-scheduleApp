@@ -3,7 +3,6 @@ package com.example.sheduleapp_v5;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CompoundButton;
@@ -11,21 +10,8 @@ import android.widget.Switch;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-import com.example.sheduleapp_v5.adapters.ScheduleAdapter;
-import com.example.sheduleapp_v5.models.DaySchedule;
-import com.example.sheduleapp_v5.models.LessonIndex;
-import com.example.sheduleapp_v5.models.LessonItem;
-import com.example.sheduleapp_v5.models.ScheduleResponse;
-import com.example.sheduleapp_v5.network.ApiClient;
-import com.example.sheduleapp_v5.network.ScheduleApi;
-import com.example.sheduleapp_v5.work.ReminderScheduler;
 
-import java.util.List;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
+import com.example.sheduleapp_v5.work.ReminderScheduler;
 
 public class MainActivity extends AppCompatActivity {
 

@@ -79,4 +79,14 @@
         android:layout_weight="1"
         android:padding="8dp" />
 
+    <TextView
+        android:id="@+id/tvNoData"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Нет данных"
+        android:textSize="18sp"
+        android:textColor="?attr/textColor"
+        android:visibility="gone"
+        android:layout_gravity="center"/>
+
 </LinearLayout>

@@ -1,8 +1,6 @@
 package com.example.sheduleapp_v5;
 
-import android.content.DialogInterface;
 import android.os.Bundle;
-import android.telephony.PhoneNumberFormattingTextWatcher;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
@@ -11,13 +9,11 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -185,8 +181,20 @@ public class PerformanceActivity extends AppCompatActivity {
                 }
             }
 
-            performanceAdapter = new PerformanceAdapter(this, planCells);
-            performanceRecyclerView.setAdapter(performanceAdapter);
+            if (planCells.isEmpty()) {
+                // If no plan cells found, show the "Нет данных" message
+                performanceRecyclerView.setVisibility(View.GONE);
+                TextView noDataTextView = findViewById(R.id.tvNoData);
+                noDataTextView.setVisibility(View.VISIBLE);
+            } else {
+                // If data is available, update the RecyclerView
+                performanceRecyclerView.setVisibility(View.VISIBLE);
+                TextView noDataTextView = findViewById(R.id.tvNoData);
+                noDataTextView.setVisibility(View.GONE);
+
+                performanceAdapter = new PerformanceAdapter(this, planCells);
+                performanceRecyclerView.setAdapter(performanceAdapter);
+            }
         }
     }
 
@@ -199,8 +207,20 @@ public class PerformanceActivity extends AppCompatActivity {
                 }
             }
         }
-        performanceAdapter = new PerformanceAdapter(this, filteredPlanCells);
-        performanceRecyclerView.setAdapter(performanceAdapter);
+
+        if (filteredPlanCells.isEmpty()) {
+            // If no data found for the selected semester, show "Нет данных"
+            performanceRecyclerView.setVisibility(View.GONE);
+            TextView noDataTextView = findViewById(R.id.tvNoData);
+            noDataTextView.setVisibility(View.VISIBLE);
+        } else {
+            performanceRecyclerView.setVisibility(View.VISIBLE);
+            TextView noDataTextView = findViewById(R.id.tvNoData);
+            noDataTextView.setVisibility(View.GONE);
+
+            performanceAdapter = new PerformanceAdapter(this, filteredPlanCells);
+            performanceRecyclerView.setAdapter(performanceAdapter);
+        }
     }
 
     private List<PerformanceResponse.Plan.Period.PlanCell> getPlanCellsFromPeriod(PerformanceResponse.Plan.Period period) {
@@ -214,12 +234,29 @@ public class PerformanceActivity extends AppCompatActivity {
     private void setupSemesterSpinner(List<PerformanceResponse.Plan> allPlans) {
         List<String> semesterNames = getSemesterNames(allPlans);
 
+        if(semesterNames.isEmpty()) {
+            return;
+        }
+
         semesterNames.sort(String::compareTo);
 
         Spinner semesterSpinner = findViewById(R.id.semesterSpinner);
         ArrayAdapter<String> semesterAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, semesterNames);
         semesterAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         semesterSpinner.setAdapter(semesterAdapter);
+
+        semesterSpinner.setSelection(semesterNames.size() - 1);
+
+        semesterSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
+                String selectedSemester = (String)parentView.getItemAtPosition(position);
+                filterBySemester(allPlans, selectedSemester);
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {}
+        });
     }
 
     private List<String> getSemesterNames(List<PerformanceResponse.Plan> plans) {
