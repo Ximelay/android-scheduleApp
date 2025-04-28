@@ -11,6 +11,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -180,8 +181,20 @@ public class PerformanceActivity extends AppCompatActivity {
                 }
             }
 
-            performanceAdapter = new PerformanceAdapter(this, planCells);
-            performanceRecyclerView.setAdapter(performanceAdapter);
+            if (planCells.isEmpty()) {
+                // If no plan cells found, show the "Нет данных" message
+                performanceRecyclerView.setVisibility(View.GONE);
+                TextView noDataTextView = findViewById(R.id.tvNoData);
+                noDataTextView.setVisibility(View.VISIBLE);
+            } else {
+                // If data is available, update the RecyclerView
+                performanceRecyclerView.setVisibility(View.VISIBLE);
+                TextView noDataTextView = findViewById(R.id.tvNoData);
+                noDataTextView.setVisibility(View.GONE);
+
+                performanceAdapter = new PerformanceAdapter(this, planCells);
+                performanceRecyclerView.setAdapter(performanceAdapter);
+            }
         }
     }
 
@@ -194,8 +207,20 @@ public class PerformanceActivity extends AppCompatActivity {
                 }
             }
         }
-        performanceAdapter = new PerformanceAdapter(this, filteredPlanCells);
-        performanceRecyclerView.setAdapter(performanceAdapter);
+
+        if (filteredPlanCells.isEmpty()) {
+            // If no data found for the selected semester, show "Нет данных"
+            performanceRecyclerView.setVisibility(View.GONE);
+            TextView noDataTextView = findViewById(R.id.tvNoData);
+            noDataTextView.setVisibility(View.VISIBLE);
+        } else {
+            performanceRecyclerView.setVisibility(View.VISIBLE);
+            TextView noDataTextView = findViewById(R.id.tvNoData);
+            noDataTextView.setVisibility(View.GONE);
+
+            performanceAdapter = new PerformanceAdapter(this, filteredPlanCells);
+            performanceRecyclerView.setAdapter(performanceAdapter);
+        }
     }
 
     private List<PerformanceResponse.Plan.Period.PlanCell> getPlanCellsFromPeriod(PerformanceResponse.Plan.Period period) {
