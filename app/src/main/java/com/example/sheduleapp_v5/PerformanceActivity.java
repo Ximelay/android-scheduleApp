@@ -234,12 +234,29 @@ public class PerformanceActivity extends AppCompatActivity {
     private void setupSemesterSpinner(List<PerformanceResponse.Plan> allPlans) {
         List<String> semesterNames = getSemesterNames(allPlans);
 
+        if(semesterNames.isEmpty()) {
+            return;
+        }
+
         semesterNames.sort(String::compareTo);
 
         Spinner semesterSpinner = findViewById(R.id.semesterSpinner);
         ArrayAdapter<String> semesterAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, semesterNames);
         semesterAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         semesterSpinner.setAdapter(semesterAdapter);
+
+        semesterSpinner.setSelection(semesterNames.size() - 1);
+
+        semesterSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
+                String selectedSemester = (String)parentView.getItemAtPosition(position);
+                filterBySemester(allPlans, selectedSemester);
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {}
+        });
     }
 
     private List<String> getSemesterNames(List<PerformanceResponse.Plan> plans) {
