@@ -5,7 +5,6 @@ import android.content.res.AssetManager;
 import android.util.Log;
 
 import org.json.JSONObject;
-import org.json.JSONException;
 
 import java.io.InputStream;
 import java.util.HashMap;
