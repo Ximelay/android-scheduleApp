@@ -1,7 +1,9 @@
 package com.example.sheduleapp_v5;
 
+import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -77,8 +79,14 @@ public class MainActivity extends AppCompatActivity {
         buttonMoodle.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(MainActivity.this, MoodleActivity.class);
-                startActivity(intent);
+                Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://irkpo.ru/moodle/"));
+                intent.setPackage("com.moodle.moodlemobile"); // Пакет официального приложения Moodle
+                try {
+                    startActivity(intent);
+                } catch (ActivityNotFoundException e) {
+                    // Если приложение не установлено, открываем Moodle в браузере
+                    startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://irkpo.ru/moodle/")));
+                }
             }
         });
     }
