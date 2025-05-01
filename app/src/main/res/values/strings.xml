@@ -28,4 +28,5 @@
     <string name="attestationStatusTextView">Атт/НеАтт</string>
 
     <string name="monday">Понедельник</string>
+    <string name="semesterHint">Семестр</string>
 </resources>

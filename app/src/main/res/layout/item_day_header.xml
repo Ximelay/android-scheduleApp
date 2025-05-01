@@ -1,23 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/headerContainer"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="horizontal"
     android:padding="12dp"
+    android:layout_marginTop="4dp"
     android:layout_marginBottom="8dp"
-    android:background="#202020"
-    android:gravity="center_vertical">
+    android:background="?attr/cardBackgroundColor">
 
     <TextView
         android:id="@+id/tvDayHeader"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_weight="1"
         android:text="@string/monday"
         android:textSize="18sp"
         android:textStyle="bold"
-        android:textColor="@color/day" />
+
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/ivArrow"
+        android:layout_marginEnd="8dp" />
 
     <ImageView
         android:id="@+id/ivArrow"
@@ -25,5 +29,10 @@
         android:layout_height="20dp"
         android:src="@drawable/ic_arrow_down"
         android:rotation="0"
-        android:contentDescription="Стрелка"/>
-</LinearLayout>
+        android:contentDescription="Стрелка"
+        app:tint="?attr/textColor"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

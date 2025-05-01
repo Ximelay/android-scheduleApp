@@ -1,92 +1,125 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:background="?attr/backgroundScheduleColor">
+    android:background="?attr/backgroundScheduleColor"
+    android:padding="16dp">
 
-    <LinearLayout
-        android:layout_width="match_parent"
+    <!-- Поиск -->
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/search_card"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:padding="8dp">
+        app:cardBackgroundColor="?attr/cardBackgroundColor"
+        app:cardCornerRadius="12dp"
+        app:cardElevation="4dp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginBottom="16dp">
 
-        <AutoCompleteTextView
-            android:id="@+id/etSearch"
-            android:layout_width="0dp"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:hint="@string/numberOfGroup"
-            android:textColor="?attr/textColor"
-            android:textColorHint="?attr/textHintColor"
-            android:background="@android:color/darker_gray"
-            android:padding="8dp"
-            android:textSize="16sp"
-            android:drawableLeft="@android:drawable/ic_menu_search"
-            android:drawablePadding="8dp"
-            android:completionThreshold="1" />
+            android:orientation="horizontal"
+            android:padding="8dp">
 
-        <Button
-            android:id="@+id/btnSearch"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/search"
-            android:textColor="?attr/textColor"
-            android:backgroundTint="?attr/textButtonHintColor"
-            android:layout_marginStart="8dp"
-            android:paddingHorizontal="16dp"
-            android:paddingVertical="12dp"
-            android:textSize="16sp"
-            android:layout_gravity="center_vertical"/>
-    </LinearLayout>
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/search_input_layout"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                app:hintTextColor="?attr/textHintColor"
+                app:boxBackgroundMode="outline"
+                app:boxStrokeColor="?attr/textButtonHintColor"
+                app:startIconDrawable="@android:drawable/ic_menu_search"
+                app:startIconTint="?attr/textButtonHintColor">
 
-    <LinearLayout
-        android:layout_width="match_parent"
+                <AutoCompleteTextView
+                    android:id="@+id/etSearch"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/numberOfGroup"
+                    android:textColor="?attr/textColor"
+                    android:textColorHint="?attr/textHintColor"
+                    android:background="@android:color/transparent"
+                    android:padding="8dp"
+                    android:textSize="16sp"
+                    android:completionThreshold="1" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnSearch"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/search"
+                android:textColor="@color/white"
+                app:backgroundTint="?attr/textButtonHintColor"
+                app:cornerRadius="8dp"
+                android:layout_marginStart="8dp"
+                android:paddingHorizontal="16dp" />
+
+        </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
+
+    <!-- Тип недели и диапазон -->
+    <TextView
+        android:id="@+id/tvWeekType"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="16dp">
+        android:text="@string/typeOfWeek"
+        android:textAppearance="@style/TextAppearance.Material3.TitleMedium"
+        android:textColor="?attr/textColor"
+        app:layout_constraintTop_toBottomOf="@id/search_card"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginBottom="4dp" />
 
-        <TextView
-            android:id="@+id/tvWeekType"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/typeOfWeek"
-            android:textSize="18sp"
-            android:textStyle="bold"
-            android:textColor="?attr/textColor" />
+    <TextView
+        android:id="@+id/tvWeekRange"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/numbersOfMonth"
+        android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
+        android:textColor="?attr/weeklyRangeColor"
+        app:layout_constraintTop_toBottomOf="@id/tvWeekType"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginBottom="16dp" />
 
-        <TextView
-            android:id="@+id/tvWeekRange"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/numbersOfMonth"
-            android:textSize="16sp"
-            android:layout_marginTop="4dp"
-            android:textColor="?attr/weeklyRangeColor" />
-    </LinearLayout>
+    <!-- RecyclerView -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerView"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintTop_toBottomOf="@id/tvWeekRange"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
 
+    <!-- ProgressBar -->
     <ProgressBar
         android:id="@+id/loadingProgressBar"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_centerInParent="true"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
         android:visibility="gone" />
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recyclerView"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:padding="8dp" />
-
+    <!-- Нет данных -->
     <TextView
         android:id="@+id/tvNoData"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Нет данных"
-        android:textSize="18sp"
+        android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
         android:textColor="?attr/textColor"
-        android:visibility="gone"
-        android:layout_gravity="center"/>
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:visibility="gone" />
 
-</LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

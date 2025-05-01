@@ -1,66 +1,85 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical"
     android:padding="8dp"
-    android:background="?android:attr/selectableItemBackground"
-    android:layout_marginTop="8dp">
+    android:layout_marginTop="8dp"
+    android:background="?android:attr/selectableItemBackground">
 
     <!-- День недели -->
     <TextView
         android:id="@+id/tvDayOfWeek"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:textStyle="bold"
-        android:textColor="@color/day"
         android:text="@string/monday"
-        android:layout_marginBottom="4dp"
-        android:textSize="16sp" />
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:textColor="?attr/day"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginBottom="4dp" />
 
-    <!-- Тип недели (всего один раз, в самом верху) -->
+    <!-- Тип недели -->
     <TextView
         android:id="@+id/tvWeekType"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Тип недели: Круглая"
-        android:layout_marginBottom="8dp"
         android:textSize="14sp"
+        android:textColor="@color/white"
         android:background="@drawable/rounded_background_week_type"
         android:padding="4dp"
-        android:textColor="@android:color/white"
-        android:visibility="gone"/>
+        android:visibility="gone"
+        app:layout_constraintTop_toBottomOf="@id/tvDayOfWeek"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginBottom="8dp" />
 
-    <!-- Разделение дней -->
+    <!-- Разделитель -->
     <View
-        android:layout_width="match_parent"
+        android:id="@+id/divider"
+        android:layout_width="0dp"
         android:layout_height="1dp"
-        android:background="@android:color/darker_gray"
-        android:layout_marginBottom="8dp"/>
+        android:background="?attr/textSecondary"
+        app:layout_constraintTop_toBottomOf="@id/tvWeekType"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginBottom="8dp" />
 
-    <!-- Информация о занятиях с улучшенным стилем -->
+    <!-- Название урока -->
     <TextView
         android:id="@+id/tvLessonName"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Урок"
-        android:textStyle="bold"
         android:textSize="14sp"
+        android:textStyle="bold"
+        android:textColor="?attr/textColor"
+        app:layout_constraintTop_toBottomOf="@id/divider"
+        app:layout_constraintStart_toStartOf="parent"
         android:layout_marginBottom="4dp" />
 
+    <!-- Время -->
     <TextView
         android:id="@+id/tvTime"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Время"
         android:textSize="12sp"
-        android:textColor="@android:color/darker_gray" />
+        android:textColor="?attr/textSecondary"
+        app:layout_constraintTop_toBottomOf="@id/tvLessonName"
+        app:layout_constraintStart_toStartOf="parent" />
 
+    <!-- Преподаватель -->
     <TextView
         android:id="@+id/tvTeacher"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Преподаватель"
         android:textSize="12sp"
-        android:textColor="@android:color/darker_gray" />
+        android:textColor="?attr/textSecondary"
+        app:layout_constraintTop_toBottomOf="@id/tvTime"
+        app:layout_constraintStart_toStartOf="parent" />
 
-</LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

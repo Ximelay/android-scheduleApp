@@ -2,10 +2,11 @@
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+    <color name="background_schedule">#F5F7FA</color>
+    <color name="text_primary">#212121</color>
+    <color name="text_secondary">#757575</color>
+    <color name="accent_primary">#1E88E5</color>
+    <color name="accent_secondary">#0288D1</color>
+    <color name="card_background">#FFFFFF</color>
     <color name="day">#525862</color>
-    <color name="backgroundSchedule">#FFFFFF</color>
-    <color name="text">#000000</color>
-    <color name="textHint">#757575</color>
-    <color name="textButtonHint">#6200EE</color>
-    <color name="weeklyRange">#757575</color>
 </resources>
