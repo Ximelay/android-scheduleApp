@@ -1,7 +1,7 @@
 package com.example.sheduleapp_v5.utils;
 
 import android.content.Context;
-
+import android.util.Log;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -13,10 +13,32 @@ public class GroupUtils {
 
     public static void init(Context context) {
         groupIdMap = DataProvider.loadGroups(context);
+        Log.d("GroupUtils", "Initialized groupIdMap with " + (groupIdMap != null ? groupIdMap.size() : 0) + " groups");
     }
 
     public static Integer getGroupId(String groupName) {
-        return groupIdMap.get(groupName);
+        if (groupIdMap == null || groupName == null) {
+            Log.e("GroupUtils", "groupIdMap is null or groupName is null");
+            return null;
+        }
+        Integer groupId = groupIdMap.get(groupName);
+        Log.d("GroupUtils", "getGroupId for " + groupName + ": " + groupId);
+        return groupId;
+    }
+
+    public static String getGroupName(int groupId) {
+        if (groupIdMap == null) {
+            Log.e("GroupUtils", "groupIdMap is null");
+            return null;
+        }
+        for (Map.Entry<String, Integer> entry : groupIdMap.entrySet()) {
+            if (entry.getValue() == groupId) {
+                Log.d("GroupUtils", "getGroupName for groupId " + groupId + ": " + entry.getKey());
+                return entry.getKey();
+            }
+        }
+        Log.w("GroupUtils", "No group found for groupId: " + groupId);
+        return null;
     }
 
     public static Map<String, Integer> getAllGroups() {
@@ -26,6 +48,11 @@ public class GroupUtils {
     // Метод для фильтрации и сортировки групп
     public static List<String> getFilteredGroups(String query) {
         List<String> filteredGroups = new ArrayList<>();
+        if (groupIdMap == null || query == null) {
+            Log.e("GroupUtils", "groupIdMap or query is null");
+            return filteredGroups;
+        }
+
         for (String groupName : groupIdMap.keySet()) {
             // Убираем пробелы для корректного поиска
             if (groupName.replace(" ", "").toLowerCase().contains(query.replace(" ", "").toLowerCase())) {
@@ -52,17 +79,20 @@ public class GroupUtils {
             }
         });
 
+        Log.d("GroupUtils", "Filtered groups for query '" + query + "': " + filteredGroups.size());
         return filteredGroups;
     }
 
     // Метод для извлечения курса из названия группы (например, "И-322" -> курс 3)
     private static int extractCourse(String groupName) {
+        if (groupName == null) return 0;
         String[] parts = groupName.split("-");
         if (parts.length > 1) {
             try {
                 // Извлекаем первую цифру из номера группы
                 return Integer.parseInt(parts[1].substring(0, 1));
             } catch (NumberFormatException | IndexOutOfBoundsException e) {
+                Log.w("GroupUtils", "Failed to extract course from " + groupName + ": " + e.getMessage());
                 return 0; // Если не удается распарсить курс, возвращаем 0
             }
         }
@@ -71,12 +101,14 @@ public class GroupUtils {
 
     // Метод для извлечения числовой части из названия группы
     private static int extractNumber(String groupName) {
+        if (groupName == null) return 0;
         // Разделяем строку по символу "-" и парсим вторую часть как число
         String[] parts = groupName.split("-");
         if (parts.length > 1) {
             try {
                 return Integer.parseInt(parts[1].trim());
             } catch (NumberFormatException e) {
+                Log.w("GroupUtils", "Failed to extract number from " + groupName + ": " + e.getMessage());
                 return 0; // Если не удается распарсить число, возвращаем 0
             }
         }
