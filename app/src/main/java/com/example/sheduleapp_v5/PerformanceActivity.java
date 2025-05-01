@@ -7,6 +7,7 @@ import android.view.View;
 import android.view.animation.AlphaAnimation;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
@@ -23,6 +24,8 @@ import com.example.sheduleapp_v5.models.PerformanceResponse;
 import com.example.sheduleapp_v5.network.ApiClient;
 import com.example.sheduleapp_v5.network.PerformanceApi;
 import com.example.sheduleapp_v5.utils.PreferenceManager;
+import com.google.android.material.button.MaterialButton;
+import com.google.android.material.textfield.TextInputEditText;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -35,12 +38,13 @@ import retrofit2.Response;
 
 public class PerformanceActivity extends AppCompatActivity {
 
-    private EditText phoneNumberInput;
-    private Button fetchButton;
+    private TextInputEditText phoneNumberInput;
+    private MaterialButton fetchButton;
     private RecyclerView performanceRecyclerView;
+    private AutoCompleteTextView semesterSpinner;
     private PerformanceAdapter performanceAdapter;
     private ProgressBar loadingProgressBar;
-    private List<PerformanceResponse.Plan> allPlans;  // Сохраняем все планы для фильтрации
+    private List<PerformanceResponse.Plan> allPlans;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,11 +54,11 @@ public class PerformanceActivity extends AppCompatActivity {
         phoneNumberInput = findViewById(R.id.phoneNumberInput);
         fetchButton = findViewById(R.id.fetchButton);
         performanceRecyclerView = findViewById(R.id.performanceRecyclerView);
+        semesterSpinner = findViewById(R.id.semesterSpinner);
         loadingProgressBar = findViewById(R.id.loadingProgressBar);
 
         performanceRecyclerView.setLayoutManager(new LinearLayoutManager(this));
 
-        // Используем PreferenceManager для получения сохраненного номера телефона
         PreferenceManager preferenceManager = new PreferenceManager(this);
         String savedPhoneNumber = preferenceManager.getPhoneNumber();
 
@@ -64,19 +68,13 @@ public class PerformanceActivity extends AppCompatActivity {
 
         fetchButton.setOnClickListener(v -> fetchPerformanceData());
 
-        Spinner semesterSpinner = findViewById(R.id.semesterSpinner);
-        semesterSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
-                String selectedSemester = (String) parentView.getItemAtPosition(position);
-                filterBySemester(allPlans, selectedSemester);
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parentView) {}
+        // Настройка AutoCompleteTextView для выбора семестра
+        semesterSpinner.setOnItemClickListener((parent, view, position, id) -> {
+            String selectedSemester = (String) parent.getItemAtPosition(position);
+            filterBySemester(allPlans, selectedSemester);
         });
 
-        // Добавление TextWatcher для номера телефона
+        // Форматирование номера телефона
         phoneNumberInput.addTextChangedListener(new TextWatcher() {
             private boolean isFormatting;
             private int cursorPosition;
@@ -95,10 +93,9 @@ public class PerformanceActivity extends AppCompatActivity {
 
                 isFormatting = true;
 
-                String raw = s.toString().replaceAll("[^\\d]", ""); // только цифры
-
+                String raw = s.toString().replaceAll("[^\\d]", "");
                 if (raw.startsWith("7")) {
-                    raw = raw.substring(1); // удаляем лишнюю 7, если пользователь ввел
+                    raw = raw.substring(1);
                 }
                 if (raw.length() > 10) {
                     raw = raw.substring(0, 10);
@@ -120,12 +117,10 @@ public class PerformanceActivity extends AppCompatActivity {
                 }
 
                 phoneNumberInput.removeTextChangedListener(this);
-                phoneNumberInput.setTextKeepState(formatted.toString()); // сохраняем позицию курсора
+                phoneNumberInput.setText(formatted.toString());
                 phoneNumberInput.setSelection(phoneNumberInput.getText().length());
                 phoneNumberInput.addTextChangedListener(this);
 
-                // Сохраняем номер телефона через PreferenceManager
-                PreferenceManager preferenceManager = new PreferenceManager(PerformanceActivity.this);
                 preferenceManager.setPhoneNumber(formatted.toString());
                 isFormatting = false;
             }
@@ -234,28 +229,23 @@ public class PerformanceActivity extends AppCompatActivity {
     private void setupSemesterSpinner(List<PerformanceResponse.Plan> allPlans) {
         List<String> semesterNames = getSemesterNames(allPlans);
 
-        if(semesterNames.isEmpty()) {
+        if (semesterNames.isEmpty()) {
             return;
         }
 
         semesterNames.sort(String::compareTo);
 
-        Spinner semesterSpinner = findViewById(R.id.semesterSpinner);
-        ArrayAdapter<String> semesterAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, semesterNames);
-        semesterAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        ArrayAdapter<String> semesterAdapter = new ArrayAdapter<>(this, android.R.layout.simple_dropdown_item_1line, semesterNames);
         semesterSpinner.setAdapter(semesterAdapter);
 
-        semesterSpinner.setSelection(semesterNames.size() - 1);
+        // Выбираем последний семестр по умолчанию и вызываем фильтрацию
+        String defaultSemester = semesterNames.get(semesterNames.size() - 1);
+        semesterSpinner.setText(defaultSemester, false);
+        filterBySemester(allPlans, defaultSemester);
 
-        semesterSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
-                String selectedSemester = (String)parentView.getItemAtPosition(position);
-                filterBySemester(allPlans, selectedSemester);
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {}
+        semesterSpinner.setOnItemClickListener((parent, view, position, id) -> {
+            String selectedSemester = (String) parent.getItemAtPosition(position);
+            filterBySemester(allPlans, selectedSemester);
         });
     }
 

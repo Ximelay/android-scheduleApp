@@ -12,13 +12,16 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
 
 import com.example.sheduleapp_v5.work.ReminderScheduler;
+import com.google.android.material.button.MaterialButton;
+import com.google.android.material.switchmaterial.SwitchMaterial;
 
 public class MainActivity extends AppCompatActivity {
 
-    private Button buttonSchedule;
-    private Button buttonPerformance;
-    private Button buttonMoodle;
-    private Switch themeSwitch;
+    // Кнопки
+    MaterialButton buttonSchedule;
+    MaterialButton buttonPerformance;
+    MaterialButton buttonMoodle;
+    SwitchMaterial themeSwitch;
     private SharedPreferences sharedPreferences;
 
 

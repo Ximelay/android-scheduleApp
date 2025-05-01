@@ -1,61 +1,140 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="?attr/backgroundScheduleColor"
+    android:padding="16dp"
     tools:context=".PerformanceActivity">
 
-    <EditText
-        android:id="@+id/phoneNumberInput"
-        android:layout_width="match_parent"
+    <!-- Поле ввода номера телефона -->
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/phone_card"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:hint="@string/phoneNumberInput"
-        android:inputType="phone"
-        android:layout_margin="16dp" />
+        app:cardBackgroundColor="?attr/cardBackgroundColor"
+        app:cardCornerRadius="12dp"
+        app:cardElevation="4dp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginBottom="16dp">
 
-    <Button
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/phone_input_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="8dp"
+            app:hintTextColor="?attr/textHintColor"
+            app:boxBackgroundMode="outline"
+            app:boxStrokeColor="?attr/textButtonHintColor"
+            app:startIconDrawable="@android:drawable/ic_menu_call"
+            app:startIconTint="?attr/textButtonHintColor">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/phoneNumberInput"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/phoneNumberInput"
+                android:inputType="phone"
+                android:textColor="?attr/textColor"
+                android:textColorHint="?attr/textHintColor"
+                android:background="@android:color/transparent"
+                android:padding="8dp"
+                android:textSize="16sp" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+    </com.google.android.material.card.MaterialCardView>
+
+    <!-- Кнопка загрузки данных -->
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/fetchButton"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:text="@string/fetchButton"
-        android:layout_below="@+id/phoneNumberInput"
-        android:layout_marginTop="16dp"
-        android:layout_centerHorizontal="true" />
+        android:textColor="@color/white"
+        app:backgroundTint="?attr/textButtonHintColor"
+        app:cornerRadius="8dp"
+        app:icon="@android:drawable/ic_menu_upload"
+        app:iconTint="@color/white"
+        app:layout_constraintTop_toBottomOf="@id/phone_card"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginBottom="16dp" />
 
-    <!-- Spinner для выбора полугодия -->
-    <Spinner
-        android:id="@+id/semesterSpinner"
-        android:layout_width="wrap_content"
+    <!-- Выбор семестра -->
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/semester_card"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/fetchButton"
-        android:layout_marginTop="16dp"
-        android:layout_centerHorizontal="true" />
+        app:cardBackgroundColor="?attr/cardBackgroundColor"
+        app:cardCornerRadius="12dp"
+        app:cardElevation="4dp"
+        app:layout_constraintTop_toBottomOf="@id/fetchButton"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginBottom="16dp">
 
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/semester_input_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="8dp"
+            app:hintTextColor="?attr/textHintColor"
+            app:boxBackgroundMode="outline"
+            app:boxStrokeColor="?attr/textButtonHintColor"
+            app:endIconMode="dropdown_menu">
+
+            <AutoCompleteTextView
+                android:id="@+id/semesterSpinner"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/semesterHint"
+                android:textColor="?attr/textColor"
+                android:textColorHint="?attr/textHintColor"
+                android:background="@android:color/transparent"
+                android:padding="8dp"
+                android:textSize="16sp"
+                android:inputType="none"
+                android:dropDownWidth="match_parent" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+    </com.google.android.material.card.MaterialCardView>
+
+    <!-- RecyclerView -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/performanceRecyclerView"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/semesterSpinner"
-        android:layout_marginTop="16dp" />
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintTop_toBottomOf="@id/semester_card"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
 
-    <!-- ProgressBar для индикации загрузки -->
+    <!-- ProgressBar -->
     <ProgressBar
         android:id="@+id/loadingProgressBar"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_centerInParent="true"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
         android:visibility="gone" />
 
+    <!-- Нет данных -->
     <TextView
         android:id="@+id/tvNoData"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Нет данных"
-        android:textSize="18sp"
+        android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
         android:textColor="?attr/textColor"
-        android:layout_below="@+id/performanceRecyclerView"
-        android:layout_marginTop="16dp"
-        android:layout_centerHorizontal="true"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
         android:visibility="gone" />
 
-</RelativeLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

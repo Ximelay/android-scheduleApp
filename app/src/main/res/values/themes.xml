@@ -1,10 +1,16 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <style name="Base.Theme.SheduleApp_v5" parent="Theme.Material3.DayNight.NoActionBar">
-        <item name="backgroundScheduleColor">@color/backgroundSchedule</item>
-        <item name="textColor">@color/text</item>
-        <item name="textHintColor">@color/textHint</item>
-        <item name="textButtonHintColor">@color/textButtonHint</item>
-        <item name="weeklyRangeColor">@color/weeklyRange</item>
+        <item name="backgroundScheduleColor">@color/background_schedule</item>
+        <item name="textColor">@color/text_primary</item>
+        <item name="textHintColor">@color/text_secondary</item>
+        <item name="textButtonHintColor">@color/accent_primary</item>
+        <item name="weeklyRangeColor">@color/accent_secondary</item>
+        <item name="cardBackgroundColor">@color/card_background</item>
+        <item name="materialCardViewStyle">@style/Widget.Material3.CardView.Elevated</item>
+        <item name="colorPrimary">@color/accent_primary</item>
+        <item name="colorOnPrimary">@color/white</item>
+        <item name="colorSecondary">@color/accent_secondary</item>
+        <item name="colorOnSecondary">@color/white</item>
     </style>
     <style name="Theme.SheduleApp_v5" parent="Base.Theme.SheduleApp_v5" />
 </resources>
