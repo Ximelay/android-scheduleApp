@@ -60,29 +60,29 @@ jobs:
       - name: Set up Android SDK
         uses: android-actions/setup-android@v3
         with:
-          sdk-tools-version: '36.0.0'  # Версия Build Tools
+          sdk-tools-version: '34.0.0'  # Изменили с 36.0.0 на 34.0.0 для проверки
 
       # 10. Установка Build Tools и Platform Tools
       - name: Install Android Build Tools and Platform Tools
         run: |
-          yes | sdkmanager "build-tools;36.0.0" "platform-tools"
+          yes | sdkmanager "build-tools;34.0.0" "platform-tools"
           echo "ANDROID_HOME=$ANDROID_HOME"
           echo "PATH=$PATH"
 
       # 11. Проверка содержимого build-tools
       - name: Check Build Tools Installation
         run: |
-          ls -la $ANDROID_HOME/build-tools/36.0.0/
-          if [ -f "$ANDROID_HOME/build-tools/36.0.0/apksigner" ]; then
+          ls -la $ANDROID_HOME/build-tools/34.0.0/
+          if [ -f "$ANDROID_HOME/build-tools/34.0.0/apksigner" ]; then
             echo "apksigner found!"
           else
-            echo "apksigner not found in $ANDROID_HOME/build-tools/36.0.0/"
+            echo "apksigner not found in $ANDROID_HOME/build-tools/34.0.0/"
             exit 1
           fi
 
       # 12. Добавление build-tools в PATH
       - name: Add Build Tools to PATH
-        run: echo "$ANDROID_HOME/build-tools/36.0.0" >> $GITHUB_PATH
+        run: echo "$ANDROID_HOME/build-tools/34.0.0" >> $GITHUB_PATH
 
       # 13. Проверка доступности apksigner
       - name: Verify apksigner
@@ -98,8 +98,8 @@ jobs:
           --ks-pass pass:${{ secrets.KEYSTORE_PASSWORD }} \
           --key-pass pass:${{ secrets.KEY_PASSWORD }} \
           --ks-key-alias ${{ secrets.KEY_ALIAS }} \
-          --tsa http://timestamp.digicert.com \
           app/build/outputs/apk/release/app-release.apk
+          # Убрали --tsa, так как оно не поддерживается текущей версией
 
       # 15. Получение версии из build.gradle.kts для тега релиза
       - name: Get version name
