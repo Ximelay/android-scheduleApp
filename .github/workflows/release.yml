@@ -56,11 +56,18 @@ jobs:
             -PKEY_PASSWORD="${{ secrets.KEY_PASSWORD }}" \
             --info
 
-      # 9. Установка Android SDK и Build Tools
+      # 9. Установка Android SDK, Build Tools и Platform Tools
       - name: Set up Android SDK
         uses: android-actions/setup-android@v3
         with:
-          sdk-tools-version: '36.0.0'  # Укажи версию Build Tools, например, 36.0.0
+          sdk-tools-version: '36.0.0'  # Версия Build Tools
+      - name: Install Android Build Tools and Platform Tools
+        run: |
+          yes | sdkmanager "build-tools;36.0.0" "platform-tools"
+          echo "ANDROID_HOME=$ANDROID_HOME"  # Для отладки
+          echo "PATH=$PATH"  # Для отладки
+      - name: Verify apksigner
+        run: which apksigner  # Проверка доступности apksigner
 
       # 10. Подпись APK с временной меткой
       - name: Sign APK with timestamp
