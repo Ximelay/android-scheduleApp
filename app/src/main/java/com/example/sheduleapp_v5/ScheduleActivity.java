@@ -6,7 +6,9 @@ import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.animation.AlphaAnimation;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
@@ -24,13 +26,11 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.work.Constraints;
 import androidx.work.ExistingPeriodicWorkPolicy;
 import androidx.work.NetworkType;
-import androidx.work.OneTimeWorkRequest;
 import androidx.work.PeriodicWorkRequest;
 import androidx.work.WorkInfo;
 import androidx.work.WorkManager;
 
 import com.example.sheduleapp_v5.adapters.LessonAdapter;
-import com.example.sheduleapp_v5.adapters.ScheduleAdapter;
 import com.example.sheduleapp_v5.models.DaySchedule;
 import com.example.sheduleapp_v5.models.DisplayLessonItem;
 import com.example.sheduleapp_v5.models.LessonIndex;
@@ -41,11 +41,11 @@ import com.example.sheduleapp_v5.utils.GroupUtils;
 import com.example.sheduleapp_v5.utils.PreferenceManager;
 import com.example.sheduleapp_v5.utils.StickyHeaderDecoration;
 import com.example.sheduleapp_v5.utils.TeacherUtils;
-import com.google.android.material.button.MaterialButton;
 import com.google.gson.Gson;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import retrofit2.Call;
@@ -54,6 +54,7 @@ import retrofit2.Response;
 
 public class ScheduleActivity extends AppCompatActivity {
 
+    private static final String TAG = "ScheduleActivity";
     private RecyclerView recyclerView;
     private TextView tvWeekType;
     private TextView tvWeekRange;
@@ -93,6 +94,8 @@ public class ScheduleActivity extends AppCompatActivity {
         // Инициализация адаптера для AutoCompleteTextView
         adapterSearch = new ArrayAdapter<>(this, android.R.layout.simple_dropdown_item_1line, searchList);
         etSearch.setAdapter(adapterSearch);
+        etSearch.setThreshold(1);
+        etSearch.setDropDownHeight((int) (getResources().getDisplayMetrics().density * 250));
 
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
@@ -101,7 +104,7 @@ public class ScheduleActivity extends AppCompatActivity {
             etSearch.setText(defaultGroup);
             Integer groupId = GroupUtils.getGroupId(defaultGroup);
             if (groupId != null) {
-                Log.d("ScheduleActivity", "Loading schedule for default group: " + defaultGroup + ", groupId: " + groupId);
+                Log.d(TAG, "Loading schedule for default group: " + defaultGroup + ", groupId: " + groupId);
                 fetchSchedule(groupId);
             }
         }
@@ -113,39 +116,57 @@ public class ScheduleActivity extends AppCompatActivity {
             if (!query.isEmpty()) {
                 if (GroupUtils.getGroupId(query) != null) {
                     Integer groupId = GroupUtils.getGroupId(query);
-                    Log.d("ScheduleActivity", "Search button clicked, fetching schedule for groupId: " + groupId);
+                    Log.d(TAG, "Search button clicked, fetching schedule for groupId: " + groupId);
                     fetchSchedule(groupId);
-                } else if (TeacherUtils.getTeacherId(query) != null) {
-                    String teacherId = TeacherUtils.getTeacherId(query);
-                    Log.d("ScheduleActivity", "Search button clicked, fetching schedule for teacherId: " + teacherId);
+                    hideKeyboard();
+                } else {
+                    String teacherId = findTeacherIdByFormattedName(query);
+                    if (teacherId != null) {
+                        Log.d(TAG, "Search button clicked, fetching schedule for teacherId: " + teacherId);
+                        fetchScheduleByTeacher(teacherId);
+                        hideKeyboard();
+                    } else {
+                        List<String> filteredTeachers = TeacherUtils.getFilteredTeachers(query);
+                        if (!filteredTeachers.isEmpty()) {
+                            String firstMatch = filteredTeachers.get(0);
+                            teacherId = findTeacherIdByFormattedName(firstMatch);
+                            if (teacherId != null) {
+                                Log.d(TAG, "Search button clicked, fetching schedule for teacherId: " + teacherId + " (matched: " + firstMatch + ")");
+                                fetchScheduleByTeacher(teacherId);
+                                etSearch.setText(firstMatch);
+                                hideKeyboard();
+                                return;
+                            }
+                        }
+                        Toast.makeText(this, "Группа или преподаватель не найдены!", Toast.LENGTH_SHORT).show();
+                    }
+                }
+            } else {
+                Toast.makeText(this, "Пожалуйста, введите группу или преподавателя", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        // Настройка слушателя для выбора группы или преподавателя
+        etSearch.setOnItemClickListener((parent, view, position, id) -> {
+            String selected = (String) parent.getItemAtPosition(position);
+            hideKeyboard();
+
+            if (GroupUtils.getGroupId(selected) != null) {
+                Integer groupId = GroupUtils.getGroupId(selected);
+                Log.d(TAG, "Item selected, fetching schedule for groupId: " + groupId);
+                fetchSchedule(groupId);
+            } else {
+                String teacherId = findTeacherIdByFormattedName(selected);
+                if (teacherId != null) {
+                    Log.d(TAG, "Item selected, fetching schedule for teacherId: " + teacherId);
                     fetchScheduleByTeacher(teacherId);
                 } else {
                     Toast.makeText(this, "Группа или преподаватель не найдены!", Toast.LENGTH_SHORT).show();
                 }
-            } else {
-                Toast.makeText(this, "Пожалуйста, введите группу или фамилию преподавателя", Toast.LENGTH_SHORT).show();
             }
         });
 
-        // Настройка слушателя для выбора группы
-        etSearch.setThreshold(1);
-        etSearch.setOnItemClickListener((parent, view, position, id) -> {
-            String selected = (String) parent.getItemAtPosition(position);
-
-            if (GroupUtils.getGroupId(selected) != null) {
-                Integer groupId = GroupUtils.getGroupId(selected);
-                Log.d("ScheduleActivity", "Item selected, fetching schedule for groupId: " + groupId);
-                fetchSchedule(groupId);
-            } else if (TeacherUtils.getTeacherId(selected) != null) {
-                String teacherId = TeacherUtils.getTeacherId(selected);
-                Log.d("ScheduleActivity", "Item selected, fetching schedule for teacherId: " + teacherId);
-                fetchScheduleByTeacher(teacherId);
-            } else {
-                Toast.makeText(this, "Группа или преподаватель не найдены!", Toast.LENGTH_SHORT).show();
-            }
-        });
-
-        // Добавление обработчика текстового изменения в поле ввода
+        // Обработчик текстового изменения
         etSearch.addTextChangedListener(new android.text.TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int start, int before, int count) {}
@@ -155,16 +176,27 @@ public class ScheduleActivity extends AppCompatActivity {
                 String query = charSequence.toString().trim();
                 if (!query.isEmpty()) {
                     List<String> filtered = new ArrayList<>();
-                    filtered.addAll(GroupUtils.getFilteredGroups(query)); // сначала группы
-                    filtered.addAll(TeacherUtils.getFilteredTeachers(query)); // потом преподаватели
+                    List<String> filteredGroups = GroupUtils.getFilteredGroups(query);
+                    filtered.addAll(filteredGroups);
+                    List<String> filteredTeachers = TeacherUtils.getFilteredTeachers(query);
+                    filtered.addAll(filteredTeachers);
 
                     adapterSearch.clear();
                     adapterSearch.addAll(filtered);
                     adapterSearch.notifyDataSetChanged();
+                    Log.d(TAG, "Filtered items for query '" + query + "': " + filtered.size() +
+                            " items (Groups: " + filteredGroups.size() + ", Teachers: " + filteredTeachers.size() + ")");
+                    if (filteredTeachers.size() > 0) {
+                        Log.d(TAG, "Teachers: " + filteredTeachers);
+                    }
+                    if (filtered.isEmpty()) {
+                        Log.w(TAG, "No results found for query: '" + query + "'");
+                    }
                 } else {
                     adapterSearch.clear();
                     adapterSearch.addAll(searchList);
                     adapterSearch.notifyDataSetChanged();
+                    Log.d(TAG, "Cleared search results");
                 }
             }
 
@@ -173,21 +205,45 @@ public class ScheduleActivity extends AppCompatActivity {
         });
     }
 
-    // Обработка результата запроса разрешений
+    private String findTeacherIdByFormattedName(String formattedName) {
+        for (Map.Entry<String, String> entry : TeacherUtils.getAllTeachers().entrySet()) {
+            String formatted = formatTeacherName(entry.getKey());
+            if (formatted.equals(formattedName)) {
+                return entry.getValue();
+            }
+        }
+        return null;
+    }
+
+    private String formatTeacherName(String fullName) {
+        String[] parts = fullName.trim().split("\\s+");
+        if (parts.length < 3) {
+            return fullName;
+        }
+        String lastName = parts[0];
+        String firstNameInitial = parts[1].substring(0, 1) + ".";
+        String patronymicInitial = parts[2].substring(0, 1) + ".";
+        return lastName + " " + firstNameInitial + patronymicInitial;
+    }
+
+    private void hideKeyboard() {
+        InputMethodManager imm = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
+        imm.hideSoftInputFromWindow(etSearch.getWindowToken(), 0);
+    }
+
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if (requestCode == 1001) {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                Log.d("ScheduleActivity", "Notification permission granted");
+                Log.d(TAG, "Notification permission granted");
             } else {
-                Log.e("ScheduleActivity", "Notification permission denied");
+                Log.e(TAG, "Notification permission denied");
                 Toast.makeText(this, "Разрешение на уведомления отклонено", Toast.LENGTH_LONG).show();
             }
         }
     }
 
-    // Получения расписания группы
     private void fetchSchedule(int groupId) {
         showProgressBar();
 
@@ -201,13 +257,11 @@ public class ScheduleActivity extends AppCompatActivity {
                     List<DaySchedule> daySchedules = scheduleResponse.getItems();
 
                     if (daySchedules.isEmpty()) {
-                        // If no items are found, display the "нет данных" message and hide the RecyclerView
                         recyclerView.setVisibility(View.GONE);
                         TextView noDataTextView = findViewById(R.id.tvNoData);
                         noDataTextView.setVisibility(View.VISIBLE);
                         noDataTextView.setText("Нет данных");
                     } else {
-                        // Otherwise, hide the "нет данных" message and show the RecyclerView
                         recyclerView.setVisibility(View.VISIBLE);
                         TextView noDataTextView = findViewById(R.id.tvNoData);
                         noDataTextView.setVisibility(View.GONE);
@@ -247,21 +301,20 @@ public class ScheduleActivity extends AppCompatActivity {
                         recyclerView.addItemDecoration(new StickyHeaderDecoration(lessonAdapter));
 
                         PreferenceManager preferenceManager = new PreferenceManager(ScheduleActivity.this);
-                        Log.d("ScheduleActivity", "Saving groupId: " + groupId);
+                        Log.d(TAG, "Saving groupId: " + groupId);
                         preferenceManager.setGroupId(groupId);
                         preferenceManager.setDefaultGroup(GroupUtils.getGroupName(groupId));
 
-                        // Сохраняем расписание и cachedGroupId в кэш
                         Gson gson = new Gson();
                         String scheduleJson = gson.toJson(scheduleResponse);
                         preferenceManager.setScheduleCache(scheduleJson);
                         preferenceManager.setCachedGroupId(groupId);
-                        Log.d("ScheduleActivity", "Saved schedule to cache for groupId: " + groupId);
+                        Log.d(TAG, "Saved schedule to cache for groupId: " + groupId);
 
                         schedulePeriodWorker();
                     }
                 } else {
-                    Log.e("ScheduleActivity", "Empty or failed response: " + response.code());
+                    Log.e(TAG, "Empty or failed response: " + response.code());
                     Toast.makeText(ScheduleActivity.this, "Ошибка загрузки расписания", Toast.LENGTH_SHORT).show();
                 }
             }
@@ -269,7 +322,7 @@ public class ScheduleActivity extends AppCompatActivity {
             @Override
             public void onFailure(Call<ScheduleResponse> call, Throwable t) {
                 hideProgressBar();
-                Log.e("ScheduleActivity", "Failed to fetch schedule", t);
+                Log.e(TAG, "Failed to fetch schedule", t);
                 Toast.makeText(ScheduleActivity.this, "Ошибка сети", Toast.LENGTH_SHORT).show();
             }
         });
@@ -321,7 +374,7 @@ public class ScheduleActivity extends AppCompatActivity {
                     recyclerView.setAdapter(lessonAdapter);
                     recyclerView.addItemDecoration(new StickyHeaderDecoration(lessonAdapter));
                 } else {
-                    Log.e("ScheduleActivity", "Empty or failed response: " + response.code());
+                    Log.e(TAG, "Empty or failed response: " + response.code());
                     Toast.makeText(ScheduleActivity.this, "Ошибка загрузки расписания", Toast.LENGTH_SHORT).show();
                 }
             }
@@ -329,7 +382,7 @@ public class ScheduleActivity extends AppCompatActivity {
             @Override
             public void onFailure(Call<ScheduleResponse> call, Throwable t) {
                 hideProgressBar();
-                Log.e("ScheduleActivity", "Failed to fetch schedule", t);
+                Log.e(TAG, "Failed to fetch schedule", t);
                 Toast.makeText(ScheduleActivity.this, "Ошибка сети", Toast.LENGTH_SHORT).show();
             }
         });
@@ -338,13 +391,13 @@ public class ScheduleActivity extends AppCompatActivity {
     private void showProgressBar() {
         loadingProgressBar.setVisibility(View.VISIBLE);
         AlphaAnimation fadeIn = new AlphaAnimation(0.0f, 1.0f);
-        fadeIn.setDuration(200);  // Длительность анимации
+        fadeIn.setDuration(200);
         loadingProgressBar.startAnimation(fadeIn);
     }
 
     private void hideProgressBar() {
         AlphaAnimation fadeOut = new AlphaAnimation(1.0f, 0.0f);
-        fadeOut.setDuration(200);  // Длительность анимации
+        fadeOut.setDuration(200);
         loadingProgressBar.startAnimation(fadeOut);
         loadingProgressBar.setVisibility(View.GONE);
     }
@@ -366,13 +419,12 @@ public class ScheduleActivity extends AppCompatActivity {
                 ExistingPeriodicWorkPolicy.REPLACE,
                 request
         );
-        Log.d("ScheduleActivity", "Scheduled periodic worker: ScheduleCheck");
+        Log.d(TAG, "Scheduled periodic worker: " + request.getId());
 
-        // Отладка состояния воркера
         WorkManager.getInstance(this).getWorkInfosForUniqueWorkLiveData("ScheduleCheck")
                 .observe(this, workInfos -> {
                     for (WorkInfo workInfo : workInfos) {
-                        Log.d("ScheduleActivity", "Work state: " + workInfo.getState());
+                        Log.d(TAG, "Work state: " + workInfo.getState());
                     }
                 });
     }

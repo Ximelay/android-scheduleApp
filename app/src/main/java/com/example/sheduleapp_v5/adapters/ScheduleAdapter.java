@@ -32,25 +32,21 @@ public class ScheduleAdapter extends RecyclerView.Adapter<ScheduleAdapter.ViewHo
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         DaySchedule daySchedule = daySchedules.get(position);
 
-        // Отображаем день недели
         holder.tvDayOfWeek.setText(daySchedule.getDayOfWeek());
 
-        // Строка для всех уроков в день
         StringBuilder lessonDetails = new StringBuilder();
 
-        // Перебираем все уроки для дня
         for (LessonIndex lessonIndex : daySchedule.getLessonIndexes()) {
-            // Перебираем все предметы (LessonItem) в этом индексе
             for (LessonItem lessonItem : lessonIndex.getItems()) {
-                // Добавляем подробности урока
                 lessonDetails.append(lessonItem.getLessonName()).append("\n")
                         .append("Время: ").append(lessonIndex.getLessonStartTime()).append(" - ").append(lessonIndex.getLessonEndTime()).append("\n")
                         .append("Преподаватель: ").append(lessonItem.getTeacherName()).append("\n")
-                        .append("Аудитория: ").append(lessonItem.getClassroom()).append("\n\n");
+                        .append("Аудитория: ").append(lessonItem.getClassroom() != null ? lessonItem.getClassroom() : "—")
+                        .append(lessonItem.getLocation() != null ? " (" + lessonItem.getLocation() + ")" : "").append("\n\n");
             }
         }
-        // Устанавливаем строку уроков
-        holder.tvLessonName.setText(lessonDetails.toString());
+
+        holder.tvLessonName.setText(lessonDetails.toString().trim());
     }
 
     @Override

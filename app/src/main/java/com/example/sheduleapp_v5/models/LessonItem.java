@@ -7,6 +7,7 @@ public class LessonItem {
     private String comment;
     private String subgroup;
     private Integer weekType;
+    private String location;
 
     public String getLessonName() {
         return lessonName;
@@ -31,4 +32,9 @@ public class LessonItem {
     public Integer getWeekType() {
         return weekType;
     }
+
+    public String getLocation() {
+        return location;
+    }
+
 }
