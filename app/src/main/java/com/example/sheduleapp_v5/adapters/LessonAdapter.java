@@ -95,16 +95,12 @@ public class LessonAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             HeaderViewHolder h = (HeaderViewHolder) holder;
             h.tvDayHeader.setText(item.getDayOfWeek());
 
-// Поворачиваем стрелку в зависимости от состояния
             boolean isExpanded = isDayExpanded(item.getDayId());
             h.ivArrow.animate().rotation(isExpanded ? 180f : 0f).setDuration(200).start();
 
-// Обработка клика
             holder.itemView.setOnClickListener(v -> {
                 toggleDayVisibility(item.getDayId());
-
-                // плавно поворачиваем стрелку
-                notifyDataSetChanged(); // можно заменить на DiffUtil в будущем
+                notifyDataSetChanged();
             });
 
         } else if (holder instanceof LessonViewHolder) {
@@ -116,7 +112,8 @@ public class LessonAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             for (LessonItem lesson : item.getLessons()) {
                 builder.append("Предмет: ").append(lesson.getLessonName() != null ? lesson.getLessonName() : "—").append("\n")
                         .append("Преподаватель: ").append(lesson.getTeacherName() != null ? lesson.getTeacherName() : "—").append("\n")
-                        .append("Аудитория: ").append(lesson.getClassroom() != null ? lesson.getClassroom() : "—");
+                        .append("Аудитория: ").append(lesson.getClassroom() != null ? lesson.getClassroom() : "—")
+                        .append(lesson.getLocation() != null ? " (" + lesson.getLocation() + ")" : "").append("");
 
                 boolean hasExtras = lesson.getComment() != null || lesson.getSubgroup() != null || lesson.getWeekType() != null;
                 if (hasExtras) {
@@ -217,7 +214,6 @@ public class LessonAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                     noteRepository.saveNote(getLessonKey(item), note, remindAt[0]);
 
                     if (remindAt[0] > 0) {
-                        // Формируем информацию о паре
                         String lessonName = "Занятие";
                         if (!item.getLessons().isEmpty()) {
                             LessonItem firstLesson = item.getLessons().get(0);
@@ -226,7 +222,6 @@ public class LessonAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                         }
                         String lessonTime = item.getStartTime() + " - " + item.getEndTime();
 
-                        // Обновленный вызов
                         ReminderScheduler.scheduleReminder(context,
                                 getLessonKey(item),
                                 note,

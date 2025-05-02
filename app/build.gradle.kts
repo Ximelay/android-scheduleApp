@@ -54,4 +54,8 @@ dependencies {
     implementation(libs.jetbrains.annotations)
 
     implementation(libs.work)
+
+    implementation(libs.fuzzywuzzy)
+
+    implementation(libs.markwon)
 }
