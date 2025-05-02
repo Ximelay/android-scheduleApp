@@ -32,22 +32,26 @@ jobs:
       - name: Create temp directory for keystore
         run: mkdir -p app/temp_keys
 
-      # 5. Декодируем keystore из секрета
-      - name: Decode Keystore
-        run: echo ${{ secrets.KEYSTORE_BASE64 }} | base64 -d > app/temp_keys/key.jks
+      # 5. Сохранение Base64 секрета
+      - name: Save Keystore Base64
+        run: echo "${{ secrets.KEYSTORE_BASE64 }}" > keystore.base64
         env:
           KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
 
-      # 6. Сборка релизного APK
+      # 6. Декодирование keystore
+      - name: Decode Keystore
+        run: base64 -d keystore.base64 > app/temp_keys/key.jks
+
+      # 7. Сборка релизного APK
       - name: Build Release APK
         env:
-          KEYSTORE_PATH: app/temp_keys/key.jks  # Временный путь к декодированному keystore
+          KEYSTORE_PATH: app/temp_keys/key.jks
           KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
           KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
           KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
         run: ./gradlew assembleRelease
 
-      # 7. Подпись APK с временной меткой
+      # 8. Подпись APK с временной меткой
       - name: Sign APK with timestamp
         run: |
           apksigner sign \
@@ -58,14 +62,14 @@ jobs:
           --tsa http://timestamp.digicert.com \
           app/build/outputs/apk/release/app-release.apk
 
-      # 8. Получение версии из build.gradle.kts для тега релиза
+      # 9. Получение версии из build.gradle.kts для тега релиза
       - name: Get version name
         id: version
         run: |
           VERSION_NAME=$(grep 'versionName' app/build.gradle.kts | awk '{print $3}' | tr -d '"')
           echo "VERSION_NAME=$VERSION_NAME" >> $GITHUB_OUTPUT
 
-      # 9. Создание релиза в GitHub
+      # 10. Создание релиза в GitHub
       - name: Create GitHub Release
         id: create-release
         uses: actions/create-release@v1
@@ -77,7 +81,7 @@ jobs:
           draft: false
           prerelease: false
 
-      # 10. Загрузка APK в релиз как артефакт
+      # 11. Загрузка APK в релиз как артефакт
       - name: Upload APK to Release
         uses: actions/upload-release-asset@v1
         env:
@@ -87,3 +91,6 @@ jobs:
           asset_path: app/build/outputs/apk/release/app-release.apk
           asset_name: app-release-v${{ steps.version.outputs.VERSION_NAME }}.apk
           asset_content_type: application/vnd.android.package-archive
+      - name: Clean up
+        run: rm -f keystore.base64 app/temp_keys/key.jks
+        if: always()  # Выполняется даже при ошибке
