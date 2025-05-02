@@ -35,10 +35,11 @@ android {
 
     signingConfigs {
         create("release") {
-            storeFile = file(System.getProperty("KEYSTORE_PATH") ?: throw IllegalStateException("KEYSTORE_PATH is missing"))
-            storePassword = System.getProperty("KEYSTORE_PASSWORD") ?: throw IllegalStateException("KEYSTORE_PASSWORD is missing")
-            keyAlias = System.getProperty("KEY_ALIAS") ?: throw IllegalStateException("KEY_ALIAS is missing")
-            keyPassword = System.getProperty("KEY_PASSWORD") ?: throw IllegalStateException("KEY_PASSWORD is missing")
+            val keystorePath = project.findProperty("KEYSTORE_PATH")?.toString() ?: System.getProperty("KEYSTORE_PATH")
+            storeFile = file(keystorePath ?: throw IllegalStateException("KEYSTORE_PATH is missing"))
+            storePassword = project.findProperty("KEYSTORE_PASSWORD")?.toString() ?: System.getProperty("KEYSTORE_PASSWORD") ?: throw IllegalStateException("KEYSTORE_PASSWORD is missing")
+            keyAlias = project.findProperty("KEY_ALIAS")?.toString() ?: System.getProperty("KEY_ALIAS") ?: throw IllegalStateException("KEY_ALIAS is missing")
+            keyPassword = project.findProperty("KEY_PASSWORD")?.toString() ?: System.getProperty("KEY_PASSWORD") ?: throw IllegalStateException("KEY_PASSWORD is missing")
             println("Signing with keystore: ${storeFile}, alias: $keyAlias")
         }
     }
