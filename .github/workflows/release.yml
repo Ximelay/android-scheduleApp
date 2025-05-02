@@ -8,6 +8,9 @@ on:
     branches:
       - main
 
+permissions:
+  contents: write  # Даём права на запись в репозиторий для создания релиза
+
 jobs:
   build-and-release:
     runs-on: ubuntu-latest
@@ -60,7 +63,7 @@ jobs:
       - name: Set up Android SDK
         uses: android-actions/setup-android@v3
         with:
-          sdk-tools-version: '34.0.0'  # Изменили с 36.0.0 на 34.0.0 для проверки
+          sdk-tools-version: '34.0.0'
 
       # 10. Установка Build Tools и Platform Tools
       - name: Install Android Build Tools and Platform Tools
@@ -99,7 +102,6 @@ jobs:
           --key-pass pass:${{ secrets.KEY_PASSWORD }} \
           --ks-key-alias ${{ secrets.KEY_ALIAS }} \
           app/build/outputs/apk/release/app-release.apk
-          # Убрали --tsa, так как оно не поддерживается текущей версией
 
       # 15. Получение версии из build.gradle.kts для тега релиза
       - name: Get version name
@@ -111,14 +113,13 @@ jobs:
       # 16. Создание релиза в GitHub
       - name: Create GitHub Release
         id: create-release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        uses: softprops/action-gh-release@v2
         with:
           tag_name: v${{ steps.version.outputs.VERSION_NAME }}
-          release_name: Release v${{ steps.version.outputs.VERSION_NAME }}
+          name: Release v${{ steps.version.outputs.VERSION_NAME }}
           draft: false
           prerelease: false
+          files: app/build/outputs/apk/release/app-release.apk
 
       # 17. Загрузка APK в релиз как артефакт
       - name: Upload APK to Release
