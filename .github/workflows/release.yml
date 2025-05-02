@@ -45,7 +45,7 @@ jobs:
       # 7. Сборка релизного APK
       - name: Build Release APK
         env:
-          KEYSTORE_PATH: app/temp_keys/key.jks
+          KEYSTORE_PATH: app/temp_keys/key.jks  # Исправлен путь
           KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
           KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
           KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
@@ -91,6 +91,8 @@ jobs:
           asset_path: app/build/outputs/apk/release/app-release.apk
           asset_name: app-release-v${{ steps.version.outputs.VERSION_NAME }}.apk
           asset_content_type: application/vnd.android.package-archive
+
+      # 12. Очистка временных файлов
       - name: Clean up
         run: rm -f keystore.base64 app/temp_keys/key.jks
-        if: always()  # Выполняется даже при ошибке
+        if: always()
