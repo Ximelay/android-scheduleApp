@@ -45,11 +45,13 @@ jobs:
       # 7. Сборка релизного APK
       - name: Build Release APK
         env:
-          KEYSTORE_PATH: app/temp_keys/key.jks  # Исправлен путь
+          KEYSTORE_PATH: app/temp_keys/key.jks
           KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
           KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
           KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
-        run: ./gradlew assembleRelease
+        run: |
+          echo "KEYSTORE_PATH is set to $KEYSTORE_PATH"
+          ./gradlew assembleRelease --info
 
       # 8. Подпись APK с временной меткой
       - name: Sign APK with timestamp
