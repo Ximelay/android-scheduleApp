@@ -1,6 +1,5 @@
 name: Create Release on Push or Pull Request
 
-# Триггеры: запуск при пуше в main или при принятии PR в main
 on:
   push:
     branches:
@@ -18,7 +17,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # 2. Настройка JDK для Gradle
+      # 2. Настройка JDK 17
       - name: Set up JDK 17
         uses: actions/setup-java@v3
         with:
@@ -29,24 +28,46 @@ jobs:
       - name: Make gradlew executable
         run: chmod +x ./gradlew
 
-      # 4. Сборка релизного APK
+      # 4. Создание временной папки для keystore
+      - name: Create temp directory for keystore
+        run: mkdir -p app/temp_keys
+
+      # 5. Декодируем keystore из секрета
+      - name: Decode Keystore
+        run: echo ${{ secrets.KEYSTORE_BASE64 }} | base64 -d > app/temp_keys/key.jks
+        env:
+          KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
+
+      # 6. Сборка релизного APK
       - name: Build Release APK
         env:
-          KEYSTORE_PATH: ${{ secrets.KEYSTORE_PATH }}
+          KEYSTORE_PATH: app/temp_keys/key.jks  # Временный путь к декодированному keystore
           KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
           KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
           KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
         run: ./gradlew assembleRelease
 
-      # 6. Получение версии из build.gradle.kts для тега релиза
+      # 7. Подпись APK с временной меткой
+      - name: Sign APK with timestamp
+        run: |
+          apksigner sign \
+          --ks app/temp_keys/key.jks \
+          --ks-pass pass:${{ secrets.KEYSTORE_PASSWORD }} \
+          --key-pass pass:${{ secrets.KEY_PASSWORD }} \
+          --ks-key-alias ${{ secrets.KEY_ALIAS }} \
+          --tsa http://timestamp.digicert.com \
+          app/build/outputs/apk/release/app-release.apk
+
+      # 8. Получение версии из build.gradle.kts для тега релиза
       - name: Get version name
         id: version
         run: |
           VERSION_NAME=$(grep 'versionName' app/build.gradle.kts | awk '{print $3}' | tr -d '"')
           echo "VERSION_NAME=$VERSION_NAME" >> $GITHUB_OUTPUT
 
-      # 7. Создание релиза в GitHub
+      # 9. Создание релиза в GitHub
       - name: Create GitHub Release
+        id: create-release
         uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -56,7 +77,7 @@ jobs:
           draft: false
           prerelease: false
 
-      # 8. Загрузка APK в релиз как артефакт
+      # 10. Загрузка APK в релиз как артефакт
       - name: Upload APK to Release
         uses: actions/upload-release-asset@v1
         env:

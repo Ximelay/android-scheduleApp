@@ -27,7 +27,7 @@ android {
         minSdk = 26
         targetSdk = 35
         versionCode = 1
-        versionName = "1.0"
+        versionName = "1.1"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         multiDexEnabled = true
@@ -35,7 +35,7 @@ android {
 
     signingConfigs {
         create("release") {
-            storeFile = file(System.getProperty("KEYSTORE_PATH")?.let { relativePath -> file(relativePath).path } ?: "keys/key.jks")
+            storeFile = file(System.getProperty("KEYSTORE_PATH")?.let { relativePath -> file(relativePath).path } ?: throw IllegalStateException("KEYSTORE_PATH is missing"))
             storePassword = System.getProperty("KEYSTORE_PASSWORD") ?: throw IllegalStateException("KEYSTORE_PASSWORD is missing")
             keyAlias = System.getProperty("KEY_ALIAS") ?: throw IllegalStateException("KEY_ALIAS is missing")
             keyPassword = System.getProperty("KEY_PASSWORD") ?: throw IllegalStateException("KEY_PASSWORD is missing")
