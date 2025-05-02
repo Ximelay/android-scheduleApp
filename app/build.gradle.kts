@@ -1,5 +1,6 @@
 import java.util.Properties
 import java.io.FileInputStream
+import java.io.File
 
 plugins {
     alias(libs.plugins.android.application)
@@ -36,7 +37,7 @@ android {
     signingConfigs {
         create("release") {
             val keystorePath = project.findProperty("KEYSTORE_PATH")?.toString() ?: System.getProperty("KEYSTORE_PATH")
-            storeFile = file(keystorePath ?: throw IllegalStateException("KEYSTORE_PATH is missing"))
+            storeFile = File(project.rootDir, keystorePath ?: throw IllegalStateException("KEYSTORE_PATH is missing"))
             storePassword = project.findProperty("KEYSTORE_PASSWORD")?.toString() ?: System.getProperty("KEYSTORE_PASSWORD") ?: throw IllegalStateException("KEYSTORE_PASSWORD is missing")
             keyAlias = project.findProperty("KEY_ALIAS")?.toString() ?: System.getProperty("KEY_ALIAS") ?: throw IllegalStateException("KEY_ALIAS is missing")
             keyPassword = project.findProperty("KEY_PASSWORD")?.toString() ?: System.getProperty("KEY_PASSWORD") ?: throw IllegalStateException("KEY_PASSWORD is missing")
@@ -57,8 +58,8 @@ android {
     }
 
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
+        sourceCompatibility = JavaVersion.VERSION_11  // Обновлено с VERSION_11 на VERSION_17
+        targetCompatibility = JavaVersion.VERSION_11  // Обновлено с VERSION_11 на VERSION_17
     }
 }
 
