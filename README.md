@@ -1,3 +1,18 @@
+![Build Status](https://img.shields.io/github/workflow/status/Ximelay/android-scheduleApp/CI)
+![License](https://img.shields.io/github/license/Ximelay/android-scheduleApp)
+![GitHub stars](https://img.shields.io/github/stars/Ximelay/android-scheduleApp?style=social)
+![GitHub forks](https://img.shields.io/github/forks/Ximelay/android-scheduleApp?style=social)
+![GitHub issues](https://img.shields.io/github/issues/Ximelay/android-scheduleApp)
+![Codecov](https://img.shields.io/codecov/c/github/Ximelay/android-scheduleApp)
+![Last Commit](https://img.shields.io/github/last-commit/Ximelay/android-scheduleApp)
+![Repo size](https://img.shields.io/github/repo-size/Ximelay/android-scheduleApp)
+![Language](https://img.shields.io/github/languages/top/Ximelay/android-scheduleApp)
+![Commit Activity](https://img.shields.io/github/commit-activity/m/Ximelay/android-scheduleApp)
+![Issues in last 30 days](https://img.shields.io/github/issues/detail/state/Ximelay/android-scheduleApp/new)
+![Open Pull Requests](https://img.shields.io/github/issues-pr/Ximelay/android-scheduleApp)
+
+
+
 # Документация проекта ScheduleApp V5
 
 ## Обзор проекта
