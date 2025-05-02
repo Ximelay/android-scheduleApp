@@ -56,7 +56,13 @@ jobs:
             -PKEY_PASSWORD="${{ secrets.KEY_PASSWORD }}" \
             --info
 
-      # 9. Подпись APK с временной меткой
+      # 9. Установка Android SDK и Build Tools
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+        with:
+          sdk-tools-version: '36.0.0'  # Укажи версию Build Tools, например, 36.0.0
+
+      # 10. Подпись APK с временной меткой
       - name: Sign APK with timestamp
         run: |
           apksigner sign \
@@ -67,14 +73,14 @@ jobs:
           --tsa http://timestamp.digicert.com \
           app/build/outputs/apk/release/app-release.apk
 
-      # 10. Получение версии из build.gradle.kts для тега релиза
+      # 11. Получение версии из build.gradle.kts для тега релиза
       - name: Get version name
         id: version
         run: |
           VERSION_NAME=$(grep 'versionName' app/build.gradle.kts | awk '{print $3}' | tr -d '"')
           echo "VERSION_NAME=$VERSION_NAME" >> $GITHUB_OUTPUT
 
-      # 11. Создание релиза в GitHub
+      # 12. Создание релиза в GitHub
       - name: Create GitHub Release
         id: create-release
         uses: actions/create-release@v1
@@ -86,7 +92,7 @@ jobs:
           draft: false
           prerelease: false
 
-      # 12. Загрузка APK в релиз как артефакт
+      # 13. Загрузка APK в релиз как артефакт
       - name: Upload APK to Release
         uses: actions/upload-release-asset@v1
         env:
@@ -97,7 +103,7 @@ jobs:
           asset_name: app-release-v${{ steps.version.outputs.VERSION_NAME }}.apk
           asset_content_type: application/vnd.android.package-archive
 
-      # 13. Очистка временных файлов
+      # 14. Очистка временных файлов
       - name: Clean up
         run: rm -f keystore.base64 app/temp_keys/key.jks
         if: always()
