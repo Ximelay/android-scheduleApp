@@ -19,7 +19,7 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginBottom="4dp" />
+        android:layout_marginBottom="8dp" />
 
     <!-- Тип недели -->
     <TextView
@@ -47,39 +47,56 @@
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_marginBottom="8dp" />
 
-    <!-- Название урока -->
-    <TextView
-        android:id="@+id/tvLessonName"
-        android:layout_width="wrap_content"
+    <!-- Карточка урока -->
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/lessonCard"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="Урок"
-        android:textSize="14sp"
-        android:textStyle="bold"
-        android:textColor="?attr/textColor"
+        app:cardBackgroundColor="@android:color/transparent"
+        app:cardElevation="2dp"
+        app:cardCornerRadius="10dp"
         app:layout_constraintTop_toBottomOf="@id/divider"
         app:layout_constraintStart_toStartOf="parent"
-        android:layout_marginBottom="4dp" />
+        app:layout_constraintEnd_toEndOf="parent">
 
-    <!-- Время -->
-    <TextView
-        android:id="@+id/tvTime"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Время"
-        android:textSize="12sp"
-        android:textColor="?attr/textSecondary"
-        app:layout_constraintTop_toBottomOf="@id/tvLessonName"
-        app:layout_constraintStart_toStartOf="parent" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="12dp"
+            android:background="@drawable/lesson_background">
 
-    <!-- Преподаватель -->
-    <TextView
-        android:id="@+id/tvTeacher"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Преподаватель"
-        android:textSize="12sp"
-        android:textColor="?attr/textSecondary"
-        app:layout_constraintTop_toBottomOf="@id/tvTime"
-        app:layout_constraintStart_toStartOf="parent" />
+            <!-- Название урока -->
+            <TextView
+                android:id="@+id/tvLessonName"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Урок"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:textColor="?attr/textColor"
+                android:layout_marginBottom="4dp" />
+
+            <!-- Время -->
+            <TextView
+                android:id="@+id/tvTime"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Время"
+                android:textSize="12sp"
+                android:textColor="?attr/textSecondary"
+                android:layout_marginBottom="2dp" />
+
+            <!-- Преподаватель -->
+            <TextView
+                android:id="@+id/tvTeacher"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Преподаватель"
+                android:textSize="12sp"
+                android:textColor="?attr/textSecondary" />
+
+        </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
