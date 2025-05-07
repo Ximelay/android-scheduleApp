@@ -6,6 +6,7 @@
     android:layout_height="match_parent"
     android:background="?attr/backgroundScheduleColor"
     android:padding="16dp"
+    android:fitsSystemWindows="true"
     tools:context=".PerformanceActivity">
 
     <!-- Поле ввода номера телефона -->

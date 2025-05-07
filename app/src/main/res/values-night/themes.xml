@@ -11,6 +11,9 @@
         <item name="colorOnPrimary">@color/white</item>
         <item name="colorSecondary">@color/accent_secondary</item>
         <item name="colorOnSecondary">@color/white</item>
+
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:windowLightStatusBar">false</item>
     </style>
     <style name="Theme.SheduleApp_v5" parent="Base.Theme.SheduleApp_v5" />
 </resources>
