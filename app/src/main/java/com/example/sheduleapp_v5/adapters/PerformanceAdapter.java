@@ -60,19 +60,21 @@ public class PerformanceAdapter extends RecyclerView.Adapter<PerformanceAdapter.
         String teacherNames = getTeacherNames(planCell.getSheets());
         holder.subjectCodeTextView.setText(teacherNames.isEmpty() ? "Неизвестен" : teacherNames);
 
-        // Логика для аттестации
+        // Логика для аттестации: проверяем все листы на наличие аттестации
         String attestationText;
         boolean isAttested = false;
         if (planCell.getSheets() != null && !planCell.getSheets().isEmpty()) {
-            String currentAttestation = planCell.getSheets().get(0).getCurrentAttestationMarkName();
-            String finalMark = planCell.getAttestation() != null ? planCell.getAttestation().getMarkName() : null;
-
-            if (currentAttestation != null && !currentAttestation.isEmpty()) {
-                attestationText = "Итог: " + (finalMark != null && !finalMark.isEmpty() ? finalMark : "-");
-                isAttested = true;
-            } else {
-                attestationText = "Итог: отсутствует";
+            for (PerformanceResponse.Plan.Period.PlanCell.Sheet sheet : planCell.getSheets()) {
+                String currentAttestation = sheet.getCurrentAttestationMarkName();
+                String sheetAttestation = sheet.getSheetAttestationMarkName();
+                if ((currentAttestation != null && !currentAttestation.isEmpty()) ||
+                        (sheetAttestation != null && !sheetAttestation.isEmpty())) {
+                    isAttested = true;
+                    break; // Выходим из цикла, как только находим аттестацию
+                }
             }
+            String finalMark = planCell.getAttestation() != null ? planCell.getAttestation().getMarkName() : null;
+            attestationText = "Итог: " + (finalMark != null && !finalMark.isEmpty() ? finalMark : "-");
         } else {
             attestationText = "Итог: отсутствует";
         }

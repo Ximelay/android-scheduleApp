@@ -1,13 +1,15 @@
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:fillViewport="true">
+    android:orientation="vertical"
+    android:padding="16dp">
 
+    <!-- Фиксированная верхняя часть -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="16dp">
+        android:orientation="vertical">
 
         <!-- Заголовок -->
         <TextView
@@ -17,7 +19,7 @@
             android:text="@string/subjectNameTextView"
             android:textSize="18sp"
             android:textStyle="bold"
-            android:paddingBottom="8dp"/>
+            android:paddingBottom="8dp" />
 
         <!-- Блок преподавателя и текущей аттестации -->
         <LinearLayout
@@ -31,23 +33,32 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="@string/teacherNameTextView" />
+                android:text="@string/teacherNameTextView"
+                android:textSize="14sp" />
 
             <TextView
                 android:id="@+id/attestationTextView"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="@string/attestationTextView" />
+                android:text="@string/attestationTextView"
+                android:textSize="14sp"
+                android:gravity="end" />
         </LinearLayout>
+    </LinearLayout>
 
-        <!-- Список занятий -->
+    <!-- Скроллируемая часть с занятиями -->
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:fillViewport="true">
+
         <LinearLayout
             android:id="@+id/lessonsContainer"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:paddingTop="12dp" />
-
-    </LinearLayout>
-</ScrollView>
+            android:paddingTop="12dp"
+            android:paddingBottom="12dp"/>
+    </ScrollView>
+</LinearLayout>

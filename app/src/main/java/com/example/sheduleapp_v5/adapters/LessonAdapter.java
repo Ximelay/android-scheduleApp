@@ -4,6 +4,9 @@ import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.content.Context;
+import android.text.SpannableString;
+import android.text.style.StyleSpan;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -31,7 +34,6 @@ public class LessonAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
     private List<DisplayLessonItem> allItems;
     private List<DisplayLessonItem> visibleItems;
-
     private final NoteRepository noteRepository;
 
     public LessonAdapter(Context context, List<DisplayLessonItem> lessonList) {
@@ -41,7 +43,7 @@ public class LessonAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
         for (DisplayLessonItem item : lessonList) {
             if (item.getType() == DisplayLessonItem.TYPE_HEADER || item.isVisible()) {
-                if(item.getType() == DisplayLessonItem.TYPE_LESSON) {
+                if (item.getType() == DisplayLessonItem.TYPE_LESSON) {
                     String key = getLessonKey(item);
                     item.setNote(noteRepository.loadNote(key));
                 }
@@ -67,185 +69,216 @@ public class LessonAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
         if (viewType == DisplayLessonItem.TYPE_HEADER) {
             view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_day_header, parent, false);
+            Log.d("LessonAdapter", "Inflated item_day_header");
             return new HeaderViewHolder(view);
         } else {
-            view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_lesson, parent, false);
-
-            // ✅ Добавляем отступ снизу для карточек уроков, только если урок видим
-            ViewGroup.MarginLayoutParams params = new ViewGroup.MarginLayoutParams(
-                    ViewGroup.LayoutParams.MATCH_PARENT,
-                    ViewGroup.LayoutParams.WRAP_CONTENT
-            );
-
-            if (isDayExpanded(visibleItems.get(viewType).getDayId())) {
-                params.bottomMargin = (int) (view.getContext().getResources().getDisplayMetrics().density * 8); // 8dp для отступа
+            try {
+                view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_lesson, parent, false);
+                Log.d("LessonAdapter", "Inflated item_lesson successfully");
+                ViewGroup.MarginLayoutParams params = (ViewGroup.MarginLayoutParams) view.getLayoutParams();
+                if (params != null) {
+                    params.bottomMargin = (int) (parent.getContext().getResources().getDisplayMetrics().density * 8); // 8dp
+                    view.setLayoutParams(params);
+                }
+                return new LessonViewHolder(view);
+            } catch (Exception e) {
+                Log.e("LessonAdapter", "Failed to inflate item_lesson", e);
+                throw e;
             }
-
-            view.setLayoutParams(params);
-
-            return new LessonViewHolder(view);
         }
     }
 
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
-        DisplayLessonItem item = visibleItems.get(position);
+        try {
+            DisplayLessonItem item = visibleItems.get(position);
 
-        if (holder instanceof HeaderViewHolder) {
-            HeaderViewHolder h = (HeaderViewHolder) holder;
-            h.tvDayHeader.setText(item.getDayOfWeek());
+            if (holder instanceof HeaderViewHolder) {
+                HeaderViewHolder h = (HeaderViewHolder) holder;
+                h.tvDayHeader.setText(item.getDayOfWeek());
 
-            boolean isExpanded = isDayExpanded(item.getDayId());
-            h.ivArrow.animate().rotation(isExpanded ? 180f : 0f).setDuration(200).start();
+                boolean isExpanded = isDayExpanded(item.getDayId());
+                h.ivArrow.animate().rotation(isExpanded ? 180f : 0f).setDuration(200).start();
 
-            holder.itemView.setOnClickListener(v -> {
-                toggleDayVisibility(item.getDayId());
-                notifyDataSetChanged();
-            });
-
-        } else if (holder instanceof LessonViewHolder) {
-            LessonViewHolder lessonHolder = (LessonViewHolder) holder;
-
-            lessonHolder.tvTime.setText(item.getStartTime() + " - " + item.getEndTime());
-
-            StringBuilder builder = new StringBuilder();
-            for (LessonItem lesson : item.getLessons()) {
-                builder.append("Предмет: ").append(lesson.getLessonName() != null ? lesson.getLessonName() : "—").append("\n")
-                        .append("Преподаватель: ").append(lesson.getTeacherName() != null ? lesson.getTeacherName() : "—").append("\n")
-                        .append("Аудитория: ").append(lesson.getClassroom() != null ? lesson.getClassroom() : "—")
-                        .append(lesson.getLocation() != null ? " (" + lesson.getLocation() + ")" : "").append("");
-
-                boolean hasExtras = lesson.getComment() != null || lesson.getSubgroup() != null || lesson.getWeekType() != null;
-                if (hasExtras) {
-                    builder.append("\n");
-
-                    if (lesson.getWeekType() != null && lesson.getWeekType().equals(item.getCurrentWeekType())) {
-                        builder.append(lesson.getWeekType() == 1 ? "🟢 " : "🔺 ");
-                    }
-
-                    builder.append("⚙️ ");
-
-                    if (lesson.getSubgroup() != null) builder.append("подгр. ").append(lesson.getSubgroup()).append(" ");
-                    if (lesson.getComment() != null) builder.append(lesson.getComment()).append(" ");
-                }
-
-                builder.append("\n\n");
-            }
-
-            lessonHolder.tvDetails.setText(builder.toString().trim());
-
-            int currentWeekType = item.getCurrentWeekType();
-            boolean hasWeek1 = false, hasWeek2 = false;
-
-            for (LessonItem lesson : item.getLessons()) {
-                if (lesson.getWeekType() != null) {
-                    if (lesson.getWeekType() == 1) hasWeek1 = true;
-                    if (lesson.getWeekType() == 2) hasWeek2 = true;
-                }
-            }
-
-            lessonHolder.iconCircle.setVisibility(hasWeek1 ? View.VISIBLE : View.GONE);
-            if (hasWeek1) {
-                lessonHolder.iconCircle.setImageResource(currentWeekType == 1 ? R.drawable.ic_circle_filled : R.drawable.ic_circle_outline);
-            }
-
-            lessonHolder.iconTriangle.setVisibility(hasWeek2 ? View.VISIBLE : View.GONE);
-            if (hasWeek2) {
-                lessonHolder.iconTriangle.setImageResource(currentWeekType == 2 ? R.drawable.ic_triangle_filled : R.drawable.ic_triangle_outline);
-            }
-
-            if(item.getNote() != null & !item.getNote().trim().isEmpty()) {
-                lessonHolder.ivNoteIcon.setVisibility(View.VISIBLE);
-                lessonHolder.ivNoteIcon.setOnClickListener( v -> {
-                    new AlertDialog.Builder(v.getContext())
-                            .setTitle("Заметка")
-                            .setMessage(item.getNote())
-                            .setPositiveButton("ОК", null)
-                            .show();
-                });
-            } else {
-                lessonHolder.ivNoteIcon.setVisibility(View.GONE);
-            }
-
-            lessonHolder.itemView.setOnLongClickListener(v -> {
-                Context context = v.getContext();
-                AlertDialog.Builder builderDialog = new AlertDialog.Builder(context);
-                builderDialog.setTitle("Добавить заметку");
-
-                View dialogView = LayoutInflater.from(context).inflate(R.layout.dialog_note_input, null);
-                EditText etNote = dialogView.findViewById(R.id.etNote);
-                Button btnPickDate = dialogView.findViewById(R.id.btnPickDate);
-                TextView tvSelectedDate = dialogView.findViewById(R.id.tvSelectedDate);
-                Button btnPickTime = dialogView.findViewById(R.id.btnPickTime);
-                TextView tvSelectedTime = dialogView.findViewById(R.id.tvSelectedTime);
-
-                etNote.setText(item.getNote());
-
-                final Calendar calendar = Calendar.getInstance();
-                final long[] remindAt = {0};
-
-                btnPickDate.setOnClickListener(view -> {
-                    DatePickerDialog datePickerDialog = new DatePickerDialog(context, (datePicker, year, month, dayOfMonth) -> {
-                        calendar.set(Calendar.YEAR, year);
-                        calendar.set(Calendar.MONTH, month);
-                        calendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
-                        tvSelectedDate.setText(String.format("Выбрано: %02d.%02d.%d", dayOfMonth, month + 1, year));
-                    }, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH));
-                    datePickerDialog.show();
+                holder.itemView.setOnClickListener(v -> {
+                    toggleDayVisibility(item.getDayId());
+                    notifyDataSetChanged();
                 });
 
-                btnPickTime.setOnClickListener(view -> {
-                    TimePickerDialog timePickerDialog = new TimePickerDialog(context, (timePicker, hourOfDay, minute) -> {
-                        calendar.set(Calendar.HOUR_OF_DAY, hourOfDay);
-                        calendar.set(Calendar.MINUTE, minute);
-                        calendar.set(Calendar.SECOND, 0);
-                        remindAt[0] = calendar.getTimeInMillis();
-                        tvSelectedTime.setText(String.format("Выбрано: %02d:%02d", hourOfDay, minute));
-                    }, calendar.get(Calendar.HOUR_OF_DAY), calendar.get(Calendar.MINUTE), true);
-                    timePickerDialog.show();
-                });
+            } else if (holder instanceof LessonViewHolder) {
+                LessonViewHolder lessonHolder = (LessonViewHolder) holder;
 
-                builderDialog.setView(dialogView);
+                String startTime = item.getStartTime() != null ? item.getStartTime() : "—";
+                String endTime = item.getEndTime() != null ? item.getEndTime() : "—";
+                Log.d("LessonAdapter", "Binding lesson at position: " + position + ", Time: " + startTime + " - " + endTime);
 
-                builderDialog.setPositiveButton("Сохранить", ((dialog, which) -> {
-                    String note = etNote.getText().toString().trim();
-                    item.setNote(note);
+                lessonHolder.tvTime.setText(startTime + " - " + endTime);
 
-                    noteRepository.saveNote(getLessonKey(item), note, remindAt[0]);
+                StringBuilder builder = new StringBuilder();
+                if (item.getLessons() != null) {
+                    for (int i = 0; i < item.getLessons().size(); i++) {
+                        LessonItem lesson = item.getLessons().get(i);
+                        builder.append("Предмет: ").append(lesson.getLessonName() != null ? lesson.getLessonName() : "—").append("\n")
+                                .append("Преподаватель: ").append(lesson.getTeacherName() != null ? lesson.getTeacherName() : "—").append("\n")
+                                .append("Аудитория: ").append(lesson.getClassroom() != null ? lesson.getClassroom() : "—")
+                                .append(lesson.getLocation() != null ? " (" + lesson.getLocation() + ")" : "").append("");
 
-                    if (remindAt[0] > 0) {
-                        String lessonName = "Занятие";
-                        if (!item.getLessons().isEmpty()) {
-                            LessonItem firstLesson = item.getLessons().get(0);
-                            lessonName = firstLesson.getLessonName() != null ?
-                                    firstLesson.getLessonName() : "—";
+                        boolean hasExtras = lesson.getComment() != null || lesson.getSubgroup() != null || lesson.getWeekType() != null;
+                        if (hasExtras) {
+                            builder.append("\n");
+
+                            if (lesson.getWeekType() != null && lesson.getWeekType().equals(item.getCurrentWeekType())) {
+                                builder.append(lesson.getWeekType() == 1 ? "🟢 " : "🔺 ");
+                            }
+
+                            builder.append("⚙️ ");
+
+                            if (lesson.getSubgroup() != null) builder.append("подгр. ").append(lesson.getSubgroup()).append(" ");
+                            if (lesson.getComment() != null) builder.append(lesson.getComment()).append(" ");
                         }
-                        String lessonTime = item.getStartTime() + " - " + item.getEndTime();
 
-                        ReminderScheduler.scheduleReminder(context,
-                                getLessonKey(item),
-                                note,
-                                lessonName,
-                                lessonTime,
-                                remindAt[0]);
+                        // Добавляем разделяющую линию, если это не последний элемент
+                        if (i < item.getLessons().size() - 1) {
+                            builder.append("\n\n-----\n\n");
+                        } else {
+                            builder.append("\n\n");
+                        }
                     }
+                } else {
+                    builder.append("Нет данных");
+                }
 
-                    notifyItemChanged(holder.getAdapterPosition());
-                }));
+                // Создаём SpannableString для выделения "Предмет" и "Аудитория" жирным
+                SpannableString spannable = new SpannableString(builder.toString().trim());
+                String text = spannable.toString();
+                int startIndex = 0;
+                while ((startIndex = text.indexOf("Предмет:", startIndex)) != -1) {
+                    spannable.setSpan(new StyleSpan(android.graphics.Typeface.BOLD), startIndex, startIndex + 8, 0);
+                    startIndex += 8;
+                }
+                while ((startIndex = text.indexOf("Аудитория:", startIndex)) != -1) {
+                    spannable.setSpan(new StyleSpan(android.graphics.Typeface.BOLD), startIndex, startIndex + 10, 0);
+                    startIndex += 10;
+                }
 
-                builderDialog.setNegativeButton("Отмена", ((dialog, which) -> dialog.cancel()));
+                Log.d("LessonAdapter", "Details: " + spannable.toString());
+                lessonHolder.tvDetails.setText(spannable);
 
-                builderDialog.show();
-                return true;
-            });
+                int currentWeekType = item.getCurrentWeekType();
+                boolean hasWeek1 = false, hasWeek2 = false;
+
+                if (item.getLessons() != null) {
+                    for (LessonItem lesson : item.getLessons()) {
+                        if (lesson.getWeekType() != null) {
+                            if (lesson.getWeekType() == 1) hasWeek1 = true;
+                            if (lesson.getWeekType() == 2) hasWeek2 = true;
+                        }
+                    }
+                }
+
+                lessonHolder.iconCircle.setVisibility(hasWeek1 ? View.VISIBLE : View.GONE);
+                if (hasWeek1) {
+                    lessonHolder.iconCircle.setImageResource(currentWeekType == 1 ? R.drawable.ic_circle_filled : R.drawable.ic_circle_outline);
+                }
+
+                lessonHolder.iconTriangle.setVisibility(hasWeek2 ? View.VISIBLE : View.GONE);
+                if (hasWeek2) {
+                    lessonHolder.iconTriangle.setImageResource(currentWeekType == 2 ? R.drawable.ic_triangle_filled : R.drawable.ic_triangle_outline);
+                }
+
+                if (item.getNote() != null && !item.getNote().trim().isEmpty()) {
+                    lessonHolder.ivNoteIcon.setVisibility(View.VISIBLE);
+                    lessonHolder.ivNoteIcon.setOnClickListener(v -> {
+                        new AlertDialog.Builder(v.getContext())
+                                .setTitle("Заметка")
+                                .setMessage(item.getNote())
+                                .setPositiveButton("ОК", null)
+                                .show();
+                    });
+                } else {
+                    lessonHolder.ivNoteIcon.setVisibility(View.GONE);
+                }
+
+                lessonHolder.itemView.setOnLongClickListener(v -> {
+                    Context context = v.getContext();
+                    AlertDialog.Builder builderDialog = new AlertDialog.Builder(context);
+                    builderDialog.setTitle("Добавить заметку");
+
+                    View dialogView = LayoutInflater.from(context).inflate(R.layout.dialog_note_input, null);
+                    EditText etNote = dialogView.findViewById(R.id.etNote);
+                    Button btnPickDate = dialogView.findViewById(R.id.btnPickDate);
+                    TextView tvSelectedDate = dialogView.findViewById(R.id.tvSelectedDate);
+                    Button btnPickTime = dialogView.findViewById(R.id.btnPickTime);
+                    TextView tvSelectedTime = dialogView.findViewById(R.id.tvSelectedTime);
+
+                    etNote.setText(item.getNote());
+
+                    final Calendar calendar = Calendar.getInstance();
+                    final long[] remindAt = {0};
+
+                    btnPickDate.setOnClickListener(view -> {
+                        DatePickerDialog datePickerDialog = new DatePickerDialog(context, (datePicker, year, month, dayOfMonth) -> {
+                            calendar.set(Calendar.YEAR, year);
+                            calendar.set(Calendar.MONTH, month);
+                            calendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
+                            tvSelectedDate.setText(String.format("Выбрано: %02d.%02d.%d", dayOfMonth, month + 1, year));
+                        }, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH));
+                        datePickerDialog.show();
+                    });
+
+                    btnPickTime.setOnClickListener(view -> {
+                        TimePickerDialog timePickerDialog = new TimePickerDialog(context, (timePicker, hourOfDay, minute) -> {
+                            calendar.set(Calendar.HOUR_OF_DAY, hourOfDay);
+                            calendar.set(Calendar.MINUTE, minute);
+                            calendar.set(Calendar.SECOND, 0);
+                            remindAt[0] = calendar.getTimeInMillis();
+                            tvSelectedTime.setText(String.format("Выбрано: %02d:%02d", hourOfDay, minute));
+                        }, calendar.get(Calendar.HOUR_OF_DAY), calendar.get(Calendar.MINUTE), true);
+                        timePickerDialog.show();
+                    });
+
+                    builderDialog.setView(dialogView);
+
+                    builderDialog.setPositiveButton("Сохранить", ((dialog, which) -> {
+                        String note = etNote.getText().toString().trim();
+                        item.setNote(note);
+
+                        noteRepository.saveNote(getLessonKey(item), note, remindAt[0]);
+
+                        if (remindAt[0] > 0) {
+                            String lessonName = "Занятие";
+                            if (!item.getLessons().isEmpty()) {
+                                LessonItem firstLesson = item.getLessons().get(0);
+                                lessonName = firstLesson.getLessonName() != null ? firstLesson.getLessonName() : "—";
+                            }
+                            String lessonTime = item.getStartTime() + " - " + item.getEndTime();
+
+                            ReminderScheduler.scheduleReminder(context,
+                                    getLessonKey(item),
+                                    note,
+                                    lessonName,
+                                    lessonTime,
+                                    remindAt[0]);
+                        }
+
+                        notifyItemChanged(holder.getAdapterPosition());
+                    }));
+
+                    builderDialog.setNegativeButton("Отмена", ((dialog, which) -> dialog.cancel()));
+
+                    builderDialog.show();
+                    return true;
+                });
+            }
+        } catch (Exception e) {
+            Log.e("LessonAdapter", "Error in onBindViewHolder at position " + position, e);
+            throw new RuntimeException("Failed to bind view holder", e);
         }
     }
 
-    // 🔄 Переключение видимости пар
     private void toggleDayVisibility(String dayId) {
         boolean shouldExpand = false;
 
-        // Проверка, нужно ли раскрыть
         for (DisplayLessonItem item : allItems) {
             if (item.getType() == DisplayLessonItem.TYPE_LESSON && item.getDayId().equals(dayId)) {
                 if (!item.isVisible()) {
@@ -255,14 +288,12 @@ public class LessonAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             }
         }
 
-        // Применение изменений видимости
         for (DisplayLessonItem item : allItems) {
             if (item.getType() == DisplayLessonItem.TYPE_LESSON && item.getDayId().equals(dayId)) {
                 item.setVisible(shouldExpand);
             }
         }
 
-        // Синхронизируем список visibleItems с актуальными данными
         List<DisplayLessonItem> oldItems = new ArrayList<>(visibleItems);
         visibleItems.clear();
         for (DisplayLessonItem item : allItems) {
@@ -271,16 +302,14 @@ public class LessonAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             }
         }
 
-        // ⚡️ Используем DiffUtil для плавного обновления
         DiffUtil.DiffResult result = DiffUtil.calculateDiff(new LessonDiffUtil(oldItems, visibleItems));
         result.dispatchUpdatesTo(this);
     }
 
-
     private boolean isDayExpanded(String dayId) {
         for (DisplayLessonItem item : allItems) {
             if (item.getType() == DisplayLessonItem.TYPE_LESSON && item.getDayId().equals(dayId)) {
-                return item.isVisible(); // если хоть один видим — день раскрыт
+                return item.isVisible();
             }
         }
         return false;
