@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">IRKPO Mentor</string>
+    <string name="app_name">Stud Informer</string>
     <string name="schedule">Расписание</string>
     <string name="performance">Успеваемость</string>
     <string name="moodle">Moodle</string>
@@ -9,6 +9,7 @@
     <string name="search">Поиск</string>
     <string name="typeOfWeek">Тип недели: </string>
     <string name="numbersOfMonth">[01 мес–07 мес]</string>
+    <string name="tvTime">00:00</string>
 
     <string name="note">Заметка</string>
     <string name="selectDate">Выбрать дату</string>

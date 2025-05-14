@@ -7,22 +7,17 @@
     android:padding="16dp"
     android:fitsSystemWindows="true">
 
-    <!-- Заголовок приложения -->
     <TextView
         android:id="@+id/app_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="IRKPO MENTOR"
+        android:text="Stud Informer"
         android:textAppearance="@style/TextAppearance.Material3.HeadlineMedium"
         android:textColor="?attr/textColor"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_marginBottom="32dp" />
-
-    <!-- Кнопка Расписание -->
-
-    <!-- Кнопка Успеваемость -->
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/button_schedule"
@@ -72,9 +67,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/button_schedule" />
 
-    <!-- Кнопка Moodle -->
-
-    <!-- Переключатель тем -->
     <com.google.android.material.switchmaterial.SwitchMaterial
         android:id="@+id/theme_switch"
         android:layout_width="wrap_content"

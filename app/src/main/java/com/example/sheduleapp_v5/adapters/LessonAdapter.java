@@ -4,7 +4,10 @@ import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.content.Context;
+import android.graphics.drawable.Drawable;
 import android.text.SpannableString;
+import android.text.Spanned;
+import android.text.style.ImageSpan;
 import android.text.style.StyleSpan;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -16,6 +19,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -119,22 +123,18 @@ public class LessonAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                     for (int i = 0; i < item.getLessons().size(); i++) {
                         LessonItem lesson = item.getLessons().get(i);
                         builder.append("Предмет: ").append(lesson.getLessonName() != null ? lesson.getLessonName() : "—").append("\n")
-                                .append("Преподаватель: ").append(lesson.getTeacherName() != null ? lesson.getTeacherName() : "—").append("\n")
-                                .append("Аудитория: ").append(lesson.getClassroom() != null ? lesson.getClassroom() : "—")
-                                .append(lesson.getLocation() != null ? " (" + lesson.getLocation() + ")" : "").append("");
+                                .append("").append(lesson.getTeacherName() != null ? lesson.getTeacherName() : "—").append("\n")
+                                .append("").append(lesson.getClassroom() != null ? lesson.getClassroom() : "—")
+                                .append(lesson.getLocation() != null ? " (" + lesson.getLocation() + ")" : "");
 
-                        boolean hasExtras = lesson.getComment() != null || lesson.getSubgroup() != null || lesson.getWeekType() != null;
-                        if (hasExtras) {
-                            builder.append("\n");
-
-                            if (lesson.getWeekType() != null && lesson.getWeekType().equals(item.getCurrentWeekType())) {
-                                builder.append(lesson.getWeekType() == 1 ? "🟢 " : "🔺 ");
-                            }
-
-                            builder.append("⚙️ ");
-
+                        boolean hasExtras = lesson.getComment() != null || lesson.getSubgroup() != null;
+                        if (hasExtras || lesson.getWeekType() != null) {
+                            builder.append("\n⚙️ ");
                             if (lesson.getSubgroup() != null) builder.append("подгр. ").append(lesson.getSubgroup()).append(" ");
                             if (lesson.getComment() != null) builder.append(lesson.getComment()).append(" ");
+                            if (lesson.getWeekType() != null) {
+                                builder.append("[ICON]"); // Добавляем placeholder только если есть weekType
+                            }
                         }
 
                         // Добавляем разделяющую линию, если это не последний элемент
@@ -148,43 +148,52 @@ public class LessonAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                     builder.append("Нет данных");
                 }
 
-                // Создаём SpannableString для выделения "Предмет" и "Аудитория" жирным
+                // Создаём SpannableString для выделения "Предмет" и "Аудитория" жирным и добавления иконок
                 SpannableString spannable = new SpannableString(builder.toString().trim());
                 String text = spannable.toString();
                 int startIndex = 0;
+
+                // Выделяем "Предмет" и "Аудитория" жирным
                 while ((startIndex = text.indexOf("Предмет:", startIndex)) != -1) {
                     spannable.setSpan(new StyleSpan(android.graphics.Typeface.BOLD), startIndex, startIndex + 8, 0);
                     startIndex += 8;
                 }
+                startIndex = 0;
                 while ((startIndex = text.indexOf("Аудитория:", startIndex)) != -1) {
                     spannable.setSpan(new StyleSpan(android.graphics.Typeface.BOLD), startIndex, startIndex + 10, 0);
                     startIndex += 10;
                 }
 
-                Log.d("LessonAdapter", "Details: " + spannable.toString());
-                lessonHolder.tvDetails.setText(spannable);
-
+                // Добавляем иконки типа недели
+                startIndex = 0;
                 int currentWeekType = item.getCurrentWeekType();
-                boolean hasWeek1 = false, hasWeek2 = false;
-
-                if (item.getLessons() != null) {
-                    for (LessonItem lesson : item.getLessons()) {
-                        if (lesson.getWeekType() != null) {
-                            if (lesson.getWeekType() == 1) hasWeek1 = true;
-                            if (lesson.getWeekType() == 2) hasWeek2 = true;
+                for (int i = 0; i < item.getLessons().size(); i++) {
+                    LessonItem lesson = item.getLessons().get(i);
+                    Integer weekType = lesson.getWeekType();
+                    if (weekType != null) {
+                        int iconIndex = text.indexOf("[ICON]", startIndex);
+                        if (iconIndex != -1) {
+                            Drawable icon;
+                            if (weekType == 1) {
+                                icon = ContextCompat.getDrawable(holder.itemView.getContext(),
+                                        currentWeekType == 1 ? R.drawable.ic_circle_filled : R.drawable.ic_circle_outline);
+                            } else {
+                                icon = ContextCompat.getDrawable(holder.itemView.getContext(),
+                                        currentWeekType == 2 ? R.drawable.ic_triangle_filled : R.drawable.ic_triangle_outline);
+                            }
+                            if (icon != null) {
+                                icon.setBounds(0, 0, (int) (16 * holder.itemView.getContext().getResources().getDisplayMetrics().density),
+                                        (int) (16 * holder.itemView.getContext().getResources().getDisplayMetrics().density));
+                                ImageSpan imageSpan = new ImageSpan(icon, ImageSpan.ALIGN_BASELINE);
+                                spannable.setSpan(imageSpan, iconIndex, iconIndex + "[ICON]".length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                            }
+                            startIndex = iconIndex + 1;
                         }
                     }
                 }
 
-                lessonHolder.iconCircle.setVisibility(hasWeek1 ? View.VISIBLE : View.GONE);
-                if (hasWeek1) {
-                    lessonHolder.iconCircle.setImageResource(currentWeekType == 1 ? R.drawable.ic_circle_filled : R.drawable.ic_circle_outline);
-                }
-
-                lessonHolder.iconTriangle.setVisibility(hasWeek2 ? View.VISIBLE : View.GONE);
-                if (hasWeek2) {
-                    lessonHolder.iconTriangle.setImageResource(currentWeekType == 2 ? R.drawable.ic_triangle_filled : R.drawable.ic_triangle_outline);
-                }
+                Log.d("LessonAdapter", "Details: " + spannable.toString());
+                lessonHolder.tvDetails.setText(spannable);
 
                 if (item.getNote() != null && !item.getNote().trim().isEmpty()) {
                     lessonHolder.ivNoteIcon.setVisibility(View.VISIBLE);
@@ -336,14 +345,12 @@ public class LessonAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
     static class LessonViewHolder extends RecyclerView.ViewHolder {
         TextView tvTime, tvDetails;
-        ImageView iconCircle, iconTriangle, ivNoteIcon;
+        ImageView ivNoteIcon;
 
         public LessonViewHolder(@NonNull View itemView) {
             super(itemView);
             tvTime = itemView.findViewById(R.id.tvTime);
             tvDetails = itemView.findViewById(R.id.tvDetails);
-            iconCircle = itemView.findViewById(R.id.iconCircle);
-            iconTriangle = itemView.findViewById(R.id.iconTriangle);
             ivNoteIcon = itemView.findViewById(R.id.ivNoteIcon);
         }
     }

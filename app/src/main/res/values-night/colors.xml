@@ -8,5 +8,6 @@
     <color name="accent_primary">#42A5F5</color>
     <color name="accent_secondary">#0288D1</color>
     <color name="card_background">#2A3435</color>
+    <color name="card_backgroundSchedule">#B0BEC5</color>
     <color name="day">#A0A8B0</color>
 </resources>
