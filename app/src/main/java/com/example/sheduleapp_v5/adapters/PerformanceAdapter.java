@@ -2,6 +2,10 @@ package com.example.sheduleapp_v5.adapters;
 
 import android.app.AlertDialog;
 import android.content.Context;
+import android.graphics.Typeface;
+import android.text.Spannable;
+import android.text.SpannableString;
+import android.text.style.StyleSpan;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -234,13 +238,36 @@ public class PerformanceAdapter extends RecyclerView.Adapter<PerformanceAdapter.
         TextView lessonView = new TextView(context);
         lessonView.setTextSize(16);
         String lessonDate = lesson.getLessonDate();
-        lessonView.setText("📅 " + formatDate(lessonDate) + "\n" + "📚 " + lesson.getThemePlanName());
+        String themePlanName = lesson.getThemePlanName();
+
+        String lessonText = "📅 " + formatDate(lessonDate) + "\n" + "📚 " + themePlanName;
+
+// Создаем SpannableString для lessonView
+        SpannableString spannableLesson = new SpannableString(lessonText);
+
+// Жирным делаем дату (начинается с позиции 2, т.к. 0 — эмодзи, 1 — пробел)
+        int startDate = 2;
+        int endDate = 3 + formatDate(lessonDate).length();
+        spannableLesson.setSpan(new StyleSpan(Typeface.BOLD), startDate, endDate, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+
+        lessonView.setText(spannableLesson);
+
 
         TextView markView = new TextView(context);
         markView.setTextSize(16);
         String mark = lesson.getMarkName() != null ? lesson.getMarkName() : "-";
-        markView.setText("📝 Оценка: " + mark);
+        String markText = "📝 Оценка: " + mark;
 
+        // SpannableString для markView
+        SpannableString spannableMark = new SpannableString(markText);
+
+// Жирным делаем только оценку (значение mark)
+        int startMark = markText.indexOf(mark);
+        int endMark = startMark + mark.length();
+
+        spannableMark.setSpan(new StyleSpan(Typeface.BOLD), startMark, endMark, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+
+        markView.setText(spannableMark);
         if (mark.equals("2") || mark.toLowerCase().contains("незачет")) {
             markView.setTextColor(context.getResources().getColor(android.R.color.holo_red_dark));
         } else if (mark.equals("5") || mark.equals("4") || mark.toLowerCase().contains("зачет")) {

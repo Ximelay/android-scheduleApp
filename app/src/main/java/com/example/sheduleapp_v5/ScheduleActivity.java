@@ -1,7 +1,10 @@
 package com.example.sheduleapp_v5;
 
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
@@ -21,6 +24,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.core.view.WindowCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.work.Constraints;
@@ -58,6 +62,7 @@ public class ScheduleActivity extends AppCompatActivity {
     private RecyclerView recyclerView;
     private TextView tvWeekType;
     private TextView tvWeekRange;
+    private TextView tvCacheStatus;
     private AutoCompleteTextView etSearch;
     private Button btnSearch;
     private ProgressBar loadingProgressBar;
@@ -67,6 +72,7 @@ public class ScheduleActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        WindowCompat.setDecorFitsSystemWindows(getWindow(), true);
         setContentView(R.layout.activity_schedule);
 
         GroupUtils.init(this);
@@ -85,6 +91,7 @@ public class ScheduleActivity extends AppCompatActivity {
         recyclerView = findViewById(R.id.recyclerView);
         tvWeekType = findViewById(R.id.tvWeekType);
         tvWeekRange = findViewById(R.id.tvWeekRange);
+        tvCacheStatus = findViewById(R.id.tvCacheStatus);
         etSearch = findViewById(R.id.etSearch);
         btnSearch = findViewById(R.id.btnSearch);
         loadingProgressBar = findViewById(R.id.loadingProgressBar);
@@ -105,7 +112,11 @@ public class ScheduleActivity extends AppCompatActivity {
             Integer groupId = GroupUtils.getGroupId(defaultGroup);
             if (groupId != null) {
                 Log.d(TAG, "Loading schedule for default group: " + defaultGroup + ", groupId: " + groupId);
-                fetchSchedule(groupId);
+                if (isNetworkAvailable()) {
+                    fetchSchedule(groupId);
+                } else {
+                    loadCachedSchedule(groupId);
+                }
             }
         }
 
@@ -116,14 +127,22 @@ public class ScheduleActivity extends AppCompatActivity {
             if (!query.isEmpty()) {
                 if (GroupUtils.getGroupId(query) != null) {
                     Integer groupId = GroupUtils.getGroupId(query);
-                    Log.d(TAG, "Search button clicked, fetching schedule for groupId: " + groupId);
-                    fetchSchedule(groupId);
+                    Log.d(TAG, "Search button clicked, processing for groupId: " + groupId);
+                    if (isNetworkAvailable()) {
+                        fetchSchedule(groupId);
+                    } else {
+                        loadCachedSchedule(groupId);
+                    }
                     hideKeyboard();
                 } else {
                     String teacherId = findTeacherIdByFormattedName(query);
                     if (teacherId != null) {
                         Log.d(TAG, "Search button clicked, fetching schedule for teacherId: " + teacherId);
-                        fetchScheduleByTeacher(teacherId);
+                        if (isNetworkAvailable()) {
+                            fetchScheduleByTeacher(teacherId);
+                        } else {
+                            Toast.makeText(this, "Расписание преподавателя недоступно в оффлайн-режиме", Toast.LENGTH_SHORT).show();
+                        }
                         hideKeyboard();
                     } else {
                         List<String> filteredTeachers = TeacherUtils.getFilteredTeachers(query);
@@ -132,7 +151,11 @@ public class ScheduleActivity extends AppCompatActivity {
                             teacherId = findTeacherIdByFormattedName(firstMatch);
                             if (teacherId != null) {
                                 Log.d(TAG, "Search button clicked, fetching schedule for teacherId: " + teacherId + " (matched: " + firstMatch + ")");
-                                fetchScheduleByTeacher(teacherId);
+                                if (isNetworkAvailable()) {
+                                    fetchScheduleByTeacher(teacherId);
+                                } else {
+                                    Toast.makeText(this, "Расписание преподавателя недоступно в оффлайн-режиме", Toast.LENGTH_SHORT).show();
+                                }
                                 etSearch.setText(firstMatch);
                                 hideKeyboard();
                                 return;
@@ -154,12 +177,20 @@ public class ScheduleActivity extends AppCompatActivity {
             if (GroupUtils.getGroupId(selected) != null) {
                 Integer groupId = GroupUtils.getGroupId(selected);
                 Log.d(TAG, "Item selected, fetching schedule for groupId: " + groupId);
-                fetchSchedule(groupId);
+                if (isNetworkAvailable()) {
+                    fetchSchedule(groupId);
+                } else {
+                    loadCachedSchedule(groupId);
+                }
             } else {
                 String teacherId = findTeacherIdByFormattedName(selected);
                 if (teacherId != null) {
                     Log.d(TAG, "Item selected, fetching schedule for teacherId: " + teacherId);
-                    fetchScheduleByTeacher(teacherId);
+                    if (isNetworkAvailable()) {
+                        fetchScheduleByTeacher(teacherId);
+                    } else {
+                        Toast.makeText(this, "Расписание преподавателя недоступно в оффлайн-режиме", Toast.LENGTH_SHORT).show();
+                    }
                 } else {
                     Toast.makeText(this, "Группа или преподаватель не найдены!", Toast.LENGTH_SHORT).show();
                 }
@@ -203,6 +234,15 @@ public class ScheduleActivity extends AppCompatActivity {
             @Override
             public void afterTextChanged(android.text.Editable editable) {}
         });
+    }
+
+    private boolean isNetworkAvailable() {
+        ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        if (connectivityManager != null) {
+            NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+            return activeNetworkInfo != null && activeNetworkInfo.isConnected();
+        }
+        return false;
     }
 
     private String findTeacherIdByFormattedName(String formattedName) {
@@ -254,65 +294,48 @@ public class ScheduleActivity extends AppCompatActivity {
                 hideProgressBar();
                 if (response.isSuccessful() && response.body() != null) {
                     ScheduleResponse scheduleResponse = response.body();
-                    List<DaySchedule> daySchedules = scheduleResponse.getItems();
+                    displaySchedule(scheduleResponse);
 
-                    if (daySchedules.isEmpty()) {
-                        recyclerView.setVisibility(View.GONE);
-                        TextView noDataTextView = findViewById(R.id.tvNoData);
-                        noDataTextView.setVisibility(View.VISIBLE);
-                        noDataTextView.setText("Нет данных");
-                    } else {
-                        recyclerView.setVisibility(View.VISIBLE);
-                        TextView noDataTextView = findViewById(R.id.tvNoData);
-                        noDataTextView.setVisibility(View.GONE);
+                    PreferenceManager preferenceManager = new PreferenceManager(ScheduleActivity.this);
+                    Log.d(TAG, "Saving groupId: " + groupId);
+                    preferenceManager.setGroupId(groupId);
+                    preferenceManager.setDefaultGroup(GroupUtils.getGroupName(groupId));
 
-                        int currentWeekType = scheduleResponse.getCurrentWeekType();
-                        String weekLabel = currentWeekType == 1 ? "Круглая" : "Треугольная";
-                        tvWeekType.setText("Тип недели: " + weekLabel);
-                        tvWeekRange.setText("[" + scheduleResponse.getCurrentWeekName() + "]");
+                    Gson gson = new Gson();
+                    String scheduleJson = gson.toJson(scheduleResponse);
+                    preferenceManager.setScheduleCache(scheduleJson);
+                    preferenceManager.setCachedGroupId(groupId);
+                    Log.d(TAG, "Saved schedule to cache for groupId: " + groupId);
 
-                        List<DisplayLessonItem> displayItems = new ArrayList<>();
-                        for (DaySchedule day : daySchedules) {
-                            displayItems.add(new DisplayLessonItem(
-                                    DisplayLessonItem.TYPE_HEADER,
-                                    day.getDayOfWeek(),
-                                    null,
-                                    null,
-                                    null,
-                                    false,
-                                    currentWeekType
-                            ));
+                    schedulePeriodWorker();
+                } else {
+                    Log.e(TAG, "Empty or failed response: " + response.code());
+                    Toast.makeText(ScheduleActivity.this, "Ошибка загрузки расписания", Toast.LENGTH_SHORT).show();
+                    loadCachedSchedule(groupId);
+                }
+            }
 
-                            for (LessonIndex index : day.getLessonIndexes()) {
-                                displayItems.add(new DisplayLessonItem(
-                                        DisplayLessonItem.TYPE_LESSON,
-                                        day.getDayOfWeek(),
-                                        index.getLessonStartTime(),
-                                        index.getLessonEndTime(),
-                                        index.getItems(),
-                                        false,
-                                        currentWeekType
-                                ));
-                            }
-                        }
+            @Override
+            public void onFailure(Call<ScheduleResponse> call, Throwable t) {
+                hideProgressBar();
+                Log.e(TAG, "Failed to fetch schedule", t);
+                Toast.makeText(ScheduleActivity.this, "Ошибка сети", Toast.LENGTH_SHORT).show();
+                loadCachedSchedule(groupId);
+            }
+        });
+    }
 
-                        LessonAdapter lessonAdapter = new LessonAdapter(ScheduleActivity.this, displayItems);
-                        recyclerView.setAdapter(lessonAdapter);
-                        recyclerView.addItemDecoration(new StickyHeaderDecoration(lessonAdapter));
+    private void fetchScheduleByTeacher(String personId) {
+        showProgressBar();
 
-                        PreferenceManager preferenceManager = new PreferenceManager(ScheduleActivity.this);
-                        Log.d(TAG, "Saving groupId: " + groupId);
-                        preferenceManager.setGroupId(groupId);
-                        preferenceManager.setDefaultGroup(GroupUtils.getGroupName(groupId));
-
-                        Gson gson = new Gson();
-                        String scheduleJson = gson.toJson(scheduleResponse);
-                        preferenceManager.setScheduleCache(scheduleJson);
-                        preferenceManager.setCachedGroupId(groupId);
-                        Log.d(TAG, "Saved schedule to cache for groupId: " + groupId);
-
-                        schedulePeriodWorker();
-                    }
+        ScheduleApi api = ApiClient.getRetrofitInstance().create(ScheduleApi.class);
+        api.getScheduleByPersonId(personId).enqueue(new Callback<ScheduleResponse>() {
+            @Override
+            public void onResponse(Call<ScheduleResponse> call, Response<ScheduleResponse> response) {
+                hideProgressBar();
+                if (response.isSuccessful() && response.body() != null) {
+                    ScheduleResponse scheduleResponse = response.body();
+                    displaySchedule(scheduleResponse);
                 } else {
                     Log.e(TAG, "Empty or failed response: " + response.code());
                     Toast.makeText(ScheduleActivity.this, "Ошибка загрузки расписания", Toast.LENGTH_SHORT).show();
@@ -328,64 +351,75 @@ public class ScheduleActivity extends AppCompatActivity {
         });
     }
 
-    private void fetchScheduleByTeacher(String personId) {
-        showProgressBar();
+    private void displaySchedule(ScheduleResponse scheduleResponse) {
+        tvCacheStatus.setVisibility(isNetworkAvailable() ? View.GONE : View.VISIBLE);
 
-        ScheduleApi api = ApiClient.getRetrofitInstance().create(ScheduleApi.class);
-        api.getScheduleByPersonId(personId).enqueue(new Callback<ScheduleResponse>() {
-            @Override
-            public void onResponse(Call<ScheduleResponse> call, Response<ScheduleResponse> response) {
-                hideProgressBar();
-                if (response.isSuccessful() && response.body() != null) {
-                    ScheduleResponse scheduleResponse = response.body();
-                    List<DaySchedule> daySchedules = scheduleResponse.getItems();
+        List<DaySchedule> daySchedules = scheduleResponse.getItems();
 
-                    int currentWeekType = scheduleResponse.getCurrentWeekType();
-                    String weekLabel = currentWeekType == 1 ? "Круглая" : "Треугольная";
-                    tvWeekType.setText("Тип недели: " + weekLabel);
-                    tvWeekRange.setText("[" + scheduleResponse.getCurrentWeekName() + "]");
+        if (daySchedules.isEmpty()) {
+            recyclerView.setVisibility(View.GONE);
+            TextView noDataTextView = findViewById(R.id.tvNoData);
+            noDataTextView.setVisibility(View.VISIBLE);
+            noDataTextView.setText("Нет данных");
+        } else {
+            recyclerView.setVisibility(View.VISIBLE);
+            TextView noDataTextView = findViewById(R.id.tvNoData);
+            noDataTextView.setVisibility(View.GONE);
 
-                    List<DisplayLessonItem> displayItems = new ArrayList<>();
-                    for (DaySchedule day : daySchedules) {
-                        displayItems.add(new DisplayLessonItem(
-                                DisplayLessonItem.TYPE_HEADER,
-                                day.getDayOfWeek(),
-                                null,
-                                null,
-                                null,
-                                false,
-                                currentWeekType
-                        ));
+            int currentWeekType = scheduleResponse.getCurrentWeekType();
+            String weekLabel = currentWeekType == 1 ? "Круглая" : "Треугольная";
+            tvWeekType.setText("Тип недели: " + weekLabel);
+            tvWeekRange.setText("[" + scheduleResponse.getCurrentWeekName() + "]");
 
-                        for (LessonIndex index : day.getLessonIndexes()) {
-                            displayItems.add(new DisplayLessonItem(
-                                    DisplayLessonItem.TYPE_LESSON,
-                                    day.getDayOfWeek(),
-                                    index.getLessonStartTime(),
-                                    index.getLessonEndTime(),
-                                    index.getItems(),
-                                    false,
-                                    currentWeekType
-                            ));
-                        }
-                    }
+            List<DisplayLessonItem> displayItems = new ArrayList<>();
+            for (DaySchedule day : daySchedules) {
+                displayItems.add(new DisplayLessonItem(
+                        DisplayLessonItem.TYPE_HEADER,
+                        day.getDayOfWeek(),
+                        null,
+                        null,
+                        null,
+                        false,
+                        currentWeekType
+                ));
 
-                    LessonAdapter lessonAdapter = new LessonAdapter(ScheduleActivity.this, displayItems);
-                    recyclerView.setAdapter(lessonAdapter);
-                    recyclerView.addItemDecoration(new StickyHeaderDecoration(lessonAdapter));
-                } else {
-                    Log.e(TAG, "Empty or failed response: " + response.code());
-                    Toast.makeText(ScheduleActivity.this, "Ошибка загрузки расписания", Toast.LENGTH_SHORT).show();
+                for (LessonIndex index : day.getLessonIndexes()) {
+                    displayItems.add(new DisplayLessonItem(
+                            DisplayLessonItem.TYPE_LESSON,
+                            day.getDayOfWeek(),
+                            index.getLessonStartTime(),
+                            index.getLessonEndTime(),
+                            index.getItems(),
+                            false,
+                            currentWeekType
+                    ));
                 }
             }
 
-            @Override
-            public void onFailure(Call<ScheduleResponse> call, Throwable t) {
-                hideProgressBar();
-                Log.e(TAG, "Failed to fetch schedule", t);
-                Toast.makeText(ScheduleActivity.this, "Ошибка сети", Toast.LENGTH_SHORT).show();
+            LessonAdapter lessonAdapter = new LessonAdapter(ScheduleActivity.this, displayItems);
+            recyclerView.setAdapter(lessonAdapter);
+            recyclerView.addItemDecoration(new StickyHeaderDecoration(lessonAdapter));
+        }
+    }
+
+    private void loadCachedSchedule(int groupId) {
+        PreferenceManager preferenceManager = new PreferenceManager(this);
+        String cachedSchedule = preferenceManager.getScheduleCache();
+        int cachedGroupId = preferenceManager.getCachedGroupId();
+
+        if (cachedSchedule != null && !cachedSchedule.isEmpty() && cachedGroupId == groupId) {
+            try {
+                Gson gson = new Gson();
+                ScheduleResponse scheduleResponse = gson.fromJson(cachedSchedule, ScheduleResponse.class);
+                displaySchedule(scheduleResponse);
+                Toast.makeText(this, "Загружено кэшированное расписание (оффлайн)", Toast.LENGTH_LONG).show();
+            } catch (Exception e) {
+                Log.e(TAG, "Failed to parse cached schedule", e);
+                Toast.makeText(this, "Ошибка загрузки кэшированного расписания", Toast.LENGTH_SHORT).show();
             }
-        });
+        } else {
+            Toast.makeText(this, "Нет кэшированных данных для этой группы", Toast.LENGTH_SHORT).show();
+        }
     }
 
     private void showProgressBar() {

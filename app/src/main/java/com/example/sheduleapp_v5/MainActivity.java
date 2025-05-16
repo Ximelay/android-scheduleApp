@@ -3,15 +3,22 @@ package com.example.sheduleapp_v5;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.text.SpannableString;
+import android.text.Spanned;
+import android.text.method.LinkMovementMethod;
+import android.text.style.ClickableSpan;
 import android.view.View;
-import android.widget.Button;
 import android.widget.CompoundButton;
-import android.widget.Switch;
+import android.widget.TextView;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
+import androidx.core.view.WindowCompat;
 
 import com.example.sheduleapp_v5.work.ReminderScheduler;
 import com.google.android.material.button.MaterialButton;
@@ -23,22 +30,26 @@ public class MainActivity extends AppCompatActivity {
     MaterialButton buttonSchedule;
     MaterialButton buttonPerformance;
     MaterialButton buttonMoodle;
+    MaterialButton buttonAbout;
     SwitchMaterial themeSwitch;
     private SharedPreferences sharedPreferences;
-
+    private static final String TELEGRAM = "Jxthvr";
+    private static final String GITHUB = "Ximelay";
+    private static final String GITHUB_REPOSITORY = "https://github.com/Ximelay/android-scheduleApp";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        WindowCompat.setDecorFitsSystemWindows(getWindow(), true);
         setContentView(R.layout.activity_main);
 
         ReminderScheduler.scheduleWeeklyCleanup(this);
-
 
         buttonSchedule = findViewById(R.id.button_schedule);
         buttonPerformance = findViewById(R.id.button_performance);
         buttonMoodle = findViewById(R.id.button_moodle);
         themeSwitch = findViewById(R.id.theme_switch);
+        buttonAbout = findViewById(R.id.button_about);
 
         sharedPreferences = getSharedPreferences("ThemePrefs", MODE_PRIVATE);
         boolean isDarkMode = sharedPreferences.getBoolean("darkMode", false);
@@ -51,7 +62,7 @@ public class MainActivity extends AppCompatActivity {
                 editor.putBoolean("darkMode", isChecked);
                 editor.apply();
 
-                if(isChecked) {
+                if (isChecked) {
                     AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
                 } else {
                     AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
@@ -80,13 +91,83 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://irkpo.ru/moodle/"));
-                intent.setPackage("com.moodle.moodlemobile"); // Пакет официального приложения Moodle
+                intent.setPackage("com.moodle.moodlemobile");
                 try {
                     startActivity(intent);
                 } catch (ActivityNotFoundException e) {
-                    // Если приложение не установлено, открываем Moodle в браузере
                     startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://irkpo.ru/moodle/")));
                 }
+            }
+        });
+
+        buttonAbout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+                builder.setTitle("О программе");
+
+                String versionName = "Неизвестно";
+                try {
+                    PackageInfo pInfo = getPackageManager().getPackageInfo(getPackageName(), 0);
+                    versionName = pInfo.versionName;
+                } catch (PackageManager.NameNotFoundException e) {
+                    e.printStackTrace();
+                }
+
+                String aboutMessage = "Автор: " + GITHUB + "\n" +
+                        "Версия: " + versionName + "\n" +
+                        "Приложенение создано для студентов и преподавателей ИРКПО\n" +
+                        "Предложения по улучшению можете писать в Telegram " + TELEGRAM;
+
+                SpannableString spannableMessage = new SpannableString(aboutMessage);
+
+                int githubStart = aboutMessage.indexOf(GITHUB);
+                int githubEnd = githubStart + GITHUB.length();
+                ClickableSpan githubLink = new ClickableSpan() {
+                    @Override
+                    public void onClick(View widget) {
+                        try {
+                            Intent githubIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/" + GITHUB));
+                            startActivity(githubIntent);
+                        } catch (ActivityNotFoundException e) {
+                            Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/" + GITHUB));
+                            startActivity(browserIntent);
+                        }
+                    }
+                };
+                spannableMessage.setSpan(githubLink, githubStart, githubEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+
+                int telegramStart = aboutMessage.indexOf(TELEGRAM);
+                int telegramEnd = telegramStart + TELEGRAM.length();
+                ClickableSpan telegramLink = new ClickableSpan() {
+                    @Override
+                    public void onClick(View widget) {
+                        try {
+                            Intent telegramIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("tg://resolve?domain=" + TELEGRAM));
+                            startActivity(telegramIntent);
+                        } catch (ActivityNotFoundException e) {
+                            Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://t.me/" + TELEGRAM));
+                            startActivity(browserIntent);
+                        }
+                    }
+                };
+                spannableMessage.setSpan(telegramLink, telegramStart, telegramEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+
+                TextView messageTextView = new TextView(MainActivity.this);
+                messageTextView.setText(spannableMessage);
+                messageTextView.setMovementMethod(LinkMovementMethod.getInstance());
+                messageTextView.setPadding(40, 20, 40, 20); // Отступы для текста
+
+                builder.setView(messageTextView);
+
+                builder.setPositiveButton("Перейти к исходному коду", (dialog, which) -> {
+                    Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(GITHUB_REPOSITORY));
+                    startActivity(intent);
+                });
+
+                builder.setNegativeButton("Закрыть", (dialog, which) -> dialog.dismiss());
+
+                builder.show();
             }
         });
     }

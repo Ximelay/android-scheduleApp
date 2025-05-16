@@ -16,6 +16,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.view.WindowCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -26,6 +27,7 @@ import com.example.sheduleapp_v5.network.PerformanceApi;
 import com.example.sheduleapp_v5.utils.PreferenceManager;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textfield.TextInputLayout;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -41,6 +43,7 @@ public class PerformanceActivity extends AppCompatActivity {
     private TextInputEditText phoneNumberInput;
     private MaterialButton fetchButton;
     private RecyclerView performanceRecyclerView;
+    private TextInputLayout semesterInputLayout; // Обновляем на TextInputLayout
     private AutoCompleteTextView semesterSpinner;
     private PerformanceAdapter performanceAdapter;
     private ProgressBar loadingProgressBar;
@@ -49,13 +52,18 @@ public class PerformanceActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        WindowCompat.setDecorFitsSystemWindows(getWindow(), true);
         setContentView(R.layout.activity_performance);
 
         phoneNumberInput = findViewById(R.id.phoneNumberInput);
         fetchButton = findViewById(R.id.fetchButton);
         performanceRecyclerView = findViewById(R.id.performanceRecyclerView);
+        semesterInputLayout = findViewById(R.id.semester_input_layout); // Инициализируем TextInputLayout
         semesterSpinner = findViewById(R.id.semesterSpinner);
         loadingProgressBar = findViewById(R.id.loadingProgressBar);
+
+        // Скрываем весь блок semesterInputLayout по умолчанию
+        semesterInputLayout.setVisibility(View.GONE);
 
         performanceRecyclerView.setLayoutManager(new LinearLayoutManager(this));
 
@@ -154,8 +162,11 @@ public class PerformanceActivity extends AppCompatActivity {
                     allPlans = performance.getPlans();
                     updateRecyclerView(performance);
                     setupSemesterSpinner(allPlans);
+                    // Показываем semesterInputLayout только после успешного получения данных
+                    semesterInputLayout.setVisibility(View.VISIBLE);
                 } else {
                     Toast.makeText(PerformanceActivity.this, "Ошибка загрузки данных", Toast.LENGTH_SHORT).show();
+                    semesterInputLayout.setVisibility(View.GONE); // Скрываем при ошибке
                 }
             }
 
@@ -163,6 +174,7 @@ public class PerformanceActivity extends AppCompatActivity {
             public void onFailure(Call<PerformanceResponse> call, Throwable t) {
                 hideProgressBar();
                 Toast.makeText(PerformanceActivity.this, "Ошибка сети", Toast.LENGTH_SHORT).show();
+                semesterInputLayout.setVisibility(View.GONE); // Скрываем при ошибке сети
             }
         });
     }
