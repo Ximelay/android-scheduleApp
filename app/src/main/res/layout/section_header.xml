@@ -6,7 +6,8 @@
     android:orientation="horizontal"
     android:gravity="center_vertical"
     android:paddingTop="16dp"
-    android:paddingBottom="8dp">
+    android:paddingBottom="8dp"
+    >
 
     <TextView
         android:id="@+id/sectionTitleTextView"
