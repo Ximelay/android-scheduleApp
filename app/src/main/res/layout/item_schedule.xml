@@ -5,6 +5,7 @@
     android:layout_height="wrap_content"
     android:padding="8dp"
     android:layout_marginTop="8dp"
+    android:fitsSystemWindows="true"
     android:background="?android:attr/selectableItemBackground">
 
     <!-- День недели -->

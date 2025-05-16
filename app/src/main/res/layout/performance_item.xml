@@ -3,6 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_margin="8dp"
+    android:fitsSystemWindows="true"
     card_view:cardCornerRadius="8dp"
     card_view:cardElevation="4dp">
 
