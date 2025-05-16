@@ -1,12 +1,9 @@
 name: Create Release on Push or Pull Request
 
 on:
-  push:
-    branches:
-      - main
-  pull_request:
-    branches:
-      - main
+pull_request:
+  branches:
+    - main
 
 permissions:
   contents: write  # Даём права на запись в репозиторий для создания релиза
