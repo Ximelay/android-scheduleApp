@@ -332,8 +332,8 @@ public class LessonAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         return item.getDayId() + "_" + item.getStartTime() + "_" + item.getEndTime();
     }
 
-    public List<DisplayLessonItem> getLessonList() {
-        return allItems;
+    public List<DisplayLessonItem> getVisibleLessonList() {
+        return visibleItems;
     }
 
     static class HeaderViewHolder extends RecyclerView.ViewHolder {

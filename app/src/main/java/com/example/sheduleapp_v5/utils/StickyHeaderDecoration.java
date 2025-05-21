@@ -21,19 +21,36 @@ public class StickyHeaderDecoration extends RecyclerView.ItemDecoration {
 
     @Override
     public void onDrawOver(Canvas c, RecyclerView parent, RecyclerView.State state) {
-        if(parent.getChildCount() <= 0 || adapter.getItemCount() == 0)
+        if (parent.getChildCount() <= 0 || adapter.getItemCount() == 0)
             return;
 
+        // Получаем позицию первого видимого элемента в RecyclerView
         int topChildPosition = ((RecyclerView.LayoutManager) parent.getLayoutManager()).getPosition(parent.getChildAt(0));
-        if(topChildPosition == RecyclerView.NO_POSITION)
+        if (topChildPosition == RecyclerView.NO_POSITION)
             return;
 
-        DisplayLessonItem item = adapter.getLessonList().get(topChildPosition);
-        if(item.getType() != DisplayLessonItem.TYPE_LESSON)
+        // Получаем список видимых элементов
+        DisplayLessonItem currentItem = adapter.getVisibleLessonList().get(topChildPosition);
+
+        // Проверяем, что текущий элемент — это урок
+        if (currentItem.getType() != DisplayLessonItem.TYPE_LESSON)
             return;
 
-        String currentDay = item.getDayOfWeek();
+        // Ищем ближайший заголовок (TYPE_HEADER) перед текущей позицией
+        String currentDay = null;
+        for (int i = topChildPosition; i >= 0; i--) {
+            DisplayLessonItem item = adapter.getVisibleLessonList().get(i);
+            if (item.getType() == DisplayLessonItem.TYPE_HEADER) {
+                currentDay = item.getDayOfWeek();
+                break;
+            }
+        }
 
+        // Если заголовок не найден, ничего не отображаем
+        if (currentDay == null)
+            return;
+
+        // Создаем и настраиваем View для заголовка
         View headerView = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.item_day_header, parent, false);
         TextView tv = headerView.findViewById(R.id.tvDayHeader);
