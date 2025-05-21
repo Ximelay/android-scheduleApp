@@ -17,6 +17,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
@@ -39,11 +40,13 @@ public class LessonAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
     private List<DisplayLessonItem> allItems;
     private List<DisplayLessonItem> visibleItems;
     private final NoteRepository noteRepository;
+    private final boolean isTeacherSchedule; // Новый флаг для режима преподавателя
 
-    public LessonAdapter(Context context, List<DisplayLessonItem> lessonList) {
+    public LessonAdapter(Context context, List<DisplayLessonItem> lessonList, boolean isTeacherSchedule) {
         this.allItems = lessonList;
         this.visibleItems = new ArrayList<>();
         this.noteRepository = new NoteRepository(context);
+        this.isTeacherSchedule = isTeacherSchedule;
 
         for (DisplayLessonItem item : lessonList) {
             if (item.getType() == DisplayLessonItem.TYPE_HEADER || item.isVisible()) {
@@ -122,8 +125,11 @@ public class LessonAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                 if (item.getLessons() != null) {
                     for (int i = 0; i < item.getLessons().size(); i++) {
                         LessonItem lesson = item.getLessons().get(i);
-                        builder.append("Предмет: ").append(lesson.getLessonName() != null ? lesson.getLessonName() : "—").append("\n")
-                                .append("").append(lesson.getTeacherName() != null ? lesson.getTeacherName() : "—").append("\n")
+                        builder.append("Предмет: ").append(lesson.getLessonName() != null ? lesson.getLessonName() : "—").append("\n");
+                        if (isTeacherSchedule) { // Добавляем groupName только для преподавательского режима
+                            builder.append("").append(lesson.getGroupName() != null ? lesson.getGroupName() : "—").append("\n");
+                        }
+                        builder.append("").append(lesson.getTeacherName() != null ? lesson.getTeacherName() : "—").append("\n")
                                 .append("").append(lesson.getClassroom() != null ? lesson.getClassroom() : "—")
                                 .append(lesson.getLocation() != null ? " (" + lesson.getLocation() + ")" : "");
 
@@ -133,11 +139,10 @@ public class LessonAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                             if (lesson.getSubgroup() != null) builder.append("подгр. ").append(lesson.getSubgroup()).append(" ");
                             if (lesson.getComment() != null) builder.append(lesson.getComment()).append(" ");
                             if (lesson.getWeekType() != null) {
-                                builder.append("[ICON]"); // Добавляем placeholder только если есть weekType
+                                builder.append("[ICON]");
                             }
                         }
 
-                        // Добавляем разделяющую линию, если это не последний элемент
                         if (i < item.getLessons().size() - 1) {
                             builder.append("\n\n-----\n\n");
                         } else {
@@ -148,16 +153,16 @@ public class LessonAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                     builder.append("Нет данных");
                 }
 
-                // Создаём SpannableString для выделения "Предмет" и "Аудитория" жирным и добавления иконок
                 SpannableString spannable = new SpannableString(builder.toString().trim());
                 String text = spannable.toString();
                 int startIndex = 0;
 
-                // Выделяем "Предмет" и "Аудитория" жирным
+                // Выделяем "Предмет" жирным
                 while ((startIndex = text.indexOf("Предмет:", startIndex)) != -1) {
                     spannable.setSpan(new StyleSpan(android.graphics.Typeface.BOLD), startIndex, startIndex + 8, 0);
                     startIndex += 8;
                 }
+                // Выделяем "Аудитория" жирным (если есть)
                 startIndex = 0;
                 while ((startIndex = text.indexOf("Аудитория:", startIndex)) != -1) {
                     spannable.setSpan(new StyleSpan(android.graphics.Typeface.BOLD), startIndex, startIndex + 10, 0);
@@ -248,10 +253,24 @@ public class LessonAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
                     builderDialog.setView(dialogView);
 
-                    builderDialog.setPositiveButton("Сохранить", ((dialog, which) -> {
+                    builderDialog.setPositiveButton("Сохранить", (dialog, which) -> {
                         String note = etNote.getText().toString().trim();
-                        item.setNote(note);
+                        String selectedDate = tvSelectedDate.getText().toString().trim();
+                        String selectedTime = tvSelectedTime.getText().toString().trim();
 
+                        if (note.isEmpty() || selectedDate.isEmpty() || selectedTime.isEmpty()) {
+                            Toast.makeText(context, "Заполните все поля: заметка, дата и время!", Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+
+                        // Проверка на дату в прошлом
+                        long currentTime = System.currentTimeMillis();
+                        if (remindAt[0] <= currentTime) {
+                            Toast.makeText(context, "Нельзя установить напоминание на прошедшее время!", Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+
+                        item.setNote(note);
                         noteRepository.saveNote(getLessonKey(item), note, remindAt[0]);
 
                         if (remindAt[0] > 0) {
@@ -271,9 +290,10 @@ public class LessonAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                         }
 
                         notifyItemChanged(holder.getAdapterPosition());
-                    }));
+                        dialog.dismiss();
+                    });
 
-                    builderDialog.setNegativeButton("Отмена", ((dialog, which) -> dialog.cancel()));
+                    builderDialog.setNegativeButton("Отмена", (dialog, which) -> dialog.cancel());
 
                     builderDialog.show();
                     return true;
@@ -328,8 +348,8 @@ public class LessonAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         return item.getDayId() + "_" + item.getStartTime() + "_" + item.getEndTime();
     }
 
-    public List<DisplayLessonItem> getLessonList() {
-        return allItems;
+    public List<DisplayLessonItem> getVisibleLessonList() {
+        return visibleItems;
     }
 
     static class HeaderViewHolder extends RecyclerView.ViewHolder {

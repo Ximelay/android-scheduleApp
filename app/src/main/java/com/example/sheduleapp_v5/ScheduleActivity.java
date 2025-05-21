@@ -78,7 +78,6 @@ public class ScheduleActivity extends AppCompatActivity {
         GroupUtils.init(this);
         TeacherUtils.init(this);
 
-        // Проверка и запрос разрешения на уведомления (Android 13+)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS)
                     != PackageManager.PERMISSION_GRANTED) {
@@ -98,7 +97,6 @@ public class ScheduleActivity extends AppCompatActivity {
 
         searchList = new ArrayList<>();
 
-        // Инициализация адаптера для AutoCompleteTextView
         adapterSearch = new ArrayAdapter<>(this, android.R.layout.simple_dropdown_item_1line, searchList);
         etSearch.setAdapter(adapterSearch);
         etSearch.setThreshold(1);
@@ -120,7 +118,6 @@ public class ScheduleActivity extends AppCompatActivity {
             }
         }
 
-        // Поиск группы по кнопке
         btnSearch.setOnClickListener(v -> {
             String query = etSearch.getText().toString().trim();
 
@@ -169,7 +166,6 @@ public class ScheduleActivity extends AppCompatActivity {
             }
         });
 
-        // Настройка слушателя для выбора группы или преподавателя
         etSearch.setOnItemClickListener((parent, view, position, id) -> {
             String selected = (String) parent.getItemAtPosition(position);
             hideKeyboard();
@@ -197,7 +193,6 @@ public class ScheduleActivity extends AppCompatActivity {
             }
         });
 
-        // Обработчик текстового изменения
         etSearch.addTextChangedListener(new android.text.TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int start, int before, int count) {}
@@ -294,7 +289,7 @@ public class ScheduleActivity extends AppCompatActivity {
                 hideProgressBar();
                 if (response.isSuccessful() && response.body() != null) {
                     ScheduleResponse scheduleResponse = response.body();
-                    displaySchedule(scheduleResponse);
+                    displaySchedule(scheduleResponse, false); // Передаем false для группы
 
                     PreferenceManager preferenceManager = new PreferenceManager(ScheduleActivity.this);
                     Log.d(TAG, "Saving groupId: " + groupId);
@@ -335,7 +330,8 @@ public class ScheduleActivity extends AppCompatActivity {
                 hideProgressBar();
                 if (response.isSuccessful() && response.body() != null) {
                     ScheduleResponse scheduleResponse = response.body();
-                    displaySchedule(scheduleResponse);
+                    Log.d(TAG, "Teacher schedule response: " + new Gson().toJson(scheduleResponse));
+                    displaySchedule(scheduleResponse, true); // Передаем true для преподавателя
                 } else {
                     Log.e(TAG, "Empty or failed response: " + response.code());
                     Toast.makeText(ScheduleActivity.this, "Ошибка загрузки расписания", Toast.LENGTH_SHORT).show();
@@ -351,7 +347,7 @@ public class ScheduleActivity extends AppCompatActivity {
         });
     }
 
-    private void displaySchedule(ScheduleResponse scheduleResponse) {
+    private void displaySchedule(ScheduleResponse scheduleResponse, boolean isTeacherSchedule) {
         tvCacheStatus.setVisibility(isNetworkAvailable() ? View.GONE : View.VISIBLE);
 
         List<DaySchedule> daySchedules = scheduleResponse.getItems();
@@ -396,7 +392,7 @@ public class ScheduleActivity extends AppCompatActivity {
                 }
             }
 
-            LessonAdapter lessonAdapter = new LessonAdapter(ScheduleActivity.this, displayItems);
+            LessonAdapter lessonAdapter = new LessonAdapter(ScheduleActivity.this, displayItems, isTeacherSchedule);
             recyclerView.setAdapter(lessonAdapter);
             recyclerView.addItemDecoration(new StickyHeaderDecoration(lessonAdapter));
         }
@@ -411,7 +407,7 @@ public class ScheduleActivity extends AppCompatActivity {
             try {
                 Gson gson = new Gson();
                 ScheduleResponse scheduleResponse = gson.fromJson(cachedSchedule, ScheduleResponse.class);
-                displaySchedule(scheduleResponse);
+                displaySchedule(scheduleResponse, false); // Передаем false для группы
                 Toast.makeText(this, "Загружено кэшированное расписание (оффлайн)", Toast.LENGTH_LONG).show();
             } catch (Exception e) {
                 Log.e(TAG, "Failed to parse cached schedule", e);
