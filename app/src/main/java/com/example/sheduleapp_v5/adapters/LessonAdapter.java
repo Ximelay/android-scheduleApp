@@ -17,6 +17,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
@@ -252,10 +253,24 @@ public class LessonAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
                     builderDialog.setView(dialogView);
 
-                    builderDialog.setPositiveButton("Сохранить", ((dialog, which) -> {
+                    builderDialog.setPositiveButton("Сохранить", (dialog, which) -> {
                         String note = etNote.getText().toString().trim();
-                        item.setNote(note);
+                        String selectedDate = tvSelectedDate.getText().toString().trim();
+                        String selectedTime = tvSelectedTime.getText().toString().trim();
 
+                        if (note.isEmpty() || selectedDate.isEmpty() || selectedTime.isEmpty()) {
+                            Toast.makeText(context, "Заполните все поля: заметка, дата и время!", Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+
+                        // Проверка на дату в прошлом
+                        long currentTime = System.currentTimeMillis();
+                        if (remindAt[0] <= currentTime) {
+                            Toast.makeText(context, "Нельзя установить напоминание на прошедшее время!", Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+
+                        item.setNote(note);
                         noteRepository.saveNote(getLessonKey(item), note, remindAt[0]);
 
                         if (remindAt[0] > 0) {
@@ -275,9 +290,10 @@ public class LessonAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                         }
 
                         notifyItemChanged(holder.getAdapterPosition());
-                    }));
+                        dialog.dismiss();
+                    });
 
-                    builderDialog.setNegativeButton("Отмена", ((dialog, which) -> dialog.cancel()));
+                    builderDialog.setNegativeButton("Отмена", (dialog, which) -> dialog.cancel());
 
                     builderDialog.show();
                     return true;

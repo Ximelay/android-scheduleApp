@@ -43,7 +43,6 @@ public class MainActivity extends AppCompatActivity {
         WindowCompat.setDecorFitsSystemWindows(getWindow(), true);
         setContentView(R.layout.activity_main);
 
-        ReminderScheduler.scheduleWeeklyCleanup(this);
 
         buttonSchedule = findViewById(R.id.button_schedule);
         buttonPerformance = findViewById(R.id.button_performance);
@@ -117,7 +116,7 @@ public class MainActivity extends AppCompatActivity {
                 String aboutMessage = "Автор: " + GITHUB + "\n" +
                         "Версия: " + versionName + "\n" +
                         "Приложенение создано для студентов и преподавателей ИРКПО\n" +
-                        "Предложения по улучшению можете писать в Telegram " + TELEGRAM;
+                        "Предложения по улучшению можете писать в Telegram: " + TELEGRAM;
 
                 SpannableString spannableMessage = new SpannableString(aboutMessage);
 
