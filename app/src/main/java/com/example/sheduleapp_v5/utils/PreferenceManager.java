@@ -10,6 +10,8 @@ public class PreferenceManager {
     private static final String KEY_GROUP_ID = "group_id";
     private static final String SCHEDULE_CACHE_KEY = "cached_schedule";
     private static final String CACHED_GROUP_ID = "cached_group_id";
+    private static final String PERFORMANCE_CACHE_KEY = "performance_cache";
+    private static final String LAST_CACHE_TIME_KEY = "last_cache_time";
 
     private final SharedPreferences sharedPreferences;
 
@@ -55,6 +57,24 @@ public class PreferenceManager {
 
     public void setScheduleCache(String scheduleJson) {
         sharedPreferences.edit().putString(SCHEDULE_CACHE_KEY, scheduleJson).apply();
+    }
+
+    public void setPerformanceCache(String json) {
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString(PERFORMANCE_CACHE_KEY, json);
+        editor.apply();
+    }
+
+    public String getPerformanceCache() {
+        return sharedPreferences.getString(PERFORMANCE_CACHE_KEY, null);
+    }
+
+    public void setLastCacheTime(long time) {
+        sharedPreferences.edit().putLong(LAST_CACHE_TIME_KEY, time).apply();
+    }
+
+    public long getLastCacheTime() {
+        return sharedPreferences.getLong(LAST_CACHE_TIME_KEY, 0);
     }
 
     public SharedPreferences getSharedPreferences() {

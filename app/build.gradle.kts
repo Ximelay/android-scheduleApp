@@ -68,6 +68,7 @@ configurations.all {
 }
 
 dependencies {
+    // base
     implementation(libs.appcompat)
     implementation(libs.material)
     implementation(libs.activity)
@@ -77,14 +78,25 @@ dependencies {
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
 
+    // Network
     implementation(libs.retrofit)
     implementation(libs.converter.gson)
     implementation(libs.logging.interceptor)
 
+    // Room
     implementation(libs.room.runtime)
     annotationProcessor(libs.room.compiler)
     implementation(libs.room.ktx)
 
+    // GitHub
+    implementation (libs.mpandroidchart)
+    implementation (libs.itext7.core)
+
+    // Excel
+    implementation(libs.poi)
+    implementation(libs.poi.ooxml)
+
+    // Other
     implementation(libs.jetbrains.annotations)
     implementation(libs.work)
     implementation(libs.fuzzywuzzy)

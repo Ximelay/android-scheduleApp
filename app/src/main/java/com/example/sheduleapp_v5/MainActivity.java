@@ -31,6 +31,7 @@ public class MainActivity extends AppCompatActivity {
     MaterialButton buttonPerformance;
     MaterialButton buttonMoodle;
     MaterialButton buttonAbout;
+    MaterialButton buttonExport;
     SwitchMaterial themeSwitch;
     private SharedPreferences sharedPreferences;
     private static final String TELEGRAM = "Jxthvr";
@@ -49,6 +50,7 @@ public class MainActivity extends AppCompatActivity {
         buttonMoodle = findViewById(R.id.button_moodle);
         themeSwitch = findViewById(R.id.theme_switch);
         buttonAbout = findViewById(R.id.button_about);
+        buttonExport = findViewById(R.id.button_export);
 
         sharedPreferences = getSharedPreferences("ThemePrefs", MODE_PRIVATE);
         boolean isDarkMode = sharedPreferences.getBoolean("darkMode", false);
@@ -168,6 +170,11 @@ public class MainActivity extends AppCompatActivity {
 
                 builder.show();
             }
+        });
+
+        buttonExport.setOnClickListener(v -> {
+            Intent intent = new Intent(MainActivity.this, ExportActivity.class);
+            startActivity(intent);
         });
     }
 }
