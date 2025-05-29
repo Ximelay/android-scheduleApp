@@ -24,31 +24,63 @@ public class LessonItem {
         return lessonName;
     }
 
+    public void setLessonName(String lessonName) {
+        this.lessonName = lessonName;
+    }
+
     public String getTeacherName() {
         return teacherName;
+    }
+
+    public void setTeacherName(String teacherName) {
+        this.teacherName = teacherName;
     }
 
     public String getClassroom() {
         return classroom;
     }
 
+    public void setClassroom(String classroom) {
+        this.classroom = classroom;
+    }
+
     public String getComment() {
         return comment;
+    }
+
+    public void setComment(String comment) {
+        this.comment = comment;
     }
 
     public String getSubgroup() {
         return subgroup;
     }
 
+    public void setGroupName(String groupName) {
+        this.groupName = groupName;
+    }
+
     public Integer getWeekType() {
         return weekType;
+    }
+
+    public void setWeekType(Integer weekType) {
+        this.weekType = weekType;
     }
 
     public String getLocation() {
         return location;
     }
 
+    public void setLocation(String location) {
+        this.location = location;
+    }
+
     public String getGroupName() {
         return groupName;
+    }
+
+    public void setSubgroup(String subgroup) {
+        this.subgroup = subgroup;
     }
 }

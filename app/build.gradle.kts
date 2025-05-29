@@ -61,6 +61,11 @@ android {
         sourceCompatibility = JavaVersion.VERSION_11  // Обновлено с VERSION_11 на VERSION_17
         targetCompatibility = JavaVersion.VERSION_11  // Обновлено с VERSION_11 на VERSION_17
     }
+    testOptions {
+        unitTests {
+            isIncludeAndroidResources = true
+        }
+    }
 }
 
 configurations.all {
@@ -73,8 +78,12 @@ dependencies {
     implementation(libs.material)
     implementation(libs.activity)
     implementation(libs.constraintlayout)
+
+    //Tests
     testImplementation(libs.junit)
     testImplementation(libs.mockito)
+    testImplementation(libs.robolectric)
+    testImplementation ("org.mockito:mockito-inline:3.11.2")
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
 

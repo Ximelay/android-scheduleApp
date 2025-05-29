@@ -42,10 +42,16 @@ public class LessonAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
     private final NoteRepository noteRepository;
     private final boolean isTeacherSchedule; // Новый флаг для режима преподавателя
 
+    // Конструктор для использования в приложении
     public LessonAdapter(Context context, List<DisplayLessonItem> lessonList, boolean isTeacherSchedule) {
+        this(context, lessonList, isTeacherSchedule, new NoteRepository(context));
+    }
+
+    // Конструктор для тестов, принимает NoteRepository как параметр
+    public LessonAdapter(Context context, List<DisplayLessonItem> lessonList, boolean isTeacherSchedule, NoteRepository noteRepository) {
         this.allItems = lessonList;
         this.visibleItems = new ArrayList<>();
-        this.noteRepository = new NoteRepository(context);
+        this.noteRepository = noteRepository;
         this.isTeacherSchedule = isTeacherSchedule;
 
         for (DisplayLessonItem item : lessonList) {
@@ -305,7 +311,7 @@ public class LessonAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         }
     }
 
-    private void toggleDayVisibility(String dayId) {
+    public void toggleDayVisibility(String dayId) {
         boolean shouldExpand = false;
 
         for (DisplayLessonItem item : allItems) {
@@ -352,7 +358,7 @@ public class LessonAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         return visibleItems;
     }
 
-    static class HeaderViewHolder extends RecyclerView.ViewHolder {
+    public static class HeaderViewHolder extends RecyclerView.ViewHolder {
         TextView tvDayHeader;
         ImageView ivArrow;
 
@@ -363,7 +369,7 @@ public class LessonAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         }
     }
 
-    static class LessonViewHolder extends RecyclerView.ViewHolder {
+    public static class LessonViewHolder extends RecyclerView.ViewHolder {
         TextView tvTime, tvDetails;
         ImageView ivNoteIcon;
 

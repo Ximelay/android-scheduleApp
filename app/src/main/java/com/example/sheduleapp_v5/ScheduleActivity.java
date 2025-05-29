@@ -279,7 +279,7 @@ public class ScheduleActivity extends AppCompatActivity {
         }
     }
 
-    private void fetchSchedule(int groupId) {
+    protected void fetchSchedule(int groupId) {
         showProgressBar();
 
         ScheduleApi api = ApiClient.getRetrofitInstance().create(ScheduleApi.class);
