@@ -24,6 +24,9 @@ import com.example.sheduleapp_v5.models.PerformanceResponse;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
@@ -89,7 +92,7 @@ public class PerformanceAdapter extends RecyclerView.Adapter<PerformanceAdapter.
         holder.itemView.setOnClickListener(v -> showSubjectDetailDialog(planCell));
     }
 
-    private String getTeacherNames(List<PerformanceResponse.Plan.Period.PlanCell.Sheet> sheets) {
+    protected String getTeacherNames(List<PerformanceResponse.Plan.Period.PlanCell.Sheet> sheets) {
         if (sheets == null || sheets.isEmpty()) return "";
 
         StringBuilder teacherNames = new StringBuilder();
@@ -107,15 +110,13 @@ public class PerformanceAdapter extends RecyclerView.Adapter<PerformanceAdapter.
         return teacherNames.toString();
     }
 
-    private String formatDate(String dateString) {
-        SimpleDateFormat inputFormat = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss.SSS");
-        SimpleDateFormat outputFormat = new SimpleDateFormat("dd.MM.yyyy");
-
+    protected String formatDate(String dateString) {
         try {
-            Date date = inputFormat.parse(dateString);
-            return outputFormat.format(date);
-        } catch (ParseException e) {
-            e.printStackTrace();
+            DateTimeFormatter inputFormatter = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss.SSS");
+            DateTimeFormatter outputFormatter = DateTimeFormatter.ofPattern("dd.MM.yyyy");
+            LocalDateTime date = LocalDateTime.parse(dateString, inputFormatter);
+            return date.format(outputFormatter);
+        } catch (DateTimeParseException e) {
             return dateString;
         }
     }
@@ -285,7 +286,7 @@ public class PerformanceAdapter extends RecyclerView.Adapter<PerformanceAdapter.
         lessonsLayout.addView(cardView);
     }
 
-    private double calculatePerformancePercentage(List<PerformanceResponse.Plan.Period.PlanCell.Sheet.Lesson> lessons) {
+    protected double calculatePerformancePercentage(List<PerformanceResponse.Plan.Period.PlanCell.Sheet.Lesson> lessons) {
         int totalCount = 0;
         int attendedCount = 0;
 

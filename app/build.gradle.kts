@@ -82,8 +82,12 @@ dependencies {
     //Tests
     testImplementation(libs.junit)
     testImplementation(libs.mockito)
+    testImplementation (libs.mockito.inline)
     testImplementation(libs.robolectric)
-    testImplementation ("org.mockito:mockito-inline:3.11.2")
+    testImplementation (libs.core)
+    testImplementation (libs.work.testing)
+    testImplementation (libs.room.testing)
+    testImplementation (libs.retrofit.mock)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
 

@@ -1,6 +1,4 @@
-package com.example.sheduleapp_v5;
-
-import com.example.sheduleapp_v5.models.ScheduleResponse;
+package com.example.sheduleapp_v5.models;
 
 import org.junit.Test;
 

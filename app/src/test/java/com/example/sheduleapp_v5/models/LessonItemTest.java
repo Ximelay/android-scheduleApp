@@ -1,9 +1,7 @@
-package com.example.sheduleapp_v5;
+package com.example.sheduleapp_v5.models;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
-
-import com.example.sheduleapp_v5.models.LessonItem;
 
 import org.junit.Test;
 

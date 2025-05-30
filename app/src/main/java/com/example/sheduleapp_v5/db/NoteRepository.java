@@ -9,6 +9,11 @@ public class NoteRepository {
         noteDao = NoteDatabase.getInstance(context).noteDao();
     }
 
+    // Конструктор для тестов
+    NoteRepository(NoteDao noteDao) {
+        this.noteDao = noteDao;
+    }
+
     public void saveNote(String key, String text, Long remindAt) {
         noteDao.insert(new NoteEntity(key, text, remindAt));
     }

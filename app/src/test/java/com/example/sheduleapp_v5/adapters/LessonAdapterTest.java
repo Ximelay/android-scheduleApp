@@ -1,4 +1,4 @@
-package com.example.sheduleapp_v5;
+package com.example.sheduleapp_v5.adapters;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -8,7 +8,6 @@ import android.view.ViewGroup;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.sheduleapp_v5.R;
-import com.example.sheduleapp_v5.adapters.LessonAdapter;
 import com.example.sheduleapp_v5.db.NoteRepository;
 import com.example.sheduleapp_v5.models.DisplayLessonItem;
 

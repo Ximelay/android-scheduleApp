@@ -1,4 +1,4 @@
-package com.example.sheduleapp_v5;
+package com.example.sheduleapp_v5.models;
 
 import org.junit.Test;
 
@@ -7,8 +7,6 @@ import java.util.ArrayList;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-
-import com.example.sheduleapp_v5.models.DisplayLessonItem;
 
 public class DisplayLessonItemTest {
     @Test
