@@ -108,6 +108,7 @@ dependencies {
     // Excel
     implementation(libs.poi)
     implementation(libs.poi.ooxml)
+    implementation("org.jfree:jfreechart:1.5.3")
 
     // Other
     implementation(libs.jetbrains.annotations)

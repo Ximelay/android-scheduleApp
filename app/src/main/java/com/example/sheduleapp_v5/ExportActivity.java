@@ -64,7 +64,7 @@ public class ExportActivity extends AppCompatActivity {
         semesterSpinner = findViewById(R.id.semesterSpinner);
         btnSelectOptions = findViewById(R.id.btn_select_options);
         btnExportPdf = findViewById(R.id.btn_export_pdf);
-        btnExportExcel = findViewById(R.id.btn_export_excel); // Изменили btnExportCsv на btnExportExcel
+        btnExportExcel = findViewById(R.id.btn_export_excel);
         btnSendTelegram = findViewById(R.id.btn_send_telegram);
         btnRetry = findViewById(R.id.btn_retry);
         loadingProgressBar = findViewById(R.id.loadingProgressBar);
@@ -90,7 +90,13 @@ public class ExportActivity extends AppCompatActivity {
 
         btnSelectOptions.setOnClickListener(v -> showExportOptionsDialog());
         btnExportPdf.setOnClickListener(v -> ExportUtils.exportToPdf(this, allPlans, exportSubjects, exportLessons, exportTeachers, exportAttestation));
-        btnExportExcel.setOnClickListener(v -> ExportUtils.exportToExcel(this, allPlans, semesterSpinner.getText().toString(), exportSubjects, exportLessons, exportTeachers, exportAttestation)); // Изменили вызов
+        btnExportExcel.setOnClickListener(v -> {
+            if (allPlans != null) {
+                ExportUtils.exportToExcel(this, allPlans, semesterSpinner.getText().toString(), exportSubjects, exportLessons, exportTeachers, exportAttestation, null);
+            } else {
+                Toast.makeText(this, "Нет данных для экспорта", Toast.LENGTH_SHORT).show();
+            }
+        });
         btnSendTelegram.setOnClickListener(v -> new SendToTelegramTask(this, allPlans, semesterSpinner.getText().toString(), exportSubjects, exportLessons, exportTeachers, exportAttestation).execute());
         btnRetry.setOnClickListener(v -> {
             btnRetry.setVisibility(View.GONE);

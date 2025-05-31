@@ -1,6 +1,7 @@
 package com.example.sheduleapp_v5.utils;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.widget.Toast;
 
@@ -34,7 +35,7 @@ public class ExportUtils {
     }
 
     public static void exportToExcel(ExportActivity activity, List<PerformanceResponse.Plan> allPlans, String selectedSemester,
-                                     boolean exportSubjects, boolean exportLessons, boolean exportTeachers, boolean exportAttestation) {
+                                     boolean exportSubjects, boolean exportLessons, boolean exportTeachers, boolean exportAttestation, Bitmap chartBitmap) {
         if (allPlans == null) {
             Toast.makeText(activity, "Нет данных для экспорта", Toast.LENGTH_SHORT).show();
             return;
@@ -45,7 +46,7 @@ public class ExportUtils {
             return;
         }
 
-        new ExportToExcelTask(activity, allPlans, selectedSemester, exportSubjects, exportLessons, exportTeachers, exportAttestation).execute();
+        new ExportToExcelTask(activity, allPlans, selectedSemester, exportSubjects, exportLessons, exportTeachers, exportAttestation, null).execute();
     }
 
     public static float calculateAverageMark(List<PerformanceResponse.Plan> allPlans, String selectedSemester) {
