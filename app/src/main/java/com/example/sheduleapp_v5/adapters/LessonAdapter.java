@@ -41,11 +41,19 @@ public class LessonAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
     private List<DisplayLessonItem> visibleItems;
     private final NoteRepository noteRepository;
     private final boolean isTeacherSchedule; // Новый флаг для режима преподавателя
+    private final Context context;
 
+    // Конструктор для использования в приложении
     public LessonAdapter(Context context, List<DisplayLessonItem> lessonList, boolean isTeacherSchedule) {
+        this(context, lessonList, isTeacherSchedule, new NoteRepository(context));
+    }
+
+    // Конструктор для тестов, принимает NoteRepository как параметр
+    public LessonAdapter(Context context, List<DisplayLessonItem> lessonList, boolean isTeacherSchedule, NoteRepository noteRepository) {
+        this.context = context;
         this.allItems = lessonList;
         this.visibleItems = new ArrayList<>();
-        this.noteRepository = new NoteRepository(context);
+        this.noteRepository = noteRepository;
         this.isTeacherSchedule = isTeacherSchedule;
 
         for (DisplayLessonItem item : lessonList) {
@@ -102,7 +110,7 @@ public class LessonAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
             if (holder instanceof HeaderViewHolder) {
                 HeaderViewHolder h = (HeaderViewHolder) holder;
-                h.tvDayHeader.setText(item.getDayOfWeek());
+                h.tvDayHeader.setText(item.getDayId());
 
                 boolean isExpanded = isDayExpanded(item.getDayId());
                 h.ivArrow.animate().rotation(isExpanded ? 180f : 0f).setDuration(200).start();
@@ -121,84 +129,8 @@ public class LessonAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
                 lessonHolder.tvTime.setText(startTime + " - " + endTime);
 
-                StringBuilder builder = new StringBuilder();
-                if (item.getLessons() != null) {
-                    for (int i = 0; i < item.getLessons().size(); i++) {
-                        LessonItem lesson = item.getLessons().get(i);
-                        builder.append("Предмет: ").append(lesson.getLessonName() != null ? lesson.getLessonName() : "—").append("\n");
-                        if (isTeacherSchedule) { // Добавляем groupName только для преподавательского режима
-                            builder.append("").append(lesson.getGroupName() != null ? lesson.getGroupName() : "—").append("\n");
-                        }
-                        builder.append("").append(lesson.getTeacherName() != null ? lesson.getTeacherName() : "—").append("\n")
-                                .append("").append(lesson.getClassroom() != null ? lesson.getClassroom() : "—")
-                                .append(lesson.getLocation() != null ? " (" + lesson.getLocation() + ")" : "");
-
-                        boolean hasExtras = lesson.getComment() != null || lesson.getSubgroup() != null;
-                        if (hasExtras || lesson.getWeekType() != null) {
-                            builder.append("\n⚙️ ");
-                            if (lesson.getSubgroup() != null) builder.append("подгр. ").append(lesson.getSubgroup()).append(" ");
-                            if (lesson.getComment() != null) builder.append(lesson.getComment()).append(" ");
-                            if (lesson.getWeekType() != null) {
-                                builder.append("[ICON]");
-                            }
-                        }
-
-                        if (i < item.getLessons().size() - 1) {
-                            builder.append("\n\n-----\n\n");
-                        } else {
-                            builder.append("\n\n");
-                        }
-                    }
-                } else {
-                    builder.append("Нет данных");
-                }
-
-                SpannableString spannable = new SpannableString(builder.toString().trim());
-                String text = spannable.toString();
-                int startIndex = 0;
-
-                // Выделяем "Предмет" жирным
-                while ((startIndex = text.indexOf("Предмет:", startIndex)) != -1) {
-                    spannable.setSpan(new StyleSpan(android.graphics.Typeface.BOLD), startIndex, startIndex + 8, 0);
-                    startIndex += 8;
-                }
-                // Выделяем "Аудитория" жирным (если есть)
-                startIndex = 0;
-                while ((startIndex = text.indexOf("Аудитория:", startIndex)) != -1) {
-                    spannable.setSpan(new StyleSpan(android.graphics.Typeface.BOLD), startIndex, startIndex + 10, 0);
-                    startIndex += 10;
-                }
-
-                // Добавляем иконки типа недели
-                startIndex = 0;
-                int currentWeekType = item.getCurrentWeekType();
-                for (int i = 0; i < item.getLessons().size(); i++) {
-                    LessonItem lesson = item.getLessons().get(i);
-                    Integer weekType = lesson.getWeekType();
-                    if (weekType != null) {
-                        int iconIndex = text.indexOf("[ICON]", startIndex);
-                        if (iconIndex != -1) {
-                            Drawable icon;
-                            if (weekType == 1) {
-                                icon = ContextCompat.getDrawable(holder.itemView.getContext(),
-                                        currentWeekType == 1 ? R.drawable.ic_circle_filled : R.drawable.ic_circle_outline);
-                            } else {
-                                icon = ContextCompat.getDrawable(holder.itemView.getContext(),
-                                        currentWeekType == 2 ? R.drawable.ic_triangle_filled : R.drawable.ic_triangle_outline);
-                            }
-                            if (icon != null) {
-                                icon.setBounds(0, 0, (int) (16 * holder.itemView.getContext().getResources().getDisplayMetrics().density),
-                                        (int) (16 * holder.itemView.getContext().getResources().getDisplayMetrics().density));
-                                ImageSpan imageSpan = new ImageSpan(icon, ImageSpan.ALIGN_BASELINE);
-                                spannable.setSpan(imageSpan, iconIndex, iconIndex + "[ICON]".length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-                            }
-                            startIndex = iconIndex + 1;
-                        }
-                    }
-                }
-
-                Log.d("LessonAdapter", "Details: " + spannable.toString());
-                lessonHolder.tvDetails.setText(spannable);
+                // Используем кэшированный текст
+                lessonHolder.tvDetails.setText(item.getCachedDetails());
 
                 if (item.getNote() != null && !item.getNote().trim().isEmpty()) {
                     lessonHolder.ivNoteIcon.setVisibility(View.VISIBLE);
@@ -214,6 +146,7 @@ public class LessonAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                 }
 
                 lessonHolder.itemView.setOnLongClickListener(v -> {
+                    // Логика для заметок остаётся без изменений
                     Context context = v.getContext();
                     AlertDialog.Builder builderDialog = new AlertDialog.Builder(context);
                     builderDialog.setTitle("Добавить заметку");
@@ -263,7 +196,6 @@ public class LessonAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                             return;
                         }
 
-                        // Проверка на дату в прошлом
                         long currentTime = System.currentTimeMillis();
                         if (remindAt[0] <= currentTime) {
                             Toast.makeText(context, "Нельзя установить напоминание на прошедшее время!", Toast.LENGTH_SHORT).show();
@@ -305,7 +237,7 @@ public class LessonAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         }
     }
 
-    private void toggleDayVisibility(String dayId) {
+    public void toggleDayVisibility(String dayId) {
         boolean shouldExpand = false;
 
         for (DisplayLessonItem item : allItems) {
@@ -317,15 +249,13 @@ public class LessonAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             }
         }
 
+        List<DisplayLessonItem> oldItems = new ArrayList<>(visibleItems);
+        visibleItems.clear();
+
         for (DisplayLessonItem item : allItems) {
             if (item.getType() == DisplayLessonItem.TYPE_LESSON && item.getDayId().equals(dayId)) {
                 item.setVisible(shouldExpand);
             }
-        }
-
-        List<DisplayLessonItem> oldItems = new ArrayList<>(visibleItems);
-        visibleItems.clear();
-        for (DisplayLessonItem item : allItems) {
             if (item.getType() == DisplayLessonItem.TYPE_HEADER || item.isVisible()) {
                 visibleItems.add(item);
             }
@@ -348,11 +278,108 @@ public class LessonAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         return item.getDayId() + "_" + item.getStartTime() + "_" + item.getEndTime();
     }
 
+    public void updateData(List<DisplayLessonItem> newItems, boolean isTeacherSchedule) {
+        this.allItems = newItems;
+        this.visibleItems.clear();
+
+        for (DisplayLessonItem item : newItems) {
+            if (item.getType() == DisplayLessonItem.TYPE_HEADER || item.isVisible()) {
+                if (item.getType() == DisplayLessonItem.TYPE_LESSON) {
+                    String key = getLessonKey(item);
+                    item.setNote(noteRepository.loadNote(key));
+                    // Форматируем текст заранее
+                    item.setCachedDetails(formatLessonDetails(item));
+                }
+                visibleItems.add(item);
+            }
+        }
+
+        notifyDataSetChanged();
+    }
+
+    private SpannableString formatLessonDetails(DisplayLessonItem item) {
+        StringBuilder builder = new StringBuilder();
+        if (item.getLessons() != null) {
+            for (int i = 0; i < item.getLessons().size(); i++) {
+                LessonItem lesson = item.getLessons().get(i);
+                builder.append("Предмет: ").append(lesson.getLessonName() != null ? lesson.getLessonName() : "—").append("\n");
+                if (isTeacherSchedule) {
+                    builder.append("").append(lesson.getGroupName() != null ? lesson.getGroupName() : "—").append("\n");
+                }
+                builder.append("").append(lesson.getTeacherName() != null ? lesson.getTeacherName() : "—").append("\n")
+                        .append("").append(lesson.getClassroom() != null ? lesson.getClassroom() : "—")
+                        .append(lesson.getLocation() != null ? " (" + lesson.getLocation() + ")" : "");
+
+                boolean hasExtras = lesson.getComment() != null || lesson.getSubgroup() != null;
+                if (hasExtras || lesson.getWeekType() != null) {
+                    builder.append("\n⚙️ ");
+                    if (lesson.getSubgroup() != null) builder.append("подгр. ").append(lesson.getSubgroup()).append(" ");
+                    if (lesson.getComment() != null) builder.append(lesson.getComment()).append(" ");
+                    if (lesson.getWeekType() != null) {
+                        builder.append("[ICON]");
+                    }
+                }
+
+                if (i < item.getLessons().size() - 1) {
+                    builder.append("\n\n-----\n\n");
+                } else {
+                    builder.append("\n\n");
+                }
+            }
+        } else {
+            builder.append("Нет данных");
+        }
+
+        SpannableString spannable = new SpannableString(builder.toString().trim());
+        String text = spannable.toString();
+        int startIndex = 0;
+
+        while ((startIndex = text.indexOf("Предмет:", startIndex)) != -1) {
+            spannable.setSpan(new StyleSpan(android.graphics.Typeface.BOLD), startIndex, startIndex + 8, 0);
+            startIndex += 8;
+        }
+
+        startIndex = 0;
+        while ((startIndex = text.indexOf("Аудитория:", startIndex)) != -1) {
+            spannable.setSpan(new StyleSpan(android.graphics.Typeface.BOLD), startIndex, startIndex + 10, 0);
+            startIndex += 10;
+        }
+
+        startIndex = 0;
+        int currentWeekType = item.getCurrentWeekType();
+        for (int i = 0; i < item.getLessons().size(); i++) {
+            LessonItem lesson = item.getLessons().get(i);
+            Integer weekType = lesson.getWeekType();
+            if (weekType != null) {
+                int iconIndex = text.indexOf("[ICON]", startIndex);
+                if (iconIndex != -1) {
+                    Drawable icon;
+                    if (weekType == 1) {
+                        icon = ContextCompat.getDrawable(context,
+                                currentWeekType == 1 ? R.drawable.ic_circle_filled : R.drawable.ic_circle_outline);
+                    } else {
+                        icon = ContextCompat.getDrawable(context,
+                                currentWeekType == 2 ? R.drawable.ic_triangle_filled : R.drawable.ic_triangle_outline);
+                    }
+                    if (icon != null) {
+                        icon.setBounds(0, 0, (int) (16 * context.getResources().getDisplayMetrics().density),
+                                (int) (16 * context.getResources().getDisplayMetrics().density));
+                        ImageSpan imageSpan = new ImageSpan(icon, ImageSpan.ALIGN_BASELINE);
+                        spannable.setSpan(imageSpan, iconIndex, iconIndex + "[ICON]".length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                    }
+                    startIndex = iconIndex + 1;
+                }
+            }
+        }
+
+        return spannable;
+    }
+
     public List<DisplayLessonItem> getVisibleLessonList() {
         return visibleItems;
     }
 
-    static class HeaderViewHolder extends RecyclerView.ViewHolder {
+    public static class HeaderViewHolder extends RecyclerView.ViewHolder {
         TextView tvDayHeader;
         ImageView ivArrow;
 
@@ -363,7 +390,7 @@ public class LessonAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         }
     }
 
-    static class LessonViewHolder extends RecyclerView.ViewHolder {
+    public static class LessonViewHolder extends RecyclerView.ViewHolder {
         TextView tvTime, tvDetails;
         ImageView ivNoteIcon;
 

@@ -1,5 +1,8 @@
 [versions]
 agp = "8.7.2"
+core = "1.6.1"
+itext7Core = "7.2.5"
+jfreechart = "1.5.3"
 junit = "4.13.2"
 junitVersion = "1.2.1"
 espressoCore = "3.6.1"
@@ -8,16 +11,24 @@ loggingInterceptor = "4.9.0"
 material = "1.12.0"
 activity = "1.9.3"
 constraintlayout = "2.2.0"
+mockitoInline = "3.11.2"
+mpandroidchart = "v3.1.0"
 retrofit = "2.9.0"
+retrofitMock = "2.11.0"
+robolectric = "4.14"
 room = "2.7.0"
 jetbrains-annotations = "23.0.0"
 work = "2.10.0"
 fuzzywuzzy = "1.4.0"
 markwon = "4.6.2"
 mockito = "5.12.0"
+poi = "5.2.5"
 
 [libraries]
 converter-gson = { module = "com.squareup.retrofit2:converter-gson", version.ref = "retrofit" }
+core = { module = "androidx.test:core", version.ref = "core" }
+itext7-core = { module = "com.itextpdf:itext7-core", version.ref = "itext7Core" }
+jfreechart = { module = "org.jfree:jfreechart", version.ref = "jfreechart" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 ext-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
 espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
@@ -26,15 +37,23 @@ logging-interceptor = { module = "com.squareup.okhttp3:logging-interceptor", ver
 material = { group = "com.google.android.material", name = "material", version.ref = "material" }
 activity = { group = "androidx.activity", name = "activity", version.ref = "activity" }
 constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "constraintlayout" }
+mockito-inline = { module = "org.mockito:mockito-inline", version.ref = "mockitoInline" }
+mpandroidchart = { module = "com.github.PhilJay:MPAndroidChart", version.ref = "mpandroidchart" }
 retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofit" }
+retrofit-mock = { module = "com.squareup.retrofit2:retrofit-mock", version.ref = "retrofitMock" }
+robolectric = { module = "org.robolectric:robolectric", version.ref = "robolectric" }
 room-runtime = { group = "androidx.room", name = "room-runtime", version.ref = "room" }
 room-compiler = { group = "androidx.room", name = "room-compiler", version.ref = "room" }
 room-ktx = { group = "androidx.room", name = "room-ktx", version.ref = "room" }
 jetbrains-annotations = { group = "org.jetbrains", name = "annotations", version.ref = "jetbrains-annotations" }
+room-testing = { module = "androidx.room:room-testing", version.ref = "room" }
 work = { group = "androidx.work", name = "work-runtime", version.ref = "work" }
 fuzzywuzzy = { group = "me.xdrop", name = "fuzzywuzzy", version.ref = "fuzzywuzzy" }
 markwon = { module = "io.noties.markwon:core", version.ref = "markwon" }
 mockito = { module = "org.mockito:mockito-core", version.ref = "mockito" }
+poi = { module = "org.apache.poi:poi", version.ref = "poi" }
+poi-ooxml = { module = "org.apache.poi:poi-ooxml", version.ref = "poi" }
+work-testing = { module = "androidx.work:work-testing", version.ref = "work" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

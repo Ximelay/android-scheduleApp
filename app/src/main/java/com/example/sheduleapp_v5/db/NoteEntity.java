@@ -17,4 +17,36 @@ public class NoteEntity {
         this.createAt = System.currentTimeMillis();
         this.remindAtMillis = (remindAtMillis != null) ? remindAtMillis : 0L;
     }
+
+    public String getLessonKey() {
+        return lessonKey;
+    }
+
+    public void setLessonKey(String lessonKey) {
+        this.lessonKey = lessonKey;
+    }
+
+    public String getText() {
+        return text;
+    }
+
+    public void setText(String text) {
+        this.text = text;
+    }
+
+    public long getCreateAt() {
+        return createAt;
+    }
+
+    public void setCreateAt(long createAt) {
+        this.createAt = createAt;
+    }
+
+    public long getRemindAtMillis() {
+        return remindAtMillis;
+    }
+
+    public void setRemindAtMillis(long remindAtMillis) {
+        this.remindAtMillis = remindAtMillis;
+    }
 }
