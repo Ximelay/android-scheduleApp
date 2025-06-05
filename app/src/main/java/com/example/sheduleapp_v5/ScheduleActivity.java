@@ -68,6 +68,8 @@ public class ScheduleActivity extends AppCompatActivity {
     private ProgressBar loadingProgressBar;
     private ArrayAdapter<String> adapterSearch;
     private List<String> searchList;
+    private LessonAdapter lessonAdapter;
+    private StickyHeaderDecoration stickyHeaderDecoration;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -86,6 +88,7 @@ public class ScheduleActivity extends AppCompatActivity {
         }
 
         PreferenceManager preferenceManager = new PreferenceManager(this);
+        String lastSelectionType = preferenceManager.getLastSelectionType();
 
         recyclerView = findViewById(R.id.recyclerView);
         tvWeekType = findViewById(R.id.tvWeekType);
@@ -103,17 +106,38 @@ public class ScheduleActivity extends AppCompatActivity {
         etSearch.setDropDownHeight((int) (getResources().getDisplayMetrics().density * 250));
 
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        recyclerView.setHasFixedSize(true); // Устанавливаем фиксированный размер
+        recyclerView.setItemViewCacheSize(20); // Увеличиваем кэш ViewHolder'ов
 
-        String defaultGroup = preferenceManager.getDefaultGroup();
-        if (defaultGroup != null) {
-            etSearch.setText(defaultGroup);
-            Integer groupId = GroupUtils.getGroupId(defaultGroup);
-            if (groupId != null) {
-                Log.d(TAG, "Loading schedule for default group: " + defaultGroup + ", groupId: " + groupId);
+        lessonAdapter = new LessonAdapter(this, new ArrayList<>(), false);
+        recyclerView.setAdapter(lessonAdapter);
+        stickyHeaderDecoration = new StickyHeaderDecoration(lessonAdapter);
+        recyclerView.addItemDecoration(stickyHeaderDecoration);
+
+        if (PreferenceManager.TYPE_GROUP.equals(lastSelectionType)) {
+            String defaultGroup = preferenceManager.getDefaultGroup();
+            if (defaultGroup != null) {
+                etSearch.setText(defaultGroup);
+                Integer groupId = GroupUtils.getGroupId(defaultGroup);
+                if (groupId != null) {
+                    Log.d(TAG, "Loading schedule for default group: " + defaultGroup + ", groupId: " + groupId);
+                    if (isNetworkAvailable()) {
+                        fetchSchedule(groupId, false);
+                    } else {
+                        loadCachedSchedule(groupId);
+                    }
+                }
+            }
+        } else if (PreferenceManager.TYPE_TEACHER.equals(lastSelectionType)) {
+            String defaultTeacher = preferenceManager.getDefaultTeacher();
+            String teacherId = preferenceManager.getTeacherId();
+            if (defaultTeacher != null && teacherId != null) {
+                etSearch.setText(defaultTeacher);
+                Log.d(TAG, "Loading schedule for default teacher: " + defaultTeacher + ", teacherId: " + teacherId);
                 if (isNetworkAvailable()) {
-                    fetchSchedule(groupId);
+                    fetchScheduleByTeacher(teacherId, false);
                 } else {
-                    loadCachedSchedule(groupId);
+                    Toast.makeText(this, "Расписание преподавателя недоступно в оффлайн-режиме", Toast.LENGTH_SHORT).show();
                 }
             }
         }
@@ -126,7 +150,7 @@ public class ScheduleActivity extends AppCompatActivity {
                     Integer groupId = GroupUtils.getGroupId(query);
                     Log.d(TAG, "Search button clicked, processing for groupId: " + groupId);
                     if (isNetworkAvailable()) {
-                        fetchSchedule(groupId);
+                        fetchSchedule(groupId, true);
                     } else {
                         loadCachedSchedule(groupId);
                     }
@@ -136,7 +160,7 @@ public class ScheduleActivity extends AppCompatActivity {
                     if (teacherId != null) {
                         Log.d(TAG, "Search button clicked, fetching schedule for teacherId: " + teacherId);
                         if (isNetworkAvailable()) {
-                            fetchScheduleByTeacher(teacherId);
+                            fetchScheduleByTeacher(teacherId, true);
                         } else {
                             Toast.makeText(this, "Расписание преподавателя недоступно в оффлайн-режиме", Toast.LENGTH_SHORT).show();
                         }
@@ -149,7 +173,7 @@ public class ScheduleActivity extends AppCompatActivity {
                             if (teacherId != null) {
                                 Log.d(TAG, "Search button clicked, fetching schedule for teacherId: " + teacherId + " (matched: " + firstMatch + ")");
                                 if (isNetworkAvailable()) {
-                                    fetchScheduleByTeacher(teacherId);
+                                    fetchScheduleByTeacher(teacherId, true);
                                 } else {
                                     Toast.makeText(this, "Расписание преподавателя недоступно в оффлайн-режиме", Toast.LENGTH_SHORT).show();
                                 }
@@ -174,7 +198,7 @@ public class ScheduleActivity extends AppCompatActivity {
                 Integer groupId = GroupUtils.getGroupId(selected);
                 Log.d(TAG, "Item selected, fetching schedule for groupId: " + groupId);
                 if (isNetworkAvailable()) {
-                    fetchSchedule(groupId);
+                    fetchSchedule(groupId, false);
                 } else {
                     loadCachedSchedule(groupId);
                 }
@@ -183,7 +207,7 @@ public class ScheduleActivity extends AppCompatActivity {
                 if (teacherId != null) {
                     Log.d(TAG, "Item selected, fetching schedule for teacherId: " + teacherId);
                     if (isNetworkAvailable()) {
-                        fetchScheduleByTeacher(teacherId);
+                        fetchScheduleByTeacher(teacherId, false);
                     } else {
                         Toast.makeText(this, "Расписание преподавателя недоступно в оффлайн-режиме", Toast.LENGTH_SHORT).show();
                     }
@@ -279,7 +303,7 @@ public class ScheduleActivity extends AppCompatActivity {
         }
     }
 
-    protected void fetchSchedule(int groupId) {
+    protected void fetchSchedule(int groupId, boolean addToFavorites) {
         showProgressBar();
 
         ScheduleApi api = ApiClient.getRetrofitInstance().create(ScheduleApi.class);
@@ -289,18 +313,26 @@ public class ScheduleActivity extends AppCompatActivity {
                 hideProgressBar();
                 if (response.isSuccessful() && response.body() != null) {
                     ScheduleResponse scheduleResponse = response.body();
-                    displaySchedule(scheduleResponse, false); // Передаем false для группы
+                    displaySchedule(scheduleResponse, false);
 
                     PreferenceManager preferenceManager = new PreferenceManager(ScheduleActivity.this);
-                    Log.d(TAG, "Saving groupId: " + groupId);
-                    preferenceManager.setGroupId(groupId);
-                    preferenceManager.setDefaultGroup(GroupUtils.getGroupName(groupId));
 
+                    // Сохраняем данные в кэш в любом случае
                     Gson gson = new Gson();
                     String scheduleJson = gson.toJson(scheduleResponse);
                     preferenceManager.setScheduleCache(scheduleJson);
                     preferenceManager.setCachedGroupId(groupId);
                     Log.d(TAG, "Saved schedule to cache for groupId: " + groupId);
+
+                    // Добавляем в избранное только если запрошено
+                    if (addToFavorites) {
+                        Log.d(TAG, "Saving groupId: " + groupId);
+                        preferenceManager.setGroupId(groupId);
+                        String groupName = GroupUtils.getGroupName(groupId);
+                        preferenceManager.setDefaultGroup(groupName);
+                        preferenceManager.setLastSelectionType(PreferenceManager.TYPE_GROUP);
+                        Toast.makeText(ScheduleActivity.this, "Группа " + groupName + " добавлена в избранное", Toast.LENGTH_SHORT).show();
+                    }
 
                     schedulePeriodWorker();
                 } else {
@@ -320,7 +352,7 @@ public class ScheduleActivity extends AppCompatActivity {
         });
     }
 
-    private void fetchScheduleByTeacher(String personId) {
+    private void fetchScheduleByTeacher(String personId, boolean addToFavorites) {
         showProgressBar();
 
         ScheduleApi api = ApiClient.getRetrofitInstance().create(ScheduleApi.class);
@@ -331,7 +363,25 @@ public class ScheduleActivity extends AppCompatActivity {
                 if (response.isSuccessful() && response.body() != null) {
                     ScheduleResponse scheduleResponse = response.body();
                     Log.d(TAG, "Teacher schedule response: " + new Gson().toJson(scheduleResponse));
-                    displaySchedule(scheduleResponse, true); // Передаем true для преподавателя
+                    displaySchedule(scheduleResponse, true);
+
+                    // Кэшируем расписание в любом случае
+                    PreferenceManager preferenceManager = new PreferenceManager(ScheduleActivity.this);
+                    Gson gson = new Gson();
+                    String scheduleJson = gson.toJson(scheduleResponse);
+                    preferenceManager.setTeacherScheduleCache(scheduleJson);
+                    preferenceManager.setCachedTeacherId(personId);
+
+                    // Добавляем в избранное только если запрошено
+                    if (addToFavorites) {
+                        preferenceManager.setTeacherId(personId);
+                        String teacherName = etSearch.getText().toString();
+                        preferenceManager.setDefaultTeacher(teacherName);
+                        preferenceManager.setLastSelectionType(PreferenceManager.TYPE_TEACHER);
+                        Toast.makeText(ScheduleActivity.this, "Преподаватель " + teacherName + " добавлен в избранное", Toast.LENGTH_SHORT).show();
+                    }
+
+                    schedulePeriodWorker();
                 } else {
                     Log.e(TAG, "Empty or failed response: " + response.code());
                     Toast.makeText(ScheduleActivity.this, "Ошибка загрузки расписания", Toast.LENGTH_SHORT).show();
@@ -392,9 +442,8 @@ public class ScheduleActivity extends AppCompatActivity {
                 }
             }
 
-            LessonAdapter lessonAdapter = new LessonAdapter(ScheduleActivity.this, displayItems, isTeacherSchedule);
-            recyclerView.setAdapter(lessonAdapter);
-            recyclerView.addItemDecoration(new StickyHeaderDecoration(lessonAdapter));
+            // Обновляем данные в существующем адаптере
+            lessonAdapter.updateData(displayItems, isTeacherSchedule);
         }
     }
 

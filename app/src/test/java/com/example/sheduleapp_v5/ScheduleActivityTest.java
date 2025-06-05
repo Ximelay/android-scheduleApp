@@ -154,7 +154,7 @@ public class ScheduleActivityTest {
             return null;
         }).when(scheduleCall).enqueue(any(Callback.class));
 
-        activity.fetchSchedule(732);
+        activity.fetchSchedule(732, false);
 
         TextView tvWeekType = activity.findViewById(R.id.tvWeekType);
         TextView tvWeekRange = activity.findViewById(R.id.tvWeekRange);

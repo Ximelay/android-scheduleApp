@@ -12,7 +12,7 @@ if (envFile.exists()) {
     val properties = Properties()
     properties.load(FileInputStream(envFile))
     properties.forEach { key, value ->
-        println("Loading property: $key = $value")  // Вывод для отладки
+        println("Loading property: $key = $value")
         System.setProperty(key.toString(), value.toString())
     }
 } else {
@@ -27,8 +27,8 @@ android {
         applicationId = "com.example.sheduleapp_v5"
         minSdk = 26
         targetSdk = 35
-        versionCode = 6
-        versionName = "1.4.2"
+        versionCode = 7
+        versionName = "1.5.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         multiDexEnabled = true
@@ -58,8 +58,8 @@ android {
     }
 
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11  // Обновлено с VERSION_11 на VERSION_17
-        targetCompatibility = JavaVersion.VERSION_11  // Обновлено с VERSION_11 на VERSION_17
+        sourceCompatibility = JavaVersion.VERSION_11
+        targetCompatibility = JavaVersion.VERSION_11
     }
     testOptions {
         unitTests {
@@ -108,7 +108,7 @@ dependencies {
     // Excel
     implementation(libs.poi)
     implementation(libs.poi.ooxml)
-    implementation("org.jfree:jfreechart:1.5.3")
+    implementation(libs.jfreechart)
 
     // Other
     implementation(libs.jetbrains.annotations)

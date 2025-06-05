@@ -1,5 +1,7 @@
 package com.example.sheduleapp_v5.models;
 
+import android.text.SpannableString;
+
 import java.util.List;
 
 public class DisplayLessonItem {
@@ -16,6 +18,7 @@ public class DisplayLessonItem {
     private boolean visible = true;
     private String dayId;
     private String note = "";
+    private SpannableString cachedDetails;
 
 
     public DisplayLessonItem(int type, String dayOfWeek, String startTime,
@@ -77,5 +80,13 @@ public class DisplayLessonItem {
 
     public void setNote(String note) {
         this.note = note;
+    }
+
+    public SpannableString getCachedDetails() {
+        return cachedDetails;
+    }
+
+    public void setCachedDetails(SpannableString cachedDetails) {
+        this.cachedDetails = cachedDetails;
     }
 }

@@ -43,14 +43,34 @@ public class ScheduleCheckWorker extends Worker {
         Log.d("ScheduleCheckWorker", "🔄 Worker started");
         try {
             PreferenceManager preferenceManager = new PreferenceManager(getApplicationContext());
-            int groupId = preferenceManager.getGroupId();
 
-            if (groupId == -1) {
-                Log.e("ScheduleCheckWorker", "GroupId not found");
-                return Result.failure();
+            boolean groupResult = checkGroupSchedule(preferenceManager);
+            boolean teacherResult = checkTeacherSchedule(preferenceManager);
+
+            if (groupResult || teacherResult) {
+                return Result.success();
+            } else if (preferenceManager.getGroupId() == -1 && preferenceManager.getTeacherId() == null) {
+                Log.d("ScheduleCheckWorker", "No group or teacher ID set, skipping checks");
+                return Result.success(); // Или Result.failure(), в зависимости от логики
             }
-            Log.d("ScheduleCheckWorker", "GroupId: " + groupId);
+            return Result.retry();
+        } catch (Exception e) {
+            Log.e("ScheduleCheckWorker", "Worker failed", e);
+            return Result.retry();
+        }
+    }
 
+    private boolean checkGroupSchedule(PreferenceManager preferenceManager) {
+        int groupId = preferenceManager.getGroupId();
+
+        if (groupId == -1) {
+            Log.d("ScheduleCheckWorker", "GroupId not set, skipping group check");
+            return false;
+        }
+
+        Log.d("ScheduleCheckWorker", "Checking schedule for GroupId: " + groupId);
+
+        try {
             ScheduleApi api = ApiClient.getRetrofitInstance().create(ScheduleApi.class);
             Call<ScheduleResponse> call = api.getSchedule(groupId);
             Response<ScheduleResponse> response = call.execute();
@@ -59,67 +79,100 @@ public class ScheduleCheckWorker extends Worker {
                 Gson gson = new Gson();
                 ScheduleResponse newSchedule = response.body();
                 String newScheduleJson = gson.toJson(newSchedule);
-                Log.d("ScheduleCheckWorker", "New schedule fetched: " + newScheduleJson);
 
                 int cachedGroupId = preferenceManager.getCachedGroupId();
                 String oldScheduleJson = preferenceManager.getScheduleCache();
-                Log.d("ScheduleCheckWorker", "Old schedule from cache (cachedGroupId: " + cachedGroupId + "): " + oldScheduleJson);
 
-                // Сохраняем новое расписание и groupId в кэш
                 if (newScheduleJson != null && !newScheduleJson.equals("{}")) {
                     preferenceManager.setScheduleCache(newScheduleJson);
                     preferenceManager.setCachedGroupId(groupId);
-                    Log.d("ScheduleCheckWorker", "Saved new schedule to cache for groupId: " + groupId);
                 } else {
-                    Log.e("ScheduleCheckWorker", "Invalid new schedule JSON, not saving");
-                    return Result.retry();
+                    Log.e("ScheduleCheckWorker", "Invalid new schedule JSON for groupId: " + groupId);
+                    return false;
                 }
 
-                // Пропускаем уведомление, если кэш пуст или относится к другой группе
                 if (oldScheduleJson.isEmpty() || cachedGroupId != groupId) {
-                    Log.d("ScheduleCheckWorker", "First fetch or group changed (cachedGroupId: " + cachedGroupId + ", current: " + groupId + "), skipping notification");
-                    return Result.success();
+                    return true;
                 }
 
-                // Парсим старое расписание
-                ScheduleResponse oldSchedule = null;
-                try {
-                    oldSchedule = gson.fromJson(oldScheduleJson, ScheduleResponse.class);
-                    Log.d("ScheduleCheckWorker", "Parsed old schedule: " + oldSchedule);
-                } catch (Exception e) {
-                    Log.e("ScheduleCheckWorker", "Failed to parse old schedule", e);
-                    return Result.success(); // Пропускаем уведомление, если кэш некорректен
+                ScheduleResponse oldSchedule = gson.fromJson(oldScheduleJson, ScheduleResponse.class);
+                if (oldSchedule != null && oldSchedule.getItems() != null) {
+                    List<String> changedDays = getChangedDays(oldSchedule, newSchedule);
+
+                    if (!changedDays.isEmpty()) {
+                        String groupName = preferenceManager.getDefaultGroup();
+                        String days = String.join(", ", changedDays);
+                        String message = "У группы " + (groupName != null ? groupName : "неизвестно") +
+                                " изменилось расписание на " + days;
+                        sendNotification(message);
+                    }
+                }
+                return true;
+            } else {
+                Log.e("ScheduleCheckWorker", "API response failed for groupId " + groupId + ": " + response.code());
+            }
+        } catch (Exception e) {
+            Log.e("ScheduleCheckWorker", "Error checking group schedule for groupId " + groupId, e);
+        }
+        return false;
+    }
+
+    private boolean checkTeacherSchedule(PreferenceManager preferenceManager) {
+        String teacherId = preferenceManager.getTeacherId();
+
+        if (teacherId == null) {
+            Log.d("ScheduleCheckWorker", "TeacherId not set, skipping teacher check");
+            return false;
+        }
+
+        Log.d("ScheduleCheckWorker", "Checking schedule for TeacherId: " + teacherId);
+
+        try {
+            ScheduleApi api = ApiClient.getRetrofitInstance().create(ScheduleApi.class);
+            Call<ScheduleResponse> call = api.getScheduleByPersonId(teacherId);
+            Response<ScheduleResponse> response = call.execute();
+
+            if (response.isSuccessful() && response.body() != null) {
+                Gson gson = new Gson();
+                ScheduleResponse newSchedule = response.body();
+                String newScheduleJson = gson.toJson(newSchedule);
+
+                String cachedTeacherId = preferenceManager.getCachedTeacherId();
+                String oldScheduleJson = preferenceManager.getTeacherScheduleCache();
+
+                // Сохраняем новое расписание в кэш
+                if (newScheduleJson != null && !newScheduleJson.equals("{}")) {
+                    preferenceManager.setTeacherScheduleCache(newScheduleJson);
+                    preferenceManager.setCachedTeacherId(teacherId);
+                } else {
+                    return false;
                 }
 
-                if (oldSchedule == null || oldSchedule.getItems() == null) {
-                    Log.d("ScheduleCheckWorker", "Invalid old schedule, skipping notification");
-                    return Result.success();
+                // Пропускаем уведомление при первой загрузке или смене преподавателя
+                if (oldScheduleJson.isEmpty() || !teacherId.equals(cachedTeacherId)) {
+                    return true;
                 }
 
                 // Проверяем изменения
-                List<String> changedDays = getChangedDays(oldSchedule, newSchedule);
-                Log.d("ScheduleCheckWorker", "Changed days: " + changedDays);
+                ScheduleResponse oldSchedule = gson.fromJson(oldScheduleJson, ScheduleResponse.class);
+                if (oldSchedule != null && oldSchedule.getItems() != null) {
+                    List<String> changedDays = getChangedDays(oldSchedule, newSchedule);
 
-                // Отправляем уведомление только если есть измененные дни
-                if (!changedDays.isEmpty()) {
-                    String groupName = preferenceManager.getDefaultGroup();
-                    String days = String.join(", ", changedDays);
-                    String message = "У группы " + (groupName != null ? groupName : "неизвестно") +
-                            " изменилось расписание на " + days;
+                    if (!changedDays.isEmpty()) {
+                        String teacherName = preferenceManager.getDefaultTeacher();
+                        String days = String.join(", ", changedDays);
+                        String message = "У преподавателя " + (teacherName != null ? teacherName : "неизвестно") +
+                                " изменилось расписание на " + days;
 
-                    sendNotification(message);
-                } else {
-                    Log.d("ScheduleCheckWorker", "No significant changes detected for groupId " + groupId);
+                        sendNotification(message);
+                    }
                 }
-            } else {
-                Log.e("ScheduleCheckWorker", "API response failed: " + response.code());
-                return Result.retry();
+                return true;
             }
-            return Result.success();
         } catch (Exception e) {
-            Log.e("ScheduleCheckWorker", "Worker failed", e);
-            return Result.retry();
+            Log.e("ScheduleCheckWorker", "Error checking teacher schedule", e);
         }
+        return false;
     }
 
     private void sendNotification(String message) {
