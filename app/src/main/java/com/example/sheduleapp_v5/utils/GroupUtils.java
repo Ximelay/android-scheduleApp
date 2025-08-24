@@ -11,9 +11,21 @@ import java.util.Map;
 public class GroupUtils {
     private static Map<String, Integer> groupIdMap;
 
-    public static void init(Context context) {
-        groupIdMap = DataProvider.loadGroups(context);
-        Log.d("GroupUtils", "Initialized groupIdMap with " + (groupIdMap != null ? groupIdMap.size() : 0) + " groups");
+    public static void init(Context context, DataProvider.LoadCallback<Integer> callback) {
+        DataProvider.loadGroupsAsync(context, new DataProvider.LoadCallback<Integer>() {
+            @Override
+            public void onSuccess(Map<String, Integer> map) {
+                groupIdMap = map;
+                Log.d("GroupUtils", "Initialized groupIdMap with " + map.size() + " groups");
+                callback.onSuccess(map);
+            }
+
+            @Override
+            public void onFailure(Throwable t) {
+                Log.e("GroupUtils", "Failed to load groups", t);
+                callback.onFailure(t);
+            }
+        });
     }
 
     public static Integer getGroupId(String groupName) {

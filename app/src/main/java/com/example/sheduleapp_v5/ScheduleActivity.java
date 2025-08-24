@@ -27,6 +27,7 @@ import androidx.core.content.ContextCompat;
 import androidx.core.view.WindowCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.recyclerview.widget.RecyclerView.LayoutManager;
 import androidx.work.Constraints;
 import androidx.work.ExistingPeriodicWorkPolicy;
 import androidx.work.NetworkType;
@@ -41,6 +42,7 @@ import com.example.sheduleapp_v5.models.LessonIndex;
 import com.example.sheduleapp_v5.models.ScheduleResponse;
 import com.example.sheduleapp_v5.network.ApiClient;
 import com.example.sheduleapp_v5.network.ScheduleApi;
+import com.example.sheduleapp_v5.utils.DataProvider;
 import com.example.sheduleapp_v5.utils.GroupUtils;
 import com.example.sheduleapp_v5.utils.PreferenceManager;
 import com.example.sheduleapp_v5.utils.StickyHeaderDecoration;
@@ -77,8 +79,31 @@ public class ScheduleActivity extends AppCompatActivity {
         WindowCompat.setDecorFitsSystemWindows(getWindow(), true);
         setContentView(R.layout.activity_schedule);
 
-        GroupUtils.init(this);
-        TeacherUtils.init(this);
+        GroupUtils.init(this, new DataProvider.LoadCallback<Integer>() {
+            @Override
+            public void onSuccess(Map<String, Integer> map) {
+                Log.d("ScheduleActivity", "Groups loaded successfully");
+            }
+
+            @Override
+            public void onFailure(Throwable t) {
+                Log.e("ScheduleActivity", "Failed to load groups", t);
+                Toast.makeText(ScheduleActivity.this, "Ошибка загрузки групп", Toast.LENGTH_SHORT).show();
+            }
+        });
+        
+        TeacherUtils.init(this, new DataProvider.LoadCallback<String>() {
+            @Override
+            public void onSuccess(Map<String, String> map) {
+                Log.d("ScheduleActivity", "Teachers loaded successfully");
+            }
+
+            @Override
+            public void onFailure(Throwable t) {
+                Log.e("ScheduleActivity", "Failed to load teachers", t);
+                Toast.makeText(ScheduleActivity.this, "Ошибка загрузки преподавателей", Toast.LENGTH_SHORT).show();
+            }
+        });
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS)

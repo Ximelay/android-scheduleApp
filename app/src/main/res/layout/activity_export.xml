@@ -61,7 +61,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
-        android:text="Экспорт в PDF" />
+        android:text="Экспорт в PDF (в разработке)" />
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/btn_export_excel"
@@ -69,13 +69,6 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
         android:text="Экспорт в Excel" />
-
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/btn_send_telegram"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:text="Отправить в Telegram" />
 
     <ProgressBar
         android:id="@+id/loadingProgressBar"

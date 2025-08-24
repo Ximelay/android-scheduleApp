@@ -19,6 +19,13 @@ if (envFile.exists()) {
     println("No .env file found. Ensure it's in the correct path.")
 }
 
+// Чтение ключей из local.properties
+val localProperties = Properties()
+val localPropertiesFile = project.rootProject.file("local.properties")
+if (localPropertiesFile.exists()) {
+    localProperties.load(localPropertiesFile.inputStream())
+}
+
 android {
     namespace = "com.example.sheduleapp_v5"
     compileSdk = 35
@@ -32,6 +39,11 @@ android {
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         multiDexEnabled = true
+
+        // Передаем ключи в BuildConfig
+        buildConfigField("String", "SUPABASE_URL", "\"${localProperties.getProperty("SUPABASE_URL")}\"")
+        buildConfigField("String", "SUPABASE_ANON_KEY", "\"${localProperties.getProperty("SUPABASE_ANON_KEY")}\"")
+        buildConfigField("String", "IRKPO_BASE_URL", "\"${localProperties.getProperty("IRKPO_BASE_URL")}\"")
     }
 
     signingConfigs {
@@ -43,6 +55,11 @@ android {
             keyPassword = project.findProperty("KEY_PASSWORD")?.toString() ?: System.getProperty("KEY_PASSWORD") ?: throw IllegalStateException("KEY_PASSWORD is missing")
             println("Signing with keystore: ${storeFile}, alias: $keyAlias")
         }
+    }
+
+    buildFeatures {
+        compose = true
+        buildConfig = true
     }
 
     buildTypes {

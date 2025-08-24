@@ -15,9 +15,21 @@ public class TeacherUtils {
     private static Map<String, String> teacherIdMap;
     private static final int FUZZY_THRESHOLD = 80; // Порог для FuzzyWuzzy (80% совпадения)
 
-    public static void init(Context context) {
-        teacherIdMap = DataProvider.loadTeachers(context);
-        Log.d(TAG, "Initialized with " + (teacherIdMap != null ? teacherIdMap.size() : 0) + " teachers");
+    public static void init(Context context, DataProvider.LoadCallback<String> callback) {
+        DataProvider.loadTeachersAsync(context, new DataProvider.LoadCallback<String>() {
+            @Override
+            public void onSuccess(Map<String, String> map) {
+                teacherIdMap = map;
+                Log.d("TeacherUtils", "Initialized teacherIdMap with " + map.size() + " teachers");
+                callback.onSuccess(map);
+            }
+
+            @Override
+            public void onFailure(Throwable t) {
+                Log.e("TeacherUtils", "Failed to load teachers", t);
+                callback.onFailure(t);
+            }
+        });
     }
 
     public static String getTeacherId(String lastName) {
