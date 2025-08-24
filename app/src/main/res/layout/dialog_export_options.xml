@@ -26,15 +26,17 @@
         android:text="Уроки (оценки, даты)" />
 
     <CheckBox
-        android:id="@+id/cb_teachers"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Преподаватели" />
-
-    <CheckBox
         android:id="@+id/cb_attestation"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Итоговая аттестация" />
+
+<!--    <CheckBox-->
+<!--        android:id="@+id/cb_teachers"-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:text="Преподаватели" />-->
+
+
 
 </LinearLayout>

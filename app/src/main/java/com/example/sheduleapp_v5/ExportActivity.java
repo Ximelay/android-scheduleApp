@@ -19,10 +19,11 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.view.WindowCompat;
 
-import com.example.sheduleapp_v5.export.SendToTelegramTask;
+//import com.example.sheduleapp_v5.export.SendToTelegramTask;
 import com.example.sheduleapp_v5.models.PerformanceResponse;
 import com.example.sheduleapp_v5.network.ApiClient;
 import com.example.sheduleapp_v5.network.PerformanceApi;
+import com.example.sheduleapp_v5.utils.DataProvider;
 import com.example.sheduleapp_v5.utils.ExportUtils;
 import com.example.sheduleapp_v5.utils.PreferenceManager;
 import com.example.sheduleapp_v5.utils.TeacherUtils;
@@ -32,6 +33,7 @@ import com.google.gson.Gson;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import retrofit2.Call;
@@ -65,12 +67,23 @@ public class ExportActivity extends AppCompatActivity {
         btnSelectOptions = findViewById(R.id.btn_select_options);
         btnExportPdf = findViewById(R.id.btn_export_pdf);
         btnExportExcel = findViewById(R.id.btn_export_excel);
-        btnSendTelegram = findViewById(R.id.btn_send_telegram);
+//        btnSendTelegram = findViewById(R.id.btn_send_telegram);
         btnRetry = findViewById(R.id.btn_retry);
         loadingProgressBar = findViewById(R.id.loadingProgressBar);
 
         preferenceManager = new PreferenceManager(this);
-        TeacherUtils.init(this);
+        TeacherUtils.init(this, new DataProvider.LoadCallback<String>() {
+            @Override
+            public void onSuccess(Map<String, String> map) {
+                Log.d("ExportActivity", "Teachers loaded successfully: " + map.size() + " teachers");
+            }
+
+            @Override
+            public void onFailure(Throwable t) {
+                Log.e("ExportActivity", "Failed to load teachers", t);
+                Toast.makeText(ExportActivity.this, "Ошибка загрузки преподавателей", Toast.LENGTH_SHORT).show();
+            }
+        });
 
         // Очистка кэша, если прошло больше часа
         clearCacheIfExpired();
@@ -97,7 +110,7 @@ public class ExportActivity extends AppCompatActivity {
                 Toast.makeText(this, "Нет данных для экспорта", Toast.LENGTH_SHORT).show();
             }
         });
-        btnSendTelegram.setOnClickListener(v -> new SendToTelegramTask(this, allPlans, semesterSpinner.getText().toString(), exportSubjects, exportLessons, exportTeachers, exportAttestation).execute());
+//        btnSendTelegram.setOnClickListener(v -> new SendToTelegramTask(this, allPlans, semesterSpinner.getText().toString(), exportSubjects, exportLessons, exportTeachers, exportAttestation).execute());
         btnRetry.setOnClickListener(v -> {
             btnRetry.setVisibility(View.GONE);
             String phoneNumberRetry = preferenceManager.getPhoneNumber();
@@ -134,19 +147,19 @@ public class ExportActivity extends AppCompatActivity {
 
         CheckBox cbSubjects = dialogView.findViewById(R.id.cb_subjects);
         CheckBox cbLessons = dialogView.findViewById(R.id.cb_lessons);
-        CheckBox cbTeachers = dialogView.findViewById(R.id.cb_teachers);
+//        CheckBox cbTeachers = dialogView.findViewById(R.id.cb_teachers);
         CheckBox cbAttestation = dialogView.findViewById(R.id.cb_attestation);
 
         cbSubjects.setChecked(exportSubjects);
         cbLessons.setChecked(exportLessons);
-        cbTeachers.setChecked(exportTeachers);
+//        cbTeachers.setChecked(exportTeachers);
         cbAttestation.setChecked(exportAttestation);
 
         builder.setView(dialogView)
                 .setPositiveButton("Сохранить", (dialog, which) -> {
                     exportSubjects = cbSubjects.isChecked();
                     exportLessons = cbLessons.isChecked();
-                    exportTeachers = cbTeachers.isChecked();
+//                    exportTeachers = cbTeachers.isChecked();
                     exportAttestation = cbAttestation.isChecked();
                     Toast.makeText(this, "Опции сохранены", Toast.LENGTH_SHORT).show();
                 })

@@ -75,9 +75,9 @@ public class ScheduleActivityTest {
         mockedGroupUtils = mockStatic(GroupUtils.class);
         mockedTeacherUtils = mockStatic(TeacherUtils.class);
 
-        // Для void методов используем doNothing()
-        mockedGroupUtils.when(() -> GroupUtils.init(any(Context.class))).then(invocation -> null);
-        mockedTeacherUtils.when(() -> TeacherUtils.init(any(Context.class))).then(invocation -> null);
+//        // Для void методов используем doNothing()
+//        mockedGroupUtils.when(() -> GroupUtils.init(any(Context.class))).then(invocation -> null);
+//        mockedTeacherUtils.when(() -> TeacherUtils.init(any(Context.class))).then(invocation -> null);
         mockedGroupUtils.when(() -> GroupUtils.getGroupId("И-322")).thenReturn(123);
 
         activity = Robolectric.buildActivity(ScheduleActivity.class)

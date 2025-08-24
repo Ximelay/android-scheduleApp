@@ -25,7 +25,6 @@ mockito = "5.12.0"
 poi = "5.2.5"
 
 [libraries]
-converter-gson = { module = "com.squareup.retrofit2:converter-gson", version.ref = "retrofit" }
 core = { module = "androidx.test:core", version.ref = "core" }
 itext7-core = { module = "com.itextpdf:itext7-core", version.ref = "itext7Core" }
 jfreechart = { module = "org.jfree:jfreechart", version.ref = "jfreechart" }
@@ -40,6 +39,7 @@ constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayo
 mockito-inline = { module = "org.mockito:mockito-inline", version.ref = "mockitoInline" }
 mpandroidchart = { module = "com.github.PhilJay:MPAndroidChart", version.ref = "mpandroidchart" }
 retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofit" }
+converter-gson = { module = "com.squareup.retrofit2:converter-gson", version.ref = "retrofit" }
 retrofit-mock = { module = "com.squareup.retrofit2:retrofit-mock", version.ref = "retrofitMock" }
 robolectric = { module = "org.robolectric:robolectric", version.ref = "robolectric" }
 room-runtime = { group = "androidx.room", name = "room-runtime", version.ref = "room" }
@@ -57,5 +57,3 @@ work-testing = { module = "androidx.work:work-testing", version.ref = "work" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
-
-
