@@ -27,11 +27,11 @@ if (localPropertiesFile.exists()) {
 }
 
 android {
-    namespace = "com.example.sheduleapp_v5"
+    namespace = "com.example.stud_informer_irkpo"
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.example.sheduleapp_v5"
+        applicationId = "com.example.stud_informer_irkpo"
         minSdk = 26
         targetSdk = 35
         versionCode = 8
