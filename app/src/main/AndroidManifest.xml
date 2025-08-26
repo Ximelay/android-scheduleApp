@@ -41,7 +41,7 @@
         </activity>
         <provider
             android:name="androidx.core.content.FileProvider"
-            android:authorities="com.example.stud_informer_irkpo.fileprovider"
+            android:authorities="com.example.irkpo_management.fileprovider"
             android:exported="false"
             android:grantUriPermissions="true">
             <meta-data

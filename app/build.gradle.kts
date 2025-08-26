@@ -27,15 +27,15 @@ if (localPropertiesFile.exists()) {
 }
 
 android {
-    namespace = "com.example.stud_informer_irkpo"
+    namespace = "com.example.irkpo_management"
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.example.stud_informer_irkpo"
+        applicationId = "com.example.irkpo_management"
         minSdk = 26
         targetSdk = 35
-        versionCode = 8
-        versionName = "1.5.1"
+        versionCode = 10
+        versionName = "1.0.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         multiDexEnabled = true
