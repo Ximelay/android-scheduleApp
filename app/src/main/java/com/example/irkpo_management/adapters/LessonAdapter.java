@@ -40,7 +40,7 @@ public class LessonAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
     private List<DisplayLessonItem> allItems;
     private List<DisplayLessonItem> visibleItems;
     private final NoteRepository noteRepository;
-    private final boolean isTeacherSchedule; // Новый флаг для режима преподавателя
+    private boolean isTeacherSchedule; // Новый флаг для режима преподавателя
     private final Context context;
 
     // Конструктор для использования в приложении
@@ -279,6 +279,7 @@ public class LessonAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
     }
 
     public void updateData(List<DisplayLessonItem> newItems, boolean isTeacherSchedule) {
+        this.isTeacherSchedule = isTeacherSchedule; // Обновляем поле класса
         this.allItems = newItems;
         this.visibleItems.clear();
 
@@ -303,12 +304,12 @@ public class LessonAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             for (int i = 0; i < item.getLessons().size(); i++) {
                 LessonItem lesson = item.getLessons().get(i);
                 builder.append("Предмет: ").append(lesson.getLessonName() != null ? lesson.getLessonName() : "—").append("\n");
-                if (isTeacherSchedule) {
-                    builder.append("").append(lesson.getGroupName() != null ? lesson.getGroupName() : "—").append("\n");
-                }
                 builder.append("").append(lesson.getTeacherName() != null ? lesson.getTeacherName() : "—").append("\n")
                         .append("").append(lesson.getClassroom() != null ? lesson.getClassroom() : "—")
                         .append(lesson.getLocation() != null ? " (" + lesson.getLocation() + ")" : "");
+                if (isTeacherSchedule) {
+                    builder.append("\nГруппа: ").append(lesson.getGroupName() != null ? lesson.getGroupName() : "—");
+                }
 
                 boolean hasExtras = lesson.getComment() != null || lesson.getSubgroup() != null;
                 if (hasExtras || lesson.getWeekType() != null) {

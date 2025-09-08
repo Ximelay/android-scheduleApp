@@ -80,6 +80,7 @@ public class ScheduleActivity extends AppCompatActivity {
             @Override
             public void onSuccess(Map<String, Integer> map) {
                 Log.d("ScheduleActivity", "Groups loaded successfully");
+                tryAutoLoadSchedule();
             }
 
             @Override
@@ -93,6 +94,7 @@ public class ScheduleActivity extends AppCompatActivity {
             @Override
             public void onSuccess(Map<String, String> map) {
                 Log.d("ScheduleActivity", "Teachers loaded successfully");
+                tryAutoLoadSchedule();
             }
 
             @Override
@@ -135,34 +137,6 @@ public class ScheduleActivity extends AppCompatActivity {
         recyclerView.setAdapter(lessonAdapter);
         stickyHeaderDecoration = new StickyHeaderDecoration(lessonAdapter);
         recyclerView.addItemDecoration(stickyHeaderDecoration);
-
-        if (PreferenceManager.TYPE_GROUP.equals(lastSelectionType)) {
-            String defaultGroup = preferenceManager.getDefaultGroup();
-            if (defaultGroup != null) {
-                etSearch.setText(defaultGroup);
-                Integer groupId = GroupUtils.getGroupId(defaultGroup);
-                if (groupId != null) {
-                    Log.d(TAG, "Loading schedule for default group: " + defaultGroup + ", groupId: " + groupId);
-                    if (isNetworkAvailable()) {
-                        fetchSchedule(groupId, false);
-                    } else {
-                        loadCachedSchedule(groupId);
-                    }
-                }
-            }
-        } else if (PreferenceManager.TYPE_TEACHER.equals(lastSelectionType)) {
-            String defaultTeacher = preferenceManager.getDefaultTeacher();
-            String teacherId = preferenceManager.getTeacherId();
-            if (defaultTeacher != null && teacherId != null) {
-                etSearch.setText(defaultTeacher);
-                Log.d(TAG, "Loading schedule for default teacher: " + defaultTeacher + ", teacherId: " + teacherId);
-                if (isNetworkAvailable()) {
-                    fetchScheduleByTeacher(teacherId, false);
-                } else {
-                    Toast.makeText(this, "Расписание преподавателя недоступно в оффлайн-режиме", Toast.LENGTH_SHORT).show();
-                }
-            }
-        }
 
         btnSearch.setOnClickListener(v -> {
             String query = etSearch.getText().toString().trim();
@@ -528,5 +502,38 @@ public class ScheduleActivity extends AppCompatActivity {
                         Log.d(TAG, "Work state: " + workInfo.getState());
                     }
                 });
+    }
+
+    private void tryAutoLoadSchedule() {
+        PreferenceManager preferenceManager = new PreferenceManager(this);
+        String lastSelectionType = preferenceManager.getLastSelectionType();
+
+        if (PreferenceManager.TYPE_GROUP.equals(lastSelectionType)) {
+            String defaultGroup = preferenceManager.getDefaultGroup();
+            if (defaultGroup != null) {
+                etSearch.setText(defaultGroup);
+                Integer groupId = GroupUtils.getGroupId(defaultGroup);
+                if (groupId != null) {
+                    Log.d(TAG, "Loading schedule for default group: " + defaultGroup + ", groupId: " + groupId);
+                    if (isNetworkAvailable()) {
+                        fetchSchedule(groupId, false);
+                    } else {
+                        loadCachedSchedule(groupId);
+                    }
+                }
+            }
+        } else if (PreferenceManager.TYPE_TEACHER.equals(lastSelectionType)) {
+            String defaultTeacher = preferenceManager.getDefaultTeacher();
+            String teacherId = preferenceManager.getTeacherId();
+            if (defaultTeacher != null && teacherId != null) {
+                etSearch.setText(defaultTeacher);
+                Log.d(TAG, "Loading schedule for default teacher: " + defaultTeacher + ", teacherId: " + teacherId);
+                if (isNetworkAvailable()) {
+                    fetchScheduleByTeacher(teacherId, false);
+                } else {
+                    Toast.makeText(this, "Расписание преподавателя недоступно в оффлайн-режиме", Toast.LENGTH_SHORT).show();
+                }
+            }
+        }
     }
 }
