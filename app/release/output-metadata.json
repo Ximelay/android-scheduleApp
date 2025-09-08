@@ -4,15 +4,15 @@
     "type": "APK",
     "kind": "Directory"
   },
-  "applicationId": "com.example.sheduleapp_v5",
+  "applicationId": "com.example.irkpo_management",
   "variantName": "release",
   "elements": [
     {
       "type": "SINGLE",
       "filters": [],
       "attributes": [],
-      "versionCode": 8,
-      "versionName": "1.5.1",
+      "versionCode": 11,
+      "versionName": "1.1.0",
       "outputFile": "app-release.apk"
     }
   ],
