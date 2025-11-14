@@ -4,6 +4,7 @@ import java.io.File
 
 plugins {
     alias(libs.plugins.android.application)
+    alias(libs.plugins.android.secrets)
 }
 
 // Загрузка .env файла
@@ -33,7 +34,7 @@ android {
     defaultConfig {
         applicationId = "com.example.irkpo_management"
         minSdk = 26
-        targetSdk = 35
+        targetSdk = 36
         versionCode = 11
         versionName = "1.1.0"
 
