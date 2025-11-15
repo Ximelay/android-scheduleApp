@@ -31,4 +31,5 @@
     <string name="monday">Понедельник</string>
     <string name="semesterHint">Семестр</string>
     <string name="button_about">О программе</string>
+    <string name="main_export">Экспорт</string>
 </resources>
