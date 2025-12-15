@@ -33,9 +33,9 @@ public class MainActivity extends AppCompatActivity {
     MaterialButton buttonExport;
     SwitchMaterial themeSwitch;
     private SharedPreferences sharedPreferences;
-    private static final String TELEGRAM = "Jxthvr";
-    private static final String GITHUB = "Ximelay";
-    private static final String GITHUB_REPOSITORY = "https://github.com/Ximelay/android-scheduleApp";
+    private static final String TELEGRAM = BuildConfig.TELEGRAM_NIKNEIM;
+    private static final String GITHUB = BuildConfig.GITHUB_NIKNEIM;
+    private static final String GITHUB_REPOSITORY = BuildConfig.GITHUB_REPOSITORY;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
