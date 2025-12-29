@@ -68,6 +68,22 @@
         app:layout_constraintTop_toBottomOf="@id/button_moodle" />
 
     <com.google.android.material.button.MaterialButton
+        android:id="@+id/button_favorites"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:text="@string/favorites_management"
+        android:textColor="@color/white"
+        app:backgroundTint="?attr/textButtonHintColor"
+        app:cornerRadius="8dp"
+        app:icon="@android:drawable/btn_star_big_on"
+        app:iconTint="@color/white"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/button_export" />
+
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/button_performance"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -87,12 +103,13 @@
         android:id="@+id/theme_switch"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="180dp"
+        android:layout_marginTop="96dp"
         android:text="@string/theme_switch"
         android:textColor="?attr/textColor"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/button_moodle"
+        app:layout_constraintTop_toBottomOf="@id/button_favorites"
         app:thumbTint="?attr/textButtonHintColor"
         app:trackTint="?attr/textHintColor" />
 
@@ -103,6 +120,7 @@
         android:layout_marginTop="16dp"
         android:text="@string/button_about"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/theme_switch" />
 

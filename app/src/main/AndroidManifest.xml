@@ -22,6 +22,9 @@
             android:name=".ExportActivity"
             android:exported="false" />
         <activity
+            android:name=".FavoritesManagementActivity"
+            android:exported="false" />
+        <activity
             android:name=".MoodleActivity"
             android:exported="false" />
         <activity

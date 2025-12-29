@@ -31,5 +31,19 @@
     <string name="monday">Понедельник</string>
     <string name="semesterHint">Семестр</string>
     <string name="button_about">О программе</string>
-    <string name="main_export">Экспорт</string>
+    <string name="main_export">Экспорт оценок</string>
+
+    <!-- Favorites Management -->
+    <string name="favorites_management">Управление избранным</string>
+    <string name="favorites_management_title">Управление избранным</string>
+    <string name="favorites_management_description">Выберите одну группу или одного преподавателя для быстрого доступа к расписанию</string>
+    <string name="favorites_type_group">Группа</string>
+    <string name="favorites_type_teacher">Преподаватель</string>
+    <string name="favorites_search_group_hint">Введите название группы</string>
+    <string name="favorites_search_teacher_hint">Введите ФИО преподавателя</string>
+    <string name="favorites_no_group_selected">Избранная группа не выбрана</string>
+    <string name="favorites_no_teacher_selected">Избранный преподаватель не выбран</string>
+    <string name="favorites_save_button">Сохранить</string>
+    <string name="favorites_clear_button">Удалить</string>
+    <string name="favorites_back_button">Назад</string>
 </resources>
