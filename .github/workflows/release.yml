@@ -35,8 +35,8 @@ jobs:
           sdk.dir=$ANDROID_HOME
           IRKPO_BASE_URL=${{ secrets.IRKPO_BASE_URL }}
           TELEGRAM_NIKNEIM=${{ secrets.TELEGRAM_NIKNEIM }}
-          GITHUB_NIKNEIM=${{ secrets.GITHUB_NIKNEIM }}
-          GITHUB_REPOSITORY=${{ secrets.GITHUB_REPOSITORY }}
+          NIKNEIM_GITHUB=${{ secrets.NIKNEIM_GITHUB }}
+          REPOSITORY_GITHUB=${{ secrets.REPOSITORY_GITHUB }}
           KEYSTORE_PATH=app/temp_keys/key.jks
           KEYSTORE_PASSWORD=${{ secrets.KEYSTORE_PASSWORD }}
           KEY_ALIAS=${{ secrets.KEY_ALIAS }}
