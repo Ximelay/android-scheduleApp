@@ -40,6 +40,10 @@ public class TeacherUtils {
         return teacherIdMap != null ? teacherIdMap : Collections.emptyMap();
     }
 
+    public static Map<String, String> getTeachersMap() {
+        return teacherIdMap;
+    }
+
     public static List<String> getFilteredTeachers(String query) {
         List<String> filteredTeachers = new ArrayList<>();
         if (teacherIdMap == null || query == null || query.trim().isEmpty()) {

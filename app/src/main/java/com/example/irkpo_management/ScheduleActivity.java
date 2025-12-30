@@ -89,7 +89,7 @@ public class ScheduleActivity extends AppCompatActivity {
                 Toast.makeText(ScheduleActivity.this, "Ошибка загрузки групп", Toast.LENGTH_SHORT).show();
             }
         });
-        
+
         TeacherUtils.init(this, new DataProvider.LoadCallback<String>() {
             @Override
             public void onSuccess(Map<String, String> map) {
@@ -158,7 +158,7 @@ public class ScheduleActivity extends AppCompatActivity {
                         if (isNetworkAvailable()) {
                             fetchScheduleByTeacher(teacherId, true);
                         } else {
-                            Toast.makeText(this, "Расписание преподавателя недоступно в оффлайн-режиме", Toast.LENGTH_SHORT).show();
+                            loadCachedTeacherSchedule(teacherId);
                         }
                         hideKeyboard();
                     } else {
@@ -171,7 +171,7 @@ public class ScheduleActivity extends AppCompatActivity {
                                 if (isNetworkAvailable()) {
                                     fetchScheduleByTeacher(teacherId, true);
                                 } else {
-                                    Toast.makeText(this, "Расписание преподавателя недоступно в оффлайн-режиме", Toast.LENGTH_SHORT).show();
+                                    loadCachedTeacherSchedule(teacherId);
                                 }
                                 etSearch.setText(firstMatch);
                                 hideKeyboard();
@@ -205,7 +205,7 @@ public class ScheduleActivity extends AppCompatActivity {
                     if (isNetworkAvailable()) {
                         fetchScheduleByTeacher(teacherId, false);
                     } else {
-                        Toast.makeText(this, "Расписание преподавателя недоступно в оффлайн-режиме", Toast.LENGTH_SHORT).show();
+                        loadCachedTeacherSchedule(teacherId);
                     }
                 } else {
                     Toast.makeText(this, "Группа или преподаватель не найдены!", Toast.LENGTH_SHORT).show();
@@ -215,7 +215,8 @@ public class ScheduleActivity extends AppCompatActivity {
 
         etSearch.addTextChangedListener(new android.text.TextWatcher() {
             @Override
-            public void beforeTextChanged(CharSequence charSequence, int start, int before, int count) {}
+            public void beforeTextChanged(CharSequence charSequence, int start, int before, int count) {
+            }
 
             @Override
             public void onTextChanged(CharSequence charSequence, int start, int before, int count) {
@@ -247,7 +248,8 @@ public class ScheduleActivity extends AppCompatActivity {
             }
 
             @Override
-            public void afterTextChanged(android.text.Editable editable) {}
+            public void afterTextChanged(android.text.Editable editable) {
+            }
         });
     }
 
@@ -367,6 +369,7 @@ public class ScheduleActivity extends AppCompatActivity {
                     String scheduleJson = gson.toJson(scheduleResponse);
                     preferenceManager.setTeacherScheduleCache(scheduleJson);
                     preferenceManager.setCachedTeacherId(personId);
+                    Log.d(TAG, "Saved teacher schedule to cache for ID: " + personId + ", JSON length: " + scheduleJson.length());
 
                     // Добавляем в избранное только если запрошено
                     if (addToFavorites) {
@@ -381,6 +384,7 @@ public class ScheduleActivity extends AppCompatActivity {
                 } else {
                     Log.e(TAG, "Empty or failed response: " + response.code());
                     Toast.makeText(ScheduleActivity.this, "Ошибка загрузки расписания", Toast.LENGTH_SHORT).show();
+                    loadCachedTeacherSchedule(personId);
                 }
             }
 
@@ -389,6 +393,7 @@ public class ScheduleActivity extends AppCompatActivity {
                 hideProgressBar();
                 Log.e(TAG, "Failed to fetch schedule", t);
                 Toast.makeText(ScheduleActivity.this, "Ошибка сети", Toast.LENGTH_SHORT).show();
+                loadCachedTeacherSchedule(personId);
             }
         });
     }
@@ -462,6 +467,28 @@ public class ScheduleActivity extends AppCompatActivity {
             Toast.makeText(this, "Нет кэшированных данных для этой группы", Toast.LENGTH_SHORT).show();
         }
     }
+    private void loadCachedTeacherSchedule(String teacherId) {
+        PreferenceManager preferenceManager = new PreferenceManager(this);
+        String cachedSchedule = preferenceManager.getTeacherScheduleCache();
+        String cachedTeacherId = preferenceManager.getCachedTeacherId();
+
+        // Добавьте логи для отладки
+        Log.d(TAG, "Loading cached teacher schedule. Requested ID: " + teacherId + ", Cached ID: " + cachedTeacherId + ", Schedule length: " + (cachedSchedule != null ? cachedSchedule.length() : "null"));
+
+        if (cachedSchedule != null && !cachedSchedule.isEmpty() && cachedTeacherId != null && cachedTeacherId.equalsIgnoreCase(teacherId)) {
+            try {
+                Gson gson = new Gson();
+                ScheduleResponse scheduleResponse = gson.fromJson(cachedSchedule, ScheduleResponse.class);
+                displaySchedule(scheduleResponse, true);
+                Toast.makeText(this, "Загружено кэшированное расписание (оффлайн)", Toast.LENGTH_LONG).show();
+            } catch (Exception e) {
+                Log.e(TAG, "Failed to parse cached teacher schedule", e);
+                Toast.makeText(this, "Ошибка загрузки кэшированного расписания", Toast.LENGTH_SHORT).show();
+            }
+        } else {
+            Toast.makeText(this, "Нет кэшированных данных для этого преподавателя", Toast.LENGTH_SHORT).show();
+        }
+    }
 
     private void showProgressBar() {
         loadingProgressBar.setVisibility(View.VISIBLE);
@@ -531,7 +558,7 @@ public class ScheduleActivity extends AppCompatActivity {
                 if (isNetworkAvailable()) {
                     fetchScheduleByTeacher(teacherId, false);
                 } else {
-                    Toast.makeText(this, "Расписание преподавателя недоступно в оффлайн-режиме", Toast.LENGTH_SHORT).show();
+                    loadCachedTeacherSchedule(teacherId);
                 }
             }
         }

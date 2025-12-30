@@ -143,9 +143,11 @@ public class PerformanceAdapter extends RecyclerView.Adapter<PerformanceAdapter.
         attestation.setText("Текущая аттестация: " + (currentAttestation != null ? currentAttestation : "-") +
                 " | Итог: " + (finalMark != null ? finalMark : "-"));
 
-        // Сортировка уроков: сначала практические, потом лекционные
+        // Сортировка уроков: практичесчие, лекционные, учебно-производственные практики
         List<PerformanceResponse.Plan.Period.PlanCell.Sheet.Lesson> practicalLessons = new ArrayList<>();
         List<PerformanceResponse.Plan.Period.PlanCell.Sheet.Lesson> lectureLessons = new ArrayList<>();
+        List<PerformanceResponse.Plan.Period.PlanCell.Sheet.Lesson> educationPracticeLessons = new ArrayList<>();
+        List<PerformanceResponse.Plan.Period.PlanCell.Sheet.Lesson> industrialPracticeLessons = new ArrayList<>();
 
         for (PerformanceResponse.Plan.Period.PlanCell.Sheet sheet : planCell.getSheets()) {
             if (sheet.getLessons() == null) continue;
@@ -155,6 +157,10 @@ public class PerformanceAdapter extends RecyclerView.Adapter<PerformanceAdapter.
                     practicalLessons.add(lesson);
                 } else if (lessonType.contains("Лекционное занятие")) {
                     lectureLessons.add(lesson);
+                } else if (lessonType.contains("Учебная практика")) {
+                    educationPracticeLessons.add(lesson);
+                } else if (lessonType.contains("Производственная практика")) {
+                    industrialPracticeLessons.add(lesson);
                 }
             }
         }
@@ -195,6 +201,42 @@ public class PerformanceAdapter extends RecyclerView.Adapter<PerformanceAdapter.
             lessonsContainer.addView(lectureLayout);
 
             headerView.setOnClickListener(v -> toggleLessons(lectureArrow, lectureLayout));
+        }
+
+        if (!educationPracticeLessons.isEmpty()) {
+            View headerView = inflater.inflate(R.layout.section_header, lessonsContainer, false);
+            TextView educationPracticeHeader = headerView.findViewById(R.id.sectionTitleTextView);
+            ImageView educationPracticeArrow = headerView.findViewById(R.id.sectionArrowImageView);
+            educationPracticeHeader.setText("Учебная практика");
+            lessonsContainer.addView(headerView);
+
+            LinearLayout educationPracticeLayout = new LinearLayout(context);
+            educationPracticeLayout.setOrientation(LinearLayout.VERTICAL);
+            educationPracticeLayout.setVisibility(View.VISIBLE);
+            for (PerformanceResponse.Plan.Period.PlanCell.Sheet.Lesson lesson : educationPracticeLessons) {
+                addLessonCard(lesson, educationPracticeLayout);
+            }
+            lessonsContainer.addView(educationPracticeLayout);
+
+            headerView.setOnClickListener(v -> toggleLessons(educationPracticeArrow, educationPracticeLayout));
+        }
+
+        if (!industrialPracticeLessons.isEmpty()) {
+            View headerView = inflater.inflate(R.layout.section_header, lessonsContainer, false);
+            TextView industrialPracticeHeader = headerView.findViewById(R.id.sectionTitleTextView);
+            ImageView industrialPracticeArrow = headerView.findViewById(R.id.sectionArrowImageView);
+            industrialPracticeHeader.setText("Производственная практика");
+            lessonsContainer.addView(headerView);
+
+            LinearLayout industrialPracticeLayout = new LinearLayout(context);
+            industrialPracticeLayout.setOrientation(LinearLayout.VERTICAL);
+            industrialPracticeLayout.setVisibility(View.VISIBLE);
+            for (PerformanceResponse.Plan.Period.PlanCell.Sheet.Lesson lesson : industrialPracticeLessons) {
+                addLessonCard(lesson, industrialPracticeLayout);
+            }
+            lessonsContainer.addView(industrialPracticeLayout);
+
+            headerView.setOnClickListener(v -> toggleLessons(industrialPracticeArrow, industrialPracticeLayout));
         }
 
         builder.setView(dialogView)

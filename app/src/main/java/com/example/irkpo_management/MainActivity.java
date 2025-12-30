@@ -31,11 +31,12 @@ public class MainActivity extends AppCompatActivity {
     MaterialButton buttonMoodle;
     MaterialButton buttonAbout;
     MaterialButton buttonExport;
+    MaterialButton buttonFavorites;
     SwitchMaterial themeSwitch;
     private SharedPreferences sharedPreferences;
-    private static final String TELEGRAM = "Jxthvr";
-    private static final String GITHUB = "Ximelay";
-    private static final String GITHUB_REPOSITORY = "https://github.com/Ximelay/android-scheduleApp";
+    private static final String TELEGRAM = BuildConfig.TELEGRAM_NIKNEIM;
+    private static final String GITHUB = BuildConfig.GITHUB_NIKNEIM;
+    private static final String GITHUB_REPOSITORY = BuildConfig.GITHUB_REPOSITORY;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,6 +51,7 @@ public class MainActivity extends AppCompatActivity {
         themeSwitch = findViewById(R.id.theme_switch);
         buttonAbout = findViewById(R.id.button_about);
         buttonExport = findViewById(R.id.button_export);
+        buttonFavorites = findViewById(R.id.button_favorites);
 
         sharedPreferences = getSharedPreferences("ThemePrefs", MODE_PRIVATE);
         boolean isDarkMode = sharedPreferences.getBoolean("darkMode", false);
@@ -173,6 +175,11 @@ public class MainActivity extends AppCompatActivity {
 
         buttonExport.setOnClickListener(v -> {
             Intent intent = new Intent(MainActivity.this, ExportActivity.class);
+            startActivity(intent);
+        });
+
+        buttonFavorites.setOnClickListener(v -> {
+            Intent intent = new Intent(MainActivity.this, FavoritesManagementActivity.class);
             startActivity(intent);
         });
     }
