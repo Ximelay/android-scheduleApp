@@ -1,6 +1,6 @@
-package com.example.irkpo_management.db;
+package com.example.irkpo_management.db
 
-public class Teacher {
-    public String id_teacher;
-    public String name;
+class Teacher {
+    var id_teacher: String? = null
+    var name: String? = null
 }

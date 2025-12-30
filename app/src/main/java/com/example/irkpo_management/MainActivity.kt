@@ -1,186 +1,149 @@
-package com.example.irkpo_management;
+package com.example.irkpo_management
 
-import android.content.ActivityNotFoundException;
-import android.content.Intent;
-import android.content.SharedPreferences;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
-import android.net.Uri;
-import android.os.Bundle;
-import android.text.SpannableString;
-import android.text.Spanned;
-import android.text.method.LinkMovementMethod;
-import android.text.style.ClickableSpan;
-import android.view.View;
-import android.widget.CompoundButton;
-import android.widget.TextView;
+import android.content.ActivityNotFoundException
+import android.content.Intent
+import android.content.pm.PackageManager
+import android.net.Uri
+import android.os.Bundle
+import android.text.SpannableString
+import android.text.Spanned
+import android.text.method.LinkMovementMethod
+import android.text.style.ClickableSpan
+import android.view.View
+import android.widget.TextView
+import androidx.activity.compose.setContent
+import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatDelegate
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import com.example.irkpo_management.ui.MainScreen
+import com.example.irkpo_management.ui.theme.AppTheme
 
-import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.app.AppCompatDelegate;
-import androidx.core.view.WindowCompat;
+class MainActivity : AppCompatActivity() {
+    companion object {
+        private const val TELEGRAM = BuildConfig.TELEGRAM_NIKNEIM
+        private const val GITHUB = BuildConfig.GITHUB_NIKNEIM
+        private const val GITHUB_REPOSITORY = BuildConfig.GITHUB_REPOSITORY
+    }
 
-import com.google.android.material.button.MaterialButton;
-import com.google.android.material.switchmaterial.SwitchMaterial;
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
 
-public class MainActivity extends AppCompatActivity {
+        val sharedPreferences = getSharedPreferences("ThemePrefs", MODE_PRIVATE)
+        val savedDarkMode = sharedPreferences.getBoolean("darkMode", false)
 
-    // Кнопки
-    MaterialButton buttonSchedule;
-    MaterialButton buttonPerformance;
-    MaterialButton buttonMoodle;
-    MaterialButton buttonAbout;
-    MaterialButton buttonExport;
-    MaterialButton buttonFavorites;
-    SwitchMaterial themeSwitch;
-    private SharedPreferences sharedPreferences;
-    private static final String TELEGRAM = BuildConfig.TELEGRAM_NIKNEIM;
-    private static final String GITHUB = BuildConfig.GITHUB_NIKNEIM;
-    private static final String GITHUB_REPOSITORY = BuildConfig.GITHUB_REPOSITORY;
+        setContent {
+            var isDarkTheme by remember { mutableStateOf(savedDarkMode) }
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        WindowCompat.setDecorFitsSystemWindows(getWindow(), true);
-        setContentView(R.layout.activity_main);
-
-
-        buttonSchedule = findViewById(R.id.button_schedule);
-        buttonPerformance = findViewById(R.id.button_performance);
-        buttonMoodle = findViewById(R.id.button_moodle);
-        themeSwitch = findViewById(R.id.theme_switch);
-        buttonAbout = findViewById(R.id.button_about);
-        buttonExport = findViewById(R.id.button_export);
-        buttonFavorites = findViewById(R.id.button_favorites);
-
-        sharedPreferences = getSharedPreferences("ThemePrefs", MODE_PRIVATE);
-        boolean isDarkMode = sharedPreferences.getBoolean("darkMode", false);
-        themeSwitch.setChecked(isDarkMode);
-
-        themeSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                SharedPreferences.Editor editor = sharedPreferences.edit();
-                editor.putBoolean("darkMode", isChecked);
-                editor.apply();
-
-                if (isChecked) {
-                    AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
-                } else {
-                    AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
-                }
-                recreate();
-            }
-        });
-
-        buttonSchedule.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(MainActivity.this, ScheduleActivity.class);
-                startActivity(intent);
-            }
-        });
-
-        buttonPerformance.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(MainActivity.this, PerformanceActivity.class);
-                startActivity(intent);
-            }
-        });
-
-        buttonMoodle.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://irkpo.ru/moodle/"));
-                intent.setPackage("com.moodle.moodlemobile");
-                try {
-                    startActivity(intent);
-                } catch (ActivityNotFoundException e) {
-                    startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://irkpo.ru/moodle/")));
-                }
-            }
-        });
-
-        buttonAbout.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-                builder.setTitle("О программе");
-
-                String versionName = "Неизвестно";
-                try {
-                    PackageInfo pInfo = getPackageManager().getPackageInfo(getPackageName(), 0);
-                    versionName = pInfo.versionName;
-                } catch (PackageManager.NameNotFoundException e) {
-                    e.printStackTrace();
-                }
-
-                String aboutMessage = "Автор: " + GITHUB + "\n" +
-                        "Версия: " + versionName + "\n" +
-                        "Приложенение создано для студентов и преподавателей ИРКПО\n" +
-                        "Предложения по улучшению можете писать в Telegram: " + TELEGRAM;
-
-                SpannableString spannableMessage = new SpannableString(aboutMessage);
-
-                int githubStart = aboutMessage.indexOf(GITHUB);
-                int githubEnd = githubStart + GITHUB.length();
-                ClickableSpan githubLink = new ClickableSpan() {
-                    @Override
-                    public void onClick(View widget) {
-                        try {
-                            Intent githubIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/" + GITHUB));
-                            startActivity(githubIntent);
-                        } catch (ActivityNotFoundException e) {
-                            Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/" + GITHUB));
-                            startActivity(browserIntent);
+            AppTheme(darkTheme = isDarkTheme) {
+                MainScreen(
+                    onScheduleClick = {
+                        startActivity(Intent(this, ScheduleActivity::class.java))
+                    },
+                    onPerformanceClick = {
+                        startActivity(Intent(this, PerformanceActivity::class.java))
+                    },
+                    onMoodleClick = {
+                        val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://irkpo.ru/moodle/")).apply {
+                            setPackage("com.moodle.moodlemobile")
                         }
-                    }
-                };
-                spannableMessage.setSpan(githubLink, githubStart, githubEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-
-                int telegramStart = aboutMessage.indexOf(TELEGRAM);
-                int telegramEnd = telegramStart + TELEGRAM.length();
-                ClickableSpan telegramLink = new ClickableSpan() {
-                    @Override
-                    public void onClick(View widget) {
                         try {
-                            Intent telegramIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("tg://resolve?domain=" + TELEGRAM));
-                            startActivity(telegramIntent);
-                        } catch (ActivityNotFoundException e) {
-                            Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://t.me/" + TELEGRAM));
-                            startActivity(browserIntent);
+                            startActivity(intent)
+                        } catch (e: ActivityNotFoundException) {
+                            startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://irkpo.ru/moodle/")))
                         }
+                    },
+                    onExportClick = {
+                        startActivity(Intent(this, ExportActivity::class.java))
+                    },
+                    onFavoritesClick = {
+                        startActivity(Intent(this, FavoritesManagementActivity::class.java))
+                    },
+                    onAboutClick = {
+                        showAboutDialog()
+                    },
+                    isDarkTheme = isDarkTheme,
+                    onThemeToggle = { isChecked ->
+                        sharedPreferences.edit().apply {
+                            putBoolean("darkMode", isChecked)
+                            apply()
+                        }
+                        isDarkTheme = isChecked
+
+                        AppCompatDelegate.setDefaultNightMode(
+                            if (isChecked) AppCompatDelegate.MODE_NIGHT_YES
+                            else AppCompatDelegate.MODE_NIGHT_NO
+                        )
                     }
-                };
-                spannableMessage.setSpan(telegramLink, telegramStart, telegramEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-
-                TextView messageTextView = new TextView(MainActivity.this);
-                messageTextView.setText(spannableMessage);
-                messageTextView.setMovementMethod(LinkMovementMethod.getInstance());
-                messageTextView.setPadding(40, 20, 40, 20); // Отступы для текста
-
-                builder.setView(messageTextView);
-
-                builder.setPositiveButton("Перейти к исходному коду", (dialog, which) -> {
-                    Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(GITHUB_REPOSITORY));
-                    startActivity(intent);
-                });
-
-                builder.setNegativeButton("Закрыть", (dialog, which) -> dialog.dismiss());
-
-                builder.show();
+                )
             }
-        });
+        }
+    }
 
-        buttonExport.setOnClickListener(v -> {
-            Intent intent = new Intent(MainActivity.this, ExportActivity.class);
-            startActivity(intent);
-        });
+    private fun showAboutDialog() {
+        val versionName = try {
+            packageManager.getPackageInfo(packageName, 0).versionName
+        } catch (e: PackageManager.NameNotFoundException) {
+            "Неизвестно"
+        }
 
-        buttonFavorites.setOnClickListener(v -> {
-            Intent intent = new Intent(MainActivity.this, FavoritesManagementActivity.class);
-            startActivity(intent);
-        });
+        val aboutMessage = """
+            Автор: $GITHUB
+            Версия: $versionName
+            Приложенение создано для студентов и преподавателей ИРКПО
+            Предложения по улучшению можете писать в Telegram: $TELEGRAM
+        """.trimIndent()
+
+        val spannableMessage = SpannableString(aboutMessage)
+
+        val githubStart = aboutMessage.indexOf(GITHUB)
+        val githubEnd = githubStart + GITHUB.length
+        spannableMessage.setSpan(
+            object : ClickableSpan() {
+                override fun onClick(widget: View) {
+                    startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/$GITHUB")))
+                }
+            },
+            githubStart,
+            githubEnd,
+            Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+        )
+
+        val telegramStart = aboutMessage.indexOf(TELEGRAM)
+        val telegramEnd = telegramStart + TELEGRAM.length
+        spannableMessage.setSpan(
+            object : ClickableSpan() {
+                override fun onClick(widget: View) {
+                    try {
+                        startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("tg://resolve?domain=$TELEGRAM")))
+                    } catch (e: ActivityNotFoundException) {
+                        startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://t.me/$TELEGRAM")))
+                    }
+                }
+            },
+            telegramStart,
+            telegramEnd,
+            Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+        )
+
+        val messageTextView = TextView(this).apply {
+            text = spannableMessage
+            movementMethod = LinkMovementMethod.getInstance()
+            setPadding(40, 20, 40, 20)
+        }
+
+        AlertDialog.Builder(this)
+            .setTitle("О Программе")
+            .setView(messageTextView)
+            .setPositiveButton("Перейти к исходному коду") { _, _ ->
+                startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(GITHUB_REPOSITORY)))
+            }
+            .setNegativeButton("Закрыть") { dialog, _ ->
+                dialog.dismiss()
+            }
+            .show()
     }
 }

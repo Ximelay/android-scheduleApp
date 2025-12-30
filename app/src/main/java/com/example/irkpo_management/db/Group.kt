@@ -1,9 +1,9 @@
-package com.example.irkpo_management.db;
+package com.example.irkpo_management.db
 
-import com.google.gson.annotations.SerializedName;
+import com.google.gson.annotations.SerializedName
 
-public class Group {
-    public String name_group;
+class Group {
+    var name_group: String? = null
     @SerializedName("group_id")
-    public int id_group;
+    var id_group: Int = 0
 }
