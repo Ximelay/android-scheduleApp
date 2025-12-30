@@ -35,8 +35,8 @@ public class MainActivity extends AppCompatActivity {
     SwitchMaterial themeSwitch;
     private SharedPreferences sharedPreferences;
     private static final String TELEGRAM = BuildConfig.TELEGRAM_NIKNEIM;
-    private static final String GITHUB = BuildConfig.GITHUB_NIKNEIM;
-    private static final String GITHUB_REPOSITORY = BuildConfig.GITHUB_REPOSITORY;
+    private static final String GITHUB = BuildConfig.NIKNEIM_GITHUB;
+    private static final String GITHUB_REPOSITORY = BuildConfig.REPOSITORY_GITHUB;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
