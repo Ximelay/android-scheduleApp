@@ -28,33 +28,44 @@ jobs:
       - name: Make gradlew executable
         run: chmod +x ./gradlew
 
-      # 4. Создание временной папки для keystore
+      # 4. Создание local.properties для CI
+      - name: Create local.properties
+        run: |
+          cat > local.properties <<EOF
+          sdk.dir=$ANDROID_HOME
+          IRKPO_BASE_URL=${{ secrets.IRKPO_BASE_URL }}
+          TELEGRAM_NIKNEIM=${{ secrets.TELEGRAM_NIKNEIM }}
+          NIKNEIM_GITHUB=${{ secrets.NIKNEIM_GITHUB }}
+          REPOSITORY_GITHUB=${{ secrets.REPOSITORY_GITHUB }}
+          KEYSTORE_PATH=app/temp_keys/key.jks
+          KEYSTORE_PASSWORD=${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS=${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD=${{ secrets.KEY_PASSWORD }}
+          SUPABASE_URL=${{ secrets.SUPABASE_URL }}
+          SUPABASE_ANON_KEY=${{ secrets.SUPABASE_ANON_KEY }}
+          EOF
+
+      # 5. Создание временной папки для keystore
       - name: Create temp directory for keystore
         run: mkdir -p app/temp_keys
 
-      # 5. Сохранение Base64 секрета
+      # 6. Сохранение Base64 секрета
       - name: Save Keystore Base64
         run: echo "${{ secrets.KEYSTORE_BASE64 }}" > keystore.base64
         env:
           KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
 
-      # 6. Декодирование keystore
+      # 7. Декодирование keystore
       - name: Decode Keystore
         run: base64 -d keystore.base64 > app/temp_keys/key.jks
 
-      # 7. Проверка наличия keystore
+      # 8. Проверка наличия keystore
       - name: Check Keystore File
         run: ls -la app/temp_keys/
 
-      # 8. Сборка релизного APK
+      # 9. Сборка релизного APK
       - name: Build Release APK
-        run: |
-          ./gradlew assembleRelease \
-            -PKEYSTORE_PATH=app/temp_keys/key.jks \
-            -PKEYSTORE_PASSWORD="${{ secrets.KEYSTORE_PASSWORD }}" \
-            -PKEY_ALIAS="${{ secrets.KEY_ALIAS }}" \
-            -PKEY_PASSWORD="${{ secrets.KEY_PASSWORD }}" \
-            --info
+        run: ./gradlew assembleRelease --info
 
       # 9. Установка Android SDK, Build Tools и Platform Tools
       - name: Set up Android SDK
