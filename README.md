@@ -15,28 +15,29 @@
 
 ## Обзор
 
-**Stud-Informer** — мобильное приложение для Android, разработанное для студентов и преподавателей Иркутского регионального колледжа педагогического образования ([ИРКПО](https://irkpo.ru/www/)). Оно предоставляет удобный доступ к расписанию занятий, данным об успеваемости, заметкам, интеграции с Moodle, а также поддерживает уведомления и тёмную тему.
+**Stud-Informer** — мобильное приложение для Android, разработанное для студентов и преподавателей Иркутского регионального колледжа педагогического образования ([ИРКПО](https://irkpo.ru/www/)). Оно предоставляет удобный доступ к расписанию занятий, данным об успеваемости + экспорт оценок, заметкам к урокам, интеграции с Moodle, а также поддерживает уведомления и переключение между темами.
 
-- **Цель**: Упростить управление учебным процессом через интуитивный интерфейс.
+- **Цель**: Упростить управление учебным процессом через интуитивно понятный интерфейс.
 - **Основные функции**:
   - Просмотр расписания с сворачиваемыми днями и заметками.
   - Отслеживание успеваемости (оценки, посещаемость).
-  - Создание и управление заметками с напоминаниями.
   - Интеграция с Moodle через WebView.
   - Push-уведомления об изменениях расписания.
-  - Поддержка светлой/тёмной темы.
+  - Экспорт успеваемости с выбором данных в .`xlsx` или `.pdf` форматы
+  - Поддержка переключения тем.
 - **Платформа**: Android 8.0+ (API 26+).
-- **Язык**: Java.
+- **Язык**: Java(17) + Kotlin(2.2.0).
 
 ## Технологии
 
 - **Фреймворки и библиотеки**:
-  - Retrofit: HTTP-запросы к API.
-  - Room: Локальная база данных для заметок.
-  - RecyclerView: Отображение списков.
-  - WorkManager: Фоновые задачи и уведомления.
-  - Material Components: Современный UI.
-  - Gson: Парсинг JSON.
+  - [Retrofit](https://square.github.io/retrofit/)
+  - [Room](https://developer.android.com/training/data-storage/room)
+  - [RecyclerView](https://developer.android.com/develop/ui/views/layout/recyclerview)
+  - [WorkManager](https://developer.android.com/develop/background-work/background-tasks/persistent/getting-started)
+  - [Material Components](https://material.io/develop/android)
+  - [Jetpack Compose](https://developer.android.com/jetpack/compose)
+  - [Gson](https://github.com/google/gson)
 - **Инструменты**:
   - Android Studio, Gradle.
   - JUnit, Espresso для тестирования.
@@ -50,119 +51,27 @@
 - Android Studio (последняя версия).
 - Android SDK (API 26+).
 - Устройство или эмулятор с Android 8.0+.
-- Файлы `groups.json` и `teachers.json` в `/app/src/main/assets/`.
 
 ### Установка
 1. Клонируйте репозиторий:
    ```bash
    git clone https://github.com/Ximelay/android-scheduleApp.git
    ```
-2. Скопируйте JSON-файлы:
-   ```bash
-   mkdir app/src/main/assets
-   cp groups.json teachers.json app/src/main/assets/
-   ```
 3. Откройте проект в Android Studio и синхронизируйте `build.gradle`.
 
 ### Запуск
 1. Подключите устройство или запустите эмулятор.
-2. Выполните:
+
+2. Создайте файл `local.properties`:
+    ```bash
+   cp local.properties.example local.properties
+   ```
+3. Заполните все переменные в `local.properties` кроме `sdk.dir`.
+
+4. Выполните:
    ```bash
    Run > Run 'app'
    ```
-3. Убедитесь, что в `AndroidManifest.xml` указан:
-   ```xml
-   <application android:name=".utils.ThemeApplication" ...>
-   ```
-4. Проверьте разрешение `POST_NOTIFICATIONS`.
-
-## Структура проекта
-
-- **Основные модули**:
-  - `/java/com.example.sheduleapp_v5/`: Activity (`MainActivity`, `ScheduleActivity`, `PerformanceActivity`, `MoodleActivity`).
-  - `/adapters/`: Адаптеры для RecyclerView (`LessonAdapter`, `PerformanceAdapter`).
-  - `/db/`: Room для заметок (`NoteDatabase`, `NoteDao`, `NoteEntity`, `NoteRepository`).
-  - `/models/`: Модели данных (`DaySchedule`, `DisplayLessonItem`, `PerformanceResponse`).
-  - `/network/`: Сетевые запросы (`ApiClient`, `ScheduleApi`, `PerformanceApi`).
-  - `/utils/`: Утилиты (`GroupUtils`, `PreferenceManager`, `StickyHeaderDecoration`).
-  - `/work/`: WorkManager (`ScheduleCheckWorker`, `ReminderWorker`).
-- **Ресурсы**:
-  - `/res/layout/`: XML-лейауты интерфейса.
-  - `/assets/`: JSON-файлы (`groups.json`, `teachers.json`).
-
-## Основные компоненты
-
-- **MainActivity**: Точка входа, навигация, настройка темы, запуск фоновых задач.
-- **ScheduleActivity**: Отображение расписания, выбор группы/преподавателя, заметки.
-- **PerformanceActivity**: Просмотр успеваемости по номеру телефона.
-- **MoodleActivity**: Доступ к Moodle через WebView.
-- **LessonAdapter**: RecyclerView для расписания с анимацией и заметками.
-- **NoteRepository**: Управление заметками через Room.
-- **ScheduleCheckWorker**: Фоновая проверка изменений расписания.
-
-## Тестирование
-
-- **Сценарии**:
-  - UI: Навигация, отображение расписания, добавление заметок.
-  - API: Корректность ответов `/schedule` и `/student`.
-  - База данных: Сохранение/удаление заметок.
-  - Уведомления: Push-уведомления и очистка заметок.
-  - Тема: Переключение светлой/тёмной темы.
-- **Инструменты**:
-  - JUnit для юнит-тестов.
-  - Espresso для UI-тестов.
-  - MockWebServer для API.
-- **Запуск тестов**:
-  ```bash
-  Run > Run 'All Tests'
-  ```
-
-## Взаимодействие компонентов
-
-```mermaid
-graph TD
-    A[MainActivity] -->|Запуск| B[ScheduleActivity]
-    A -->|Запуск| C[PerformanceActivity]
-    A -->|Запуск| D[MoodleActivity]
-    A -->|Планирование| E[ScheduleCheckWorker]
-    B -->|API-запрос| F[ApiClient/ScheduleApi]
-    C -->|API-запрос| G[ApiClient/PerformanceApi]
-    F -->|Ответ| H[ScheduleResponse]
-    G -->|Ответ| I[PerformanceResponse]
-    B -->|Отображение| J[LessonAdapter]
-    C -->|Отображение| K[PerformanceAdapter]
-    B -->|Сохранение| L[PreferenceManager]
-    C -->|Сохранение| L
-    B -->|Поиск| M[GroupUtils]
-    B -->|Поиск| N[TeacherUtils]
-    M -->|Данные| O[DataProvider]
-    N -->|Данные| O
-    J -->|Заметки| P[NoteRepository]
-    P -->|База данных| Q[NoteDatabase]
-    Q -->|DAO| R[NoteDao]
-    R -->|Данные| S[NoteEntity]
-    J -->|Обновление| T[LessonDiffUtil]
-    J -->|Декорация| U[StickyHeaderDecoration]
-    H -->|Данные| V[DaySchedule]
-    V -->|Уроки| W[LessonIndex]
-    W -->|Детали| X[LessonItem]
-    J -->|Отображение| Y[DisplayLessonItem]
-    Y -->|Детали| X
-    I -->|Данные| Z[Plan/Period/PlanCell]
-    AA[App] -->|Инициализация| AB[NotificationManager]
-    AC[ThemeApplication] -->|Тема| AD[AppCompatDelegate]
-    J -->|Напоминания| AE[ReminderScheduler]
-    AE -->|Задачи| AF[ReminderWorker]
-    AE -->|Очистка| AG[NoteCleanupWorker]
-```
-
-- **Поток данных**:
-  - `MainActivity` запускает навигацию и фоновую проверку (`ScheduleCheckWorker`).
-  - `ScheduleActivity` запрашивает данные через `ScheduleApi`, отображает через `LessonAdapter`.
-  - `LessonAdapter` управляет заметками (`NoteRepository`) и напоминаниями (`ReminderScheduler`).
-  - `PerformanceActivity` получает успеваемость через `PerformanceApi`.
-  - `GroupUtils` и `TeacherUtils` загружают данные из JSON (`DataProvider`).
-
 
 ## Лицензия
 
