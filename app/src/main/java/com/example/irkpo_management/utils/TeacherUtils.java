@@ -66,7 +66,7 @@ public class TeacherUtils {
             }
 
             String[] parts = fullName.trim().split("\\s+");
-            Log.d(TAG, "Processing fullName: '" + fullName + "', parts: " + parts.length);
+//            Log.d(TAG, "Processing fullName: '" + fullName + "', parts: " + parts.length);
 
             if (parts.length >= 3) {
                 String lastName = parts[0];
@@ -78,15 +78,15 @@ public class TeacherUtils {
                 if (lastName.toLowerCase().contains(queryLower) ||
                         FuzzySearch.ratio(lastName.toLowerCase(), queryLower) >= FUZZY_THRESHOLD) {
                     byLastName.add(formattedName);
-                    Log.d(TAG, "Matched by lastName: " + formattedName + " (original: " + fullName + ")");
+//                    Log.d(TAG, "Matched by lastName: " + formattedName + " (original: " + fullName + ")");
                 } else if (firstName.toLowerCase().contains(queryLower) ||
                         FuzzySearch.ratio(firstName.toLowerCase(), queryLower) >= FUZZY_THRESHOLD) {
                     byFirstName.add(formattedName);
-                    Log.d(TAG, "Matched by firstName: " + formattedName + " (original: " + fullName + ")");
+//                    Log.d(TAG, "Matched by firstName: " + formattedName + " (original: " + fullName + ")");
                 } else if (patronymic.toLowerCase().contains(queryLower) ||
                         FuzzySearch.ratio(patronymic.toLowerCase(), queryLower) >= FUZZY_THRESHOLD) {
                     byPatronymic.add(formattedName);
-                    Log.d(TAG, "Matched by patronymic: " + formattedName + " (original: " + fullName + ")");
+//                    Log.d(TAG, "Matched by patronymic: " + formattedName + " (original: " + fullName + ")");
                 }
             } else {
                 Log.w(TAG, "Non-standard fullName format: " + fullName + ", skipping");

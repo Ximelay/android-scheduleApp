@@ -19,14 +19,19 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.LaunchedEffect
+import android.widget.Toast
+import com.example.irkpo_management.network.UserConsentService
 import com.example.irkpo_management.ui.MainScreen
+import com.example.irkpo_management.ui.fragments.UserConsentDialog
 import com.example.irkpo_management.ui.theme.AppTheme
 
 class MainActivity : AppCompatActivity() {
     companion object {
         private const val TELEGRAM = BuildConfig.TELEGRAM_NIKNEIM
-        private const val GITHUB = BuildConfig.GITHUB_NIKNEIM
-        private const val GITHUB_REPOSITORY = BuildConfig.GITHUB_REPOSITORY
+        private const val GITHUB = BuildConfig.NIKNEIM_GITHUB
+        private const val GITHUB_REPOSITORY = BuildConfig.REPOSITORY_GITHUB
+        private const val IRKPO_MOODLE = BuildConfig.IRKPO_MOODLE
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -35,11 +40,74 @@ class MainActivity : AppCompatActivity() {
         val sharedPreferences = getSharedPreferences("ThemePrefs", MODE_PRIVATE)
         val savedDarkMode = sharedPreferences.getBoolean("darkMode", false)
 
+        AppCompatDelegate.setDefaultNightMode(
+            if (savedDarkMode) AppCompatDelegate.MODE_NIGHT_YES
+            else AppCompatDelegate.MODE_NIGHT_NO
+        )
+
         setContent {
             var isDarkTheme by remember { mutableStateOf(savedDarkMode) }
+            val consentService = remember { UserConsentService(this) }
+
+            var consentRequired by remember { mutableStateOf(consentService.shouldShowConsentDialog()) }
+            var isCheckingServer by remember { mutableStateOf(false) }
+            var consentGranted by remember { mutableStateOf(!consentRequired) }
+
+            LaunchedEffect(Unit) {
+                if (!consentRequired && consentService.shouldCheckConsentOnServer()) {
+                    // Если прошло 24 часа - проверяем на сервере
+                    val localUserId = consentService.getLocalUserId()
+
+                    if (localUserId != null) {
+                        isCheckingServer = true
+                        consentService.verifyConsentOnServer(
+                            userId = localUserId,
+                            onResult = { exists, _ ->
+                                isCheckingServer = false
+                                if (!exists) {
+                                    // Согласие не найдено на сервере - требуем согласие
+                                    consentRequired = true
+                                    consentGranted = false
+                                }
+                            },
+                            onError = { _ ->
+                                isCheckingServer = false
+                                // При ошибке сети не показываем диалог, используем локальное согласие
+                                consentService.updateLastCheckTime()
+                            }
+                        )
+                    }
+                }
+            }
 
             AppTheme(darkTheme = isDarkTheme) {
-                MainScreen(
+                // Пока согласие не получено ИЛИ идет проверка - показываем только диалог/загрузку
+                if (!consentGranted || isCheckingServer) {
+                    UserConsentDialog(
+                        showDialog = consentRequired,
+                        onDismiss = {
+                            // Не позволяем закрыть диалог без выбора
+                        },
+                        onAccept = { _ ->
+                            consentRequired = false
+                            consentGranted = true
+                            Toast.makeText(
+                                this,
+                                "Согласие принято. Спасибо!",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        },
+                        onDecline = {
+                            Toast.makeText(
+                                this,
+                                "Без согласия приложение не может работать",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                            finish()
+                        }
+                    )
+                } else {
+                    MainScreen(
                     onScheduleClick = {
                         startActivity(Intent(this, ScheduleActivity::class.java))
                     },
@@ -47,13 +115,13 @@ class MainActivity : AppCompatActivity() {
                         startActivity(Intent(this, PerformanceActivity::class.java))
                     },
                     onMoodleClick = {
-                        val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://irkpo.ru/moodle/")).apply {
+                        val intent = Intent(Intent.ACTION_VIEW, Uri.parse("$IRKPO_MOODLE")).apply {
                             setPackage("com.moodle.moodlemobile")
                         }
                         try {
                             startActivity(intent)
                         } catch (e: ActivityNotFoundException) {
-                            startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://irkpo.ru/moodle/")))
+                            startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("$IRKPO_MOODLE")))
                         }
                     },
                     onExportClick = {
@@ -79,6 +147,7 @@ class MainActivity : AppCompatActivity() {
                         )
                     }
                 )
+                }
             }
         }
     }

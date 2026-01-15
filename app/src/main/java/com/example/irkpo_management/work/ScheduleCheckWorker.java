@@ -39,7 +39,7 @@ public class ScheduleCheckWorker extends Worker {
     @NonNull
     @Override
     public Result doWork() {
-        Log.d("ScheduleCheckWorker", "🔄 Worker started");
+//        Log.d("ScheduleCheckWorker", "🔄 Worker started");
         try {
             PreferenceManager preferenceManager = new PreferenceManager(getApplicationContext());
 

@@ -84,7 +84,7 @@ public class LessonAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
         if (viewType == DisplayLessonItem.TYPE_HEADER) {
             view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_day_header, parent, false);
-            Log.d("LessonAdapter", "Inflated item_day_header");
+//            Log.d("LessonAdapter", "Inflated item_day_header");
             return new HeaderViewHolder(view);
         } else {
             try {
