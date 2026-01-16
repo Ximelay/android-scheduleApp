@@ -1,86 +1,37 @@
-package com.example.irkpo_management.models;
+package com.example.irkpo_management.models
 
-import com.google.gson.annotations.SerializedName;
+import com.google.gson.annotations.SerializedName
 
-public class LessonItem {
+class LessonItem {
+    @JvmField
     @SerializedName("lessonName")
-    private String lessonName;
+    var lessonName: String? = null
+
+    @JvmField
     @SerializedName("teacherName")
-    private String teacherName;
+    var teacherName: String? = null
+
+    @JvmField
     @SerializedName("classroom")
-    private String classroom;
+    var classroom: String? = null
+
+    @JvmField
     @SerializedName("comment")
-    private String comment;
+    var comment: String? = null
+
+    @JvmField
     @SerializedName("subgroup")
-    private String subgroup;
+    var subgroup: String? = null
+
+    @JvmField
     @SerializedName("weekType")
-    private Integer weekType;
+    var weekType: Int? = null
+
+    @JvmField
     @SerializedName("location")
-    private String location;
+    var location: String? = null
+
+    @JvmField
     @SerializedName("groupName")
-    private String groupName;
-
-    public String getLessonName() {
-        return lessonName;
-    }
-
-    public void setLessonName(String lessonName) {
-        this.lessonName = lessonName;
-    }
-
-    public String getTeacherName() {
-        return teacherName;
-    }
-
-    public void setTeacherName(String teacherName) {
-        this.teacherName = teacherName;
-    }
-
-    public String getClassroom() {
-        return classroom;
-    }
-
-    public void setClassroom(String classroom) {
-        this.classroom = classroom;
-    }
-
-    public String getComment() {
-        return comment;
-    }
-
-    public void setComment(String comment) {
-        this.comment = comment;
-    }
-
-    public String getSubgroup() {
-        return subgroup;
-    }
-
-    public void setGroupName(String groupName) {
-        this.groupName = groupName;
-    }
-
-    public Integer getWeekType() {
-        return weekType;
-    }
-
-    public void setWeekType(Integer weekType) {
-        this.weekType = weekType;
-    }
-
-    public String getLocation() {
-        return location;
-    }
-
-    public void setLocation(String location) {
-        this.location = location;
-    }
-
-    public String getGroupName() {
-        return groupName;
-    }
-
-    public void setSubgroup(String subgroup) {
-        this.subgroup = subgroup;
-    }
+    var groupName: String? = null
 }

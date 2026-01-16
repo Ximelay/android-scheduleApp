@@ -1,42 +1,12 @@
-package com.example.irkpo_management.models;
+package com.example.irkpo_management.models
 
-import java.util.List;
-
-public class ScheduleResponse {
-    private String currentDate;
-    private int currentWeekType;
-    private String currentWeekName;
-    private List<DaySchedule> items;
-
-    public String getCurrentDate() {
-        return currentDate;
-    }
-
-    public void setCurrentDate(String currentDate) {
-        this.currentDate = currentDate;
-    }
-
-    public int getCurrentWeekType() {
-        return currentWeekType;
-    }
-
-    public void setCurrentWeekType(int currentWeekType) {
-        this.currentWeekType = currentWeekType;
-    }
-
-    public String getCurrentWeekName() {
-        return currentWeekName;
-    }
-
-    public void setCurrentWeekName(String currentWeekName) {
-        this.currentWeekName = currentWeekName;
-    }
-
-    public List<DaySchedule> getItems() {
-        return items;
-    }
-
-    public void setItems(List<DaySchedule> items) {
-        this.items = items;
-    }
+class ScheduleResponse {
+    @JvmField
+    var currentDate: String? = null
+    @JvmField
+    var currentWeekType: Int = 0
+    @JvmField
+    var currentWeekName: String? = null
+    @JvmField
+    var items: MutableList<DaySchedule?>? = null
 }

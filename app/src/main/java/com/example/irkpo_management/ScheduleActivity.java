@@ -401,7 +401,7 @@ public class ScheduleActivity extends AppCompatActivity {
     private void displaySchedule(ScheduleResponse scheduleResponse, boolean isTeacherSchedule) {
         tvCacheStatus.setVisibility(isNetworkAvailable() ? View.GONE : View.VISIBLE);
 
-        List<DaySchedule> daySchedules = scheduleResponse.getItems();
+        List<DaySchedule> daySchedules = scheduleResponse.items;
 
         if (daySchedules.isEmpty()) {
             recyclerView.setVisibility(View.GONE);
@@ -413,16 +413,16 @@ public class ScheduleActivity extends AppCompatActivity {
             TextView noDataTextView = findViewById(R.id.tvNoData);
             noDataTextView.setVisibility(View.GONE);
 
-            int currentWeekType = scheduleResponse.getCurrentWeekType();
+            int currentWeekType = scheduleResponse.currentWeekType;
             String weekLabel = currentWeekType == 1 ? "Круглая" : "Треугольная";
             tvWeekType.setText("Тип недели: " + weekLabel);
-            tvWeekRange.setText("[" + scheduleResponse.getCurrentWeekName() + "]");
+            tvWeekRange.setText("[" + scheduleResponse.currentWeekName + "]");
 
             List<DisplayLessonItem> displayItems = new ArrayList<>();
             for (DaySchedule day : daySchedules) {
                 displayItems.add(new DisplayLessonItem(
                         DisplayLessonItem.TYPE_HEADER,
-                        day.getDayOfWeek(),
+                        day.dayOfWeek,
                         null,
                         null,
                         null,
@@ -430,13 +430,13 @@ public class ScheduleActivity extends AppCompatActivity {
                         currentWeekType
                 ));
 
-                for (LessonIndex index : day.getLessonIndexes()) {
+                for (LessonIndex index : day.lessonIndexes) {
                     displayItems.add(new DisplayLessonItem(
                             DisplayLessonItem.TYPE_LESSON,
-                            day.getDayOfWeek(),
-                            index.getLessonStartTime(),
-                            index.getLessonEndTime(),
-                            index.getItems(),
+                            day.dayOfWeek,
+                            index.lessonStartTime,
+                            index.lessonEndTime,
+                            index.items,
                             false,
                             currentWeekType
                     ));

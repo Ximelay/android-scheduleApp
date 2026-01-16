@@ -1,22 +1,11 @@
-package com.example.irkpo_management.models;
+package com.example.irkpo_management.models
 
-import java.util.List;
-
-public class DaySchedule {
-    private String dayOfWeek;
-    private int weekType;
-    private List<LessonIndex> lessonIndexes; // Уроки на этот день
-
+class DaySchedule {
     // Геттеры
-    public String getDayOfWeek() {
-        return dayOfWeek;
-    }
-
-    public int getWeekType() {
-        return weekType;
-    }
-
-    public List<LessonIndex> getLessonIndexes() {
-        return lessonIndexes;
-    }
+    @JvmField
+    val dayOfWeek: String? = null
+    @JvmField
+    val weekType: Int = 0
+    @JvmField
+    val lessonIndexes: MutableList<LessonIndex?>? = null // Уроки на этот день
 }

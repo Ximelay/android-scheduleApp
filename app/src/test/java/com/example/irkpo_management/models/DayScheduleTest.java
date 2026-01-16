@@ -26,9 +26,9 @@ public class DayScheduleTest {
         List<LessonIndex> lessonIndices = Arrays.asList(new LessonIndex());
         lessonIndexesField.set(daySchedule, lessonIndices);
 
-        assertEquals("Monday", daySchedule.getDayOfWeek());
-        assertEquals(1, daySchedule.getWeekType());
-        assertEquals(lessonIndices, daySchedule.getLessonIndexes());
+        assertEquals("Monday", daySchedule.dayOfWeek);
+        assertEquals(1, daySchedule.weekType);
+        assertEquals(lessonIndices, daySchedule.lessonIndexes);
     }
 
     @Test
@@ -43,8 +43,8 @@ public class DayScheduleTest {
         lessonIndexesField.setAccessible(true);
         lessonIndexesField.set(daySchedule, null);
 
-        assertNull(daySchedule.getDayOfWeek());
-        assertEquals(0, daySchedule.getWeekType());
-        assertNull(daySchedule.getLessonIndexes());
+        assertNull(daySchedule.dayOfWeek);
+        assertEquals(0, daySchedule.weekType);
+        assertNull(daySchedule.lessonIndexes);
     }
 }

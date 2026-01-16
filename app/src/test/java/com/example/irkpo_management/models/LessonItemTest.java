@@ -9,35 +9,35 @@ public class LessonItemTest {
     @Test
     public void testGetters() {
         LessonItem item = new LessonItem();
-        item.setLessonName("Математика");
-        item.setTeacherName("Иванов И.И.");
-        item.setClassroom("101");
-        item.setComment("Лекция");
-        item.setSubgroup("подгр. 1");
-        item.setWeekType(1);
-        item.setLocation("ЖЕЛ");
-        item.setGroupName("И-322");
+        item.lessonName = "Математика";
+        item.teacherName = "Иванов И.И.";
+        item.classroom = "101";
+        item.comment = "Лекция";
+        item.subgroup = "подгр. 1";
+        item.weekType = 1;
+        item.location = "ЖЕЛ";
+        item.groupName = "И-322";
 
-        assertEquals("Математика", item.getLessonName());
-        assertEquals("Иванов И.И.", item.getTeacherName());
-        assertEquals("101", item.getClassroom());
-        assertEquals("Лекция", item.getComment());
-        assertEquals("подгр. 1", item.getSubgroup());
-        assertEquals(Integer.valueOf(1), item.getWeekType());
-        assertEquals("ЖЕЛ", item.getLocation());
-        assertEquals("И-322", item.getGroupName());
+        assertEquals("Математика", item.lessonName);
+        assertEquals("Иванов И.И.", item.teacherName);
+        assertEquals("101", item.classroom);
+        assertEquals("Лекция", item.comment);
+        assertEquals("подгр. 1", item.subgroup);
+        assertEquals(Integer.valueOf(1), item.weekType);
+        assertEquals("ЖЕЛ", item.location);
+        assertEquals("И-322", item.groupName);
     }
 
     @Test
     public void testNullValues() {
         LessonItem item = new LessonItem();
-        assertNull(item.getLessonName());
-        assertNull(item.getTeacherName());
-        assertNull(item.getClassroom());
-        assertNull(item.getComment());
-        assertNull(item.getSubgroup());
-        assertNull(item.getWeekType());
-        assertNull(item.getLocation());
-        assertNull(item.getGroupName());
+        assertNull(item.lessonName);
+        assertNull(item.teacherName);
+        assertNull(item.classroom);
+        assertNull(item.comment);
+        assertNull(item.subgroup);
+        assertNull(item.weekType);
+        assertNull(item.location);
+        assertNull(item.groupName);
     }
 }

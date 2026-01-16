@@ -21,20 +21,20 @@ public class DisplayLessonItemTest {
                 1
         );
 
-        assertEquals(DisplayLessonItem.TYPE_LESSON, item.getType());
-        assertEquals("Понедельник", item.getDayOfWeek());
-        assertEquals("08:00", item.getStartTime());
-        assertEquals("09:30", item.getEndTime());
-        assertTrue(item.isFirstOfDay());
-        assertEquals(1, item.getCurrentWeekType());
+        assertEquals(DisplayLessonItem.TYPE_LESSON, item.type);
+        assertEquals("Понедельник", item.dayOfWeek);
+        assertEquals("08:00", item.startTime);
+        assertEquals("09:30", item.endTime);
+        assertTrue(item.isFirstOfDay);
+        assertEquals(1, item.currentWeekType);
         assertTrue(item.isVisible());
-        assertEquals("Понедельник", item.getDayId());
-        assertEquals("", item.getNote());
+        assertEquals("Понедельник", item.dayId);
+        assertEquals("", item.note);
 
         item.setVisible(false);
         assertFalse(item.isVisible());
 
-        item.setNote("Тестовая заметка");
-        assertEquals("Тестовая заметка", item.getNote());
+        item.note = "Тестовая заметка";
+        assertEquals("Тестовая заметка", item.note);
     }
 }

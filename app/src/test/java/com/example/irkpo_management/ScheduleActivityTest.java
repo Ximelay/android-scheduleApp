@@ -143,9 +143,9 @@ public class ScheduleActivityTest {
     @Test
     public void testFetchSchedule_success() {
         ScheduleResponse response = new ScheduleResponse();
-        response.setCurrentWeekType(1);
-        response.setCurrentWeekName("01.01.2025-07.01.2025");
-        response.setItems(new ArrayList<>());
+        response.currentWeekType = 1;
+        response.currentWeekName = "01.01.2025-07.01.2025";
+        response.items = new ArrayList<>();
 
         when(scheduleApi.getSchedule(anyInt())).thenReturn(scheduleCall);
         doAnswer(invocation -> {

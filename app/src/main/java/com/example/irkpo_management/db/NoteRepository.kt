@@ -1,33 +1,33 @@
-package com.example.irkpo_management.db;
+package com.example.irkpo_management.db
 
-import android.content.Context;
+import android.content.Context
 
-public class NoteRepository {
-    private final NoteDao noteDao;
+class NoteRepository {
+    private val noteDao: NoteDao
 
-    public NoteRepository(Context context) {
-        noteDao = NoteDatabase.getInstance(context).noteDao();
+    constructor(context: Context?) {
+        noteDao = NoteDatabase.getInstance(context).noteDao()
     }
 
     // Конструктор для тестов
-    NoteRepository(NoteDao noteDao) {
-        this.noteDao = noteDao;
+    internal constructor(noteDao: NoteDao) {
+        this.noteDao = noteDao
     }
 
-    public void saveNote(String key, String text, Long remindAt) {
-        noteDao.insert(new NoteEntity(key, text, remindAt));
+    fun saveNote(key: String?, text: String?, remindAt: Long?) {
+        noteDao.insert(NoteEntity(key, text, remindAt))
     }
 
-    public String loadNote(String key) {
-        NoteEntity note = noteDao.getNoteForLesson(key);
-        return note != null ? note.text : "";
+    fun loadNote(key: String?): String? {
+        val note = noteDao.getNoteForLesson(key)
+        return if (note != null) note.text else ""
     }
 
-    public void deleteNote(String key) {
-        noteDao.deleteByLessonKey(key);
+    fun deleteNote(key: String?) {
+        noteDao.deleteByLessonKey(key)
     }
 
-    public NoteEntity getNoteEntity(String key) {
-        return noteDao.getNoteForLesson(key);
+    fun getNoteEntity(key: String?): NoteEntity? {
+        return noteDao.getNoteForLesson(key)
     }
 }

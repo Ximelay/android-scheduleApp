@@ -1,21 +1,10 @@
-package com.example.irkpo_management.models;
+package com.example.irkpo_management.models
 
-import java.util.List;
-
-public class LessonIndex {
-    private String lessonStartTime;
-    private String lessonEndTime;
-    private List<LessonItem> items; // Список уроков в этом индексе
-
-    public String getLessonStartTime() {
-        return lessonStartTime;
-    }
-
-    public String getLessonEndTime() {
-        return lessonEndTime;
-    }
-
-    public List<LessonItem> getItems() {
-        return items;
-    }
+class LessonIndex {
+    @JvmField
+    val lessonStartTime: String? = null
+    @JvmField
+    val lessonEndTime: String? = null
+    @JvmField
+    val items: MutableList<LessonItem?>? = null // Список уроков в этом индексе
 }

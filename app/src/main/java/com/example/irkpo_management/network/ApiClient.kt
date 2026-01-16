@@ -1,30 +1,32 @@
-package com.example.irkpo_management.network;
+package com.example.irkpo_management.network
 
-import com.example.irkpo_management.BuildConfig;
+import com.example.irkpo_management.BuildConfig
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
 
-import retrofit2.Retrofit;
-import retrofit2.converter.gson.GsonConverterFactory;
-public class ApiClient {
-    private static final String IRKPO_BASE_URL = BuildConfig.IRKPO_BASE_URL;
-    private static final String SUPABASE_URL = BuildConfig.SUPABASE_URL;
+object ApiClient {
+    private val IRKPO_BASE_URL = BuildConfig.IRKPO_BASE_URL
+    private val SUPABASE_URL = BuildConfig.SUPABASE_URL
 
-    private static Retrofit retrofit;
+    private var retrofit: Retrofit? = null
 
-    public static Retrofit getRetrofitInstance() {
-        if (retrofit == null) {
-            retrofit = new Retrofit.Builder()
+    @JvmStatic
+    val retrofitInstance: Retrofit
+        get() {
+            if (retrofit == null) {
+                retrofit = Retrofit.Builder()
                     .baseUrl(IRKPO_BASE_URL)
                     .addConverterFactory(GsonConverterFactory.create())
-                    .build();
+                    .build()
+            }
+            return retrofit!!
         }
-        return retrofit;
-    }
 
-    public static SupabaseApi getSupabaseApi() {
-        return new Retrofit.Builder()
-                .baseUrl(SUPABASE_URL)
-                .addConverterFactory(GsonConverterFactory.create())
-                .build()
-                .create(SupabaseApi.class);
-    }
+    @JvmStatic
+    val supabaseApi: SupabaseApi
+        get() = Retrofit.Builder()
+            .baseUrl(SUPABASE_URL)
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+            .create<SupabaseApi>(SupabaseApi::class.java)
 }

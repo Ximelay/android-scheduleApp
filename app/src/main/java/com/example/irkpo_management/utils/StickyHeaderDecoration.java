@@ -33,15 +33,15 @@ public class StickyHeaderDecoration extends RecyclerView.ItemDecoration {
         DisplayLessonItem currentItem = adapter.getVisibleLessonList().get(topChildPosition);
 
         // Проверяем, что текущий элемент — это урок
-        if (currentItem.getType() != DisplayLessonItem.TYPE_LESSON)
+        if (currentItem.type != DisplayLessonItem.TYPE_LESSON)
             return;
 
         // Ищем ближайший заголовок (TYPE_HEADER) перед текущей позицией
         String currentDay = null;
         for (int i = topChildPosition; i >= 0; i--) {
             DisplayLessonItem item = adapter.getVisibleLessonList().get(i);
-            if (item.getType() == DisplayLessonItem.TYPE_HEADER) {
-                currentDay = item.getDayOfWeek();
+            if (item.type == DisplayLessonItem.TYPE_HEADER) {
+                currentDay = item.dayOfWeek;
                 break;
             }
         }

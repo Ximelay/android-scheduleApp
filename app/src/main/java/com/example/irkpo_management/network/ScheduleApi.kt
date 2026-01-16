@@ -1,14 +1,14 @@
-package com.example.irkpo_management.network;
+package com.example.irkpo_management.network
 
-import com.example.irkpo_management.models.ScheduleResponse;
+import com.example.irkpo_management.models.ScheduleResponse
+import retrofit2.Call
+import retrofit2.http.GET
+import retrofit2.http.Query
 
-import retrofit2.Call;
-import retrofit2.http.GET;
-import retrofit2.http.Query;
-public interface ScheduleApi {
+interface ScheduleApi {
     @GET("schedule")
-    Call<ScheduleResponse> getSchedule(@Query("GroupId") int groupId);
+    fun getSchedule(@Query("GroupId") groupId: Int): Call<ScheduleResponse?>?
 
     @GET("schedule")
-    Call<ScheduleResponse> getScheduleByPersonId(@Query("PersonId") String personId);
+    fun getScheduleByPersonId(@Query("PersonId") personId: String?): Call<ScheduleResponse?>?
 }

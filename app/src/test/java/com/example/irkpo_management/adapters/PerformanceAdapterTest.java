@@ -44,7 +44,7 @@ public class PerformanceAdapterTest {
     @Test
     public void testGetTeacherNames_singleTeacher() {
         PerformanceResponse.Plan.Period.PlanCell.Sheet sheet = new PerformanceResponse.Plan.Period.PlanCell.Sheet();
-        sheet.setTeacherName("Иванов И.И.");
+        sheet.teacherName = "Иванов И.И.";
         List<PerformanceResponse.Plan.Period.PlanCell.Sheet> sheets = Collections.singletonList(sheet);
 
         String result = adapter.getTeacherNames(sheets);
@@ -54,9 +54,9 @@ public class PerformanceAdapterTest {
     @Test
     public void testGetTeacherNames_multipleTeachers() {
         PerformanceResponse.Plan.Period.PlanCell.Sheet sheet1 = new PerformanceResponse.Plan.Period.PlanCell.Sheet();
-        sheet1.setTeacherName("Иванов И.И.");
+        sheet1.teacherName = "Иванов И.И.";
         PerformanceResponse.Plan.Period.PlanCell.Sheet sheet2 = new PerformanceResponse.Plan.Period.PlanCell.Sheet();
-        sheet2.setTeacherName("Петров П.П.");
+        sheet2.teacherName = "Петров П.П.";
         List<PerformanceResponse.Plan.Period.PlanCell.Sheet> sheets = Arrays.asList(sheet1, sheet2);
 
         String result = adapter.getTeacherNames(sheets);
@@ -73,11 +73,11 @@ public class PerformanceAdapterTest {
     @Test
     public void testCalculatePerformancePercentage_withLessons() {
         PerformanceResponse.Plan.Period.PlanCell.Sheet.Lesson lesson1 = new PerformanceResponse.Plan.Period.PlanCell.Sheet.Lesson();
-        lesson1.setMarkName("5");
+        lesson1.markName = "5";
         PerformanceResponse.Plan.Period.PlanCell.Sheet.Lesson lesson2 = new PerformanceResponse.Plan.Period.PlanCell.Sheet.Lesson();
-        lesson2.setMarkName("Н");
+        lesson2.markName = "Н";
         PerformanceResponse.Plan.Period.PlanCell.Sheet.Lesson lesson3 = new PerformanceResponse.Plan.Period.PlanCell.Sheet.Lesson();
-        lesson3.setMarkName("НУ");
+        lesson3.markName = "НУ";
         List<PerformanceResponse.Plan.Period.PlanCell.Sheet.Lesson> lessons = Arrays.asList(lesson1, lesson2, lesson3);
 
         double result = adapter.calculatePerformancePercentage(lessons);
@@ -104,19 +104,19 @@ public class PerformanceAdapterTest {
         PerformanceAdapter.PerformanceViewHolder viewHolder = new PerformanceAdapter.PerformanceViewHolder(view);
 
         PerformanceResponse.Plan.Period.PlanCell planCell = new PerformanceResponse.Plan.Period.PlanCell();
-        planCell.setRowName("Математика");
+        planCell.rowName = "Математика";
 
         PerformanceResponse.Plan.Period.PlanCell.Sheet sheet = new PerformanceResponse.Plan.Period.PlanCell.Sheet();
-        sheet.setTeacherName("Иванов И.И.");
-        sheet.setCurrentAttestationMarkName("Зачет"); // Чтобы isAttested = true
+        sheet.teacherName = "Иванов И.И.";
+        sheet.currentAttestationMarkName = "Зачет"; // Чтобы isAttested = true
         PerformanceResponse.Plan.Period.PlanCell.Sheet.Lesson lesson = new PerformanceResponse.Plan.Period.PlanCell.Sheet.Lesson();
-        lesson.setMarkName("5");
+        lesson.markName = "5";
         sheet.setLessons(Collections.singletonList(lesson));
         planCell.setSheets(Collections.singletonList(sheet));
 
         PerformanceResponse.Plan.Period.PlanCell.Attestation attestation = new PerformanceResponse.Plan.Period.PlanCell.Attestation();
-        attestation.setMarkName("4");
-        planCell.setAttestation(attestation);
+        attestation.markName = "4";
+        planCell.attestation = attestation;
 
         planCells.add(planCell);
 

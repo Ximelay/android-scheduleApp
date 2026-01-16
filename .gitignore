@@ -15,3 +15,4 @@
 local.properties
 /app/keys/
 /.idea/
+/app/schemas/

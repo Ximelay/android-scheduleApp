@@ -52,12 +52,12 @@ public class ExportUtils {
     public static float calculateAverageMark(List<PerformanceResponse.Plan> allPlans, String selectedSemester) {
         List<Float> marks = new ArrayList<>();
         for (PerformanceResponse.Plan plan : allPlans) {
-            for (PerformanceResponse.Plan.Period period : plan.getPeriods()) {
-                if (selectedSemester.isEmpty() || period.getName().equals(selectedSemester)) {
-                    for (PerformanceResponse.Plan.Period.PlanCell cell : period.getPlanCells()) {
-                        for (PerformanceResponse.Plan.Period.PlanCell.Sheet sheet : cell.getSheets()) {
-                            for (PerformanceResponse.Plan.Period.PlanCell.Sheet.Lesson lesson : sheet.getLessons()) {
-                                String mark = lesson.getMarkName();
+            for (PerformanceResponse.Plan.Period period : plan.periods) {
+                if (selectedSemester.isEmpty() || period.name.equals(selectedSemester)) {
+                    for (PerformanceResponse.Plan.Period.PlanCell cell : period.planCells) {
+                        for (PerformanceResponse.Plan.Period.PlanCell.Sheet sheet : cell.sheets) {
+                            for (PerformanceResponse.Plan.Period.PlanCell.Sheet.Lesson lesson : sheet.lessons) {
+                                String mark = lesson.markName;
                                 float score;
                                 if (mark != null) {
                                     if (mark.equalsIgnoreCase("зачет")) {

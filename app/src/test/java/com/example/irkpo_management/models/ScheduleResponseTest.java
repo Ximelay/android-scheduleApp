@@ -10,15 +10,15 @@ public class ScheduleResponseTest {
     @Test
     public void testGettersAndSetters() {
         ScheduleResponse response = new ScheduleResponse();
-        response.setCurrentDate("2025-05-28");
-        response.setCurrentWeekType(1);
-        response.setCurrentWeekName("01.01.2025-07.01.2025");
-        response.setItems(new ArrayList<>());
+        response.currentDate = "2025-05-28";
+        response.currentWeekType = 1;
+        response.currentWeekName = "01.01.2025-07.01.2025";
+        response.items = new ArrayList<>();
 
-        assertEquals("2025-05-28", response.getCurrentDate());
-        assertEquals(1, response.getCurrentWeekType());
-        assertEquals("01.01.2025-07.01.2025", response.getCurrentWeekName());
-        assertNotNull(response.getItems());
-        assertEquals(0, response.getItems().size());
+        assertEquals("2025-05-28", response.currentDate);
+        assertEquals(1, response.currentWeekType);
+        assertEquals("01.01.2025-07.01.2025", response.currentWeekName);
+        assertNotNull(response.items);
+        assertEquals(0, response.items.size());
     }
 }

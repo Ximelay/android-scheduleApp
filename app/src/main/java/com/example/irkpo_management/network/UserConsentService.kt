@@ -14,7 +14,7 @@ import java.util.UUID
 
 class UserConsentService(private val context: Context) {
 
-    private val supabaseApi: SupabaseApi = ApiClient.getSupabaseApi()
+    private val supabaseApi: SupabaseApi = ApiClient.supabaseApi
     private val apiKey: String = BuildConfig.SUPABASE_ANON_KEY
     private val authHeader: String = "Bearer ${BuildConfig.SUPABASE_ANON_KEY}"
 
@@ -67,15 +67,20 @@ class UserConsentService(private val context: Context) {
         )
 
         supabaseApi.createUserConsent(apiKey, authHeader, request)
-            .enqueue(object : Callback<List<UserConsent>> {
+            ?.enqueue(object : Callback<MutableList<UserConsent?>?> {
                 override fun onResponse(
-                    call: Call<List<UserConsent>>,
-                    response: Response<List<UserConsent>>
+                    call: Call<MutableList<UserConsent?>?>,
+                    response: Response<MutableList<UserConsent?>?>
                 ) {
                     if (response.isSuccessful) {
                         val consents = response.body()
                         if (!consents.isNullOrEmpty()) {
-                            onSuccess(consents[0])
+                            val consent = consents[0]
+                            if (consent != null) {
+                                onSuccess(consent)
+                            } else {
+                                onError("Не удалось получить созданное согласие")
+                            }
                         } else {
                             onError("Не удалось получить созданное согласие")
                         }
@@ -84,10 +89,10 @@ class UserConsentService(private val context: Context) {
                     }
                 }
 
-                override fun onFailure(call: Call<List<UserConsent>>, t: Throwable) {
+                override fun onFailure(call: Call<MutableList<UserConsent?>?>, t: Throwable) {
                     onError("Ошибка сети: ${t.message}")
                 }
-            })
+            }) ?: onError("Ошибка создания запроса")
     }
 
     /**
@@ -99,17 +104,23 @@ class UserConsentService(private val context: Context) {
         onError: (String) -> Unit
     ) {
         supabaseApi.getUserConsent(apiKey, authHeader, userId, "*")
-            .enqueue(object : Callback<List<UserConsent>> {
+            ?.enqueue(object : Callback<MutableList<UserConsent?>?> {
                 override fun onResponse(
-                    call: Call<List<UserConsent>>,
-                    response: Response<List<UserConsent>>
+                    call: Call<MutableList<UserConsent?>?>,
+                    response: Response<MutableList<UserConsent?>?>
                 ) {
                     if (response.isSuccessful) {
                         val consents = response.body()
                         if (!consents.isNullOrEmpty()) {
-                            // Согласие найдено на сервере - обновляем время последней проверки
-                            updateLastCheckTime()
-                            onResult(true, consents[0])
+                            val consent = consents[0]
+                            if (consent != null) {
+                                // Согласие найдено на сервере - обновляем время последней проверки
+                                updateLastCheckTime()
+                                onResult(true, consent)
+                            } else {
+                                // Согласие не найдено - нужно запросить заново
+                                onResult(false, null)
+                            }
                         } else {
                             // Согласие не найдено - нужно запросить заново
                             onResult(false, null)
@@ -119,10 +130,10 @@ class UserConsentService(private val context: Context) {
                     }
                 }
 
-                override fun onFailure(call: Call<List<UserConsent>>, t: Throwable) {
+                override fun onFailure(call: Call<MutableList<UserConsent?>?>, t: Throwable) {
                     onError("Ошибка сети: ${t.message}")
                 }
-            })
+            }) ?: onError("Ошибка создания запроса")
     }
 
     /**
