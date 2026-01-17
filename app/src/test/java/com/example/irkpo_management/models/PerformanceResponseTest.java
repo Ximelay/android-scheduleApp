@@ -15,7 +15,7 @@ public class PerformanceResponseTest {
         List<PerformanceResponse.Plan> plans = Arrays.asList(new PerformanceResponse.Plan());
         response.setPlans(plans);
 
-        assertEquals(plans, response.getPlans());
+        assertEquals(plans, response.plans);
     }
 
     @Test
@@ -23,7 +23,7 @@ public class PerformanceResponseTest {
         PerformanceResponse response = new PerformanceResponse();
         response.setPlans(null);
 
-        assertNull(response.getPlans());
+        assertNull(response.plans);
     }
 
     @Test
@@ -32,11 +32,11 @@ public class PerformanceResponseTest {
         String groupName = "Group A";
         List<PerformanceResponse.Plan.Period> periods = Arrays.asList(new PerformanceResponse.Plan.Period());
 
-        plan.setGroupName(groupName);
+        plan.groupName = groupName;
         plan.setPeriods(periods);
 
-        assertEquals(groupName, plan.getGroupName());
-        assertEquals(periods, plan.getPeriods());
+        assertEquals(groupName, plan.groupName);
+        assertEquals(periods, plan.periods);
     }
 
     @Test
@@ -45,11 +45,11 @@ public class PerformanceResponseTest {
         String name = "Semester 1";
         List<PerformanceResponse.Plan.Period.PlanCell> planCells = Arrays.asList(new PerformanceResponse.Plan.Period.PlanCell());
 
-        period.setName(name);
+        period.name = name;
         period.setPlanCells(planCells);
 
-        assertEquals(name, period.getName());
-        assertEquals(planCells, period.getPlanCells());
+        assertEquals(name, period.name);
+        assertEquals(planCells, period.planCells);
     }
 
     @Test
@@ -60,15 +60,15 @@ public class PerformanceResponseTest {
         PerformanceResponse.Plan.Period.PlanCell.Attestation attestation = new PerformanceResponse.Plan.Period.PlanCell.Attestation();
         List<PerformanceResponse.Plan.Period.PlanCell.Sheet> sheets = Arrays.asList(new PerformanceResponse.Plan.Period.PlanCell.Sheet());
 
-        planCell.setRowIndex(rowIndex);
-        planCell.setRowName(rowName);
-        planCell.setAttestation(attestation);
+        planCell.rowIndex = rowIndex;
+        planCell.rowName = rowName;
+        planCell.attestation = attestation;
         planCell.setSheets(sheets);
 
-        assertEquals(rowIndex, planCell.getRowIndex());
-        assertEquals(rowName, planCell.getRowName());
-        assertEquals(attestation, planCell.getAttestation());
-        assertEquals(sheets, planCell.getSheets());
+        assertEquals(rowIndex, planCell.rowIndex);
+        assertEquals(rowName, planCell.rowName);
+        assertEquals(attestation, planCell.attestation);
+        assertEquals(sheets, planCell.sheets);
     }
 
     @Test
@@ -77,11 +77,11 @@ public class PerformanceResponseTest {
         String name = "Final Exam";
         String markName = "A";
 
-        attestation.setName(name);
-        attestation.setMarkName(markName);
+        attestation.name = name;
+        attestation.markName = markName;
 
-        assertEquals(name, attestation.getName());
-        assertEquals(markName, attestation.getMarkName());
+        assertEquals(name, attestation.name);
+        assertEquals(markName, attestation.markName);
     }
 
     @Test
@@ -92,15 +92,15 @@ public class PerformanceResponseTest {
         String sheetAttestationMarkName = "B";
         List<PerformanceResponse.Plan.Period.PlanCell.Sheet.Lesson> lessons = Arrays.asList(new PerformanceResponse.Plan.Period.PlanCell.Sheet.Lesson());
 
-        sheet.setTeacherName(teacherName);
-        sheet.setCurrentAttestationMarkName(currentAttestationMarkName);
-        sheet.setSheetAttestationMarkName(sheetAttestationMarkName);
+        sheet.teacherName = teacherName;
+        sheet.currentAttestationMarkName = currentAttestationMarkName;
+        sheet.sheetAttestationMarkName = sheetAttestationMarkName;
         sheet.setLessons(lessons);
 
-        assertEquals(teacherName, sheet.getTeacherName());
-        assertEquals(currentAttestationMarkName, sheet.getCurrentAttestationMarkName());
-        assertEquals(sheetAttestationMarkName, sheet.getSheetAttestationMarkName());
-        assertEquals(lessons, sheet.getLessons());
+        assertEquals(teacherName, sheet.teacherName);
+        assertEquals(currentAttestationMarkName, sheet.currentAttestationMarkName);
+        assertEquals(sheetAttestationMarkName, sheet.sheetAttestationMarkName);
+        assertEquals(lessons, sheet.lessons);
     }
 
     @Test
@@ -112,17 +112,17 @@ public class PerformanceResponseTest {
         String themePlanName = "Algebra";
         String markName = "5";
 
-        lesson.setLessonDate(lessonDate);
-        lesson.setHomework(homework);
-        lesson.setLessonTypeName(lessonTypeName);
-        lesson.setThemePlanName(themePlanName);
-        lesson.setMarkName(markName);
+        lesson.lessonDate = lessonDate;
+        lesson.homework = homework;
+        lesson.lessonTypeName = lessonTypeName;
+        lesson.themePlanName = themePlanName;
+        lesson.markName = markName;
 
-        assertEquals(lessonDate, lesson.getLessonDate());
-        assertEquals(homework, lesson.getHomework());
-        assertEquals(lessonTypeName, lesson.getLessonTypeName());
-        assertEquals(themePlanName, lesson.getThemePlanName());
-        assertEquals(markName, lesson.getMarkName());
+        assertEquals(lessonDate, lesson.lessonDate);
+        assertEquals(homework, lesson.homework);
+        assertEquals(lessonTypeName, lesson.lessonTypeName);
+        assertEquals(themePlanName, lesson.themePlanName);
+        assertEquals(markName, lesson.markName);
     }
 
     @Test
@@ -135,38 +135,38 @@ public class PerformanceResponseTest {
         PerformanceResponse.Plan.Period.PlanCell.Sheet sheet = new PerformanceResponse.Plan.Period.PlanCell.Sheet();
         PerformanceResponse.Plan.Period.PlanCell.Sheet.Lesson lesson = new PerformanceResponse.Plan.Period.PlanCell.Sheet.Lesson();
 
-        lesson.setLessonDate("2023-10-01");
-        lesson.setHomework("Read Chapter 1");
-        lesson.setLessonTypeName("Lecture");
-        lesson.setThemePlanName("Algebra Basics");
-        lesson.setMarkName("5");
+        lesson.lessonDate = "2023-10-01";
+        lesson.homework = "Read Chapter 1";
+        lesson.lessonTypeName = "Lecture";
+        lesson.themePlanName = "Algebra Basics";
+        lesson.markName = "5";
 
-        sheet.setTeacherName("Dr. Smith");
-        sheet.setCurrentAttestationMarkName("Pass");
-        sheet.setSheetAttestationMarkName("B");
+        sheet.teacherName = "Dr. Smith";
+        sheet.currentAttestationMarkName = "Pass";
+        sheet.sheetAttestationMarkName = "B";
         sheet.setLessons(Collections.singletonList(lesson));
 
-        attestation.setName("Final Exam");
-        attestation.setMarkName("A");
+        attestation.name = "Final Exam";
+        attestation.markName = "A";
 
-        planCell.setRowIndex("1");
-        planCell.setRowName("Math");
-        planCell.setAttestation(attestation);
+        planCell.rowIndex = "1";
+        planCell.rowName = "Math";
+        planCell.attestation = attestation;
         planCell.setSheets(Collections.singletonList(sheet));
 
-        period.setName("Semester 1");
+        period.name = "Semester 1";
         period.setPlanCells(Collections.singletonList(planCell));
 
-        plan.setGroupName("Group A");
+        plan.groupName = "Group A";
         plan.setPeriods(Collections.singletonList(period));
 
         response.setPlans(Collections.singletonList(plan));
 
-        assertEquals("Group A", response.getPlans().get(0).getGroupName());
-        assertEquals("Semester 1", response.getPlans().get(0).getPeriods().get(0).getName());
-        assertEquals("Math", response.getPlans().get(0).getPeriods().get(0).getPlanCells().get(0).getRowName());
-        assertEquals("A", response.getPlans().get(0).getPeriods().get(0).getPlanCells().get(0).getAttestation().getMarkName());
-        assertEquals("Dr. Smith", response.getPlans().get(0).getPeriods().get(0).getPlanCells().get(0).getSheets().get(0).getTeacherName());
-        assertEquals("5", response.getPlans().get(0).getPeriods().get(0).getPlanCells().get(0).getSheets().get(0).getLessons().get(0).getMarkName());
+        assertEquals("Group A", response.plans.get(0).groupName);
+        assertEquals("Semester 1", response.plans.get(0).periods.get(0).name);
+        assertEquals("Math", response.plans.get(0).periods.get(0).planCells.get(0).rowName);
+        assertEquals("A", response.plans.get(0).periods.get(0).planCells.get(0).attestation.markName);
+        assertEquals("Dr. Smith", response.plans.get(0).periods.get(0).planCells.get(0).sheets.get(0).teacherName);
+        assertEquals("5", response.plans.get(0).periods.get(0).planCells.get(0).sheets.get(0).lessons.get(0).markName);
     }
 }

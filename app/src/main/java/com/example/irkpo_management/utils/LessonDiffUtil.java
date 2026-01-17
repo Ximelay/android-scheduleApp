@@ -29,9 +29,9 @@ public class LessonDiffUtil extends DiffUtil.Callback {
     public boolean areItemsTheSame(int oldItemPosition, int newItemPosition) {
         DisplayLessonItem oldItem = oldList.get(oldItemPosition);
         DisplayLessonItem newItem = newList.get(newItemPosition);
-        return oldItem.getType() == newItem.getType()
-                && oldItem.getDayId().equals(newItem.getDayId())
-                && oldItem.getStartTime() != null && oldItem.getStartTime().equals(newItem.getStartTime());
+        return oldItem.type == newItem.type
+                && oldItem.dayId.equals(newItem.dayId)
+                && oldItem.startTime != null && oldItem.startTime.equals(newItem.startTime);
     }
 
     @Override

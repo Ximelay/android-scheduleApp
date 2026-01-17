@@ -39,7 +39,7 @@ public class ScheduleCheckWorker extends Worker {
     @NonNull
     @Override
     public Result doWork() {
-        Log.d("ScheduleCheckWorker", "🔄 Worker started");
+//        Log.d("ScheduleCheckWorker", "🔄 Worker started");
         try {
             PreferenceManager preferenceManager = new PreferenceManager(getApplicationContext());
 
@@ -95,7 +95,7 @@ public class ScheduleCheckWorker extends Worker {
                 }
 
                 ScheduleResponse oldSchedule = gson.fromJson(oldScheduleJson, ScheduleResponse.class);
-                if (oldSchedule != null && oldSchedule.getItems() != null) {
+                if (oldSchedule != null && oldSchedule.items != null) {
                     List<String> changedDays = getChangedDays(oldSchedule, newSchedule);
 
                     if (!changedDays.isEmpty()) {
@@ -154,7 +154,7 @@ public class ScheduleCheckWorker extends Worker {
 
                 // Проверяем изменения
                 ScheduleResponse oldSchedule = gson.fromJson(oldScheduleJson, ScheduleResponse.class);
-                if (oldSchedule != null && oldSchedule.getItems() != null) {
+                if (oldSchedule != null && oldSchedule.items != null) {
                     List<String> changedDays = getChangedDays(oldSchedule, newSchedule);
 
                     if (!changedDays.isEmpty()) {
@@ -201,8 +201,8 @@ public class ScheduleCheckWorker extends Worker {
     private List<String> getChangedDays(ScheduleResponse oldData, ScheduleResponse newData) {
         List<String> changedDays = new ArrayList<>();
 
-        List<DaySchedule> oldDays = oldData.getItems();
-        List<DaySchedule> newDays = newData.getItems();
+        List<DaySchedule> oldDays = oldData.items;
+        List<DaySchedule> newDays = newData.items;
 
         // Сравниваем дни по их содержимому
         for (int i = 0; i < Math.min(oldDays.size(), newDays.size()); i++) {
@@ -210,14 +210,14 @@ public class ScheduleCheckWorker extends Worker {
             DaySchedule newDay = newDays.get(i);
 
             if (!areDaysEqual(oldDay, newDay)) {
-                changedDays.add(newDay.getDayOfWeek());
+                changedDays.add(newDay.dayOfWeek);
             }
         }
 
         // Проверяем, появились ли новые дни в новом расписании
         if (newDays.size() > oldDays.size()) {
             for (int i = oldDays.size(); i < newDays.size(); i++) {
-                changedDays.add(newDays.get(i).getDayOfWeek());
+                changedDays.add(newDays.get(i).dayOfWeek);
             }
         }
 
@@ -225,13 +225,13 @@ public class ScheduleCheckWorker extends Worker {
     }
 
     private boolean areDaysEqual(DaySchedule oldDay, DaySchedule newDay) {
-        if (!Objects.equals(oldDay.getDayOfWeek(), newDay.getDayOfWeek())) {
-            Log.d("ScheduleCheckWorker", "Days differ by dayOfWeek: " + oldDay.getDayOfWeek() + " vs " + newDay.getDayOfWeek());
+        if (!Objects.equals(oldDay.dayOfWeek, newDay.dayOfWeek)) {
+            Log.d("ScheduleCheckWorker", "Days differ by dayOfWeek: " + oldDay.dayOfWeek + " vs " + newDay.dayOfWeek);
             return false;
         }
 
-        List<LessonIndex> oldLessons = oldDay.getLessonIndexes();
-        List<LessonIndex> newLessons = newDay.getLessonIndexes();
+        List<LessonIndex> oldLessons = oldDay.lessonIndexes;
+        List<LessonIndex> newLessons = newDay.lessonIndexes;
 
         if (oldLessons.size() != newLessons.size()) {
             Log.d("ScheduleCheckWorker", "Days differ by lesson count: " + oldLessons.size() + " vs " + newLessons.size());
@@ -243,7 +243,7 @@ public class ScheduleCheckWorker extends Worker {
             LessonIndex newLesson = newLessons.get(i);
 
             if (!areLessonsEqual(oldLesson, newLesson)) {
-                Log.d("ScheduleCheckWorker", "Lessons differ for " + oldDay.getDayOfWeek() + " at index " + i);
+                Log.d("ScheduleCheckWorker", "Lessons differ for " + oldDay.dayOfWeek + " at index " + i);
                 return false;
             }
         }
@@ -252,14 +252,14 @@ public class ScheduleCheckWorker extends Worker {
     }
 
     private boolean areLessonsEqual(LessonIndex oldLesson, LessonIndex newLesson) {
-        if (!Objects.equals(oldLesson.getLessonStartTime(), newLesson.getLessonStartTime()) ||
-                !Objects.equals(oldLesson.getLessonEndTime(), newLesson.getLessonEndTime())) {
-            Log.d("ScheduleCheckWorker", "Lessons differ by time: " + oldLesson.getLessonStartTime() + " vs " + newLesson.getLessonStartTime());
+        if (!Objects.equals(oldLesson.lessonStartTime, newLesson.lessonStartTime) ||
+                !Objects.equals(oldLesson.lessonEndTime, newLesson.lessonEndTime)) {
+            Log.d("ScheduleCheckWorker", "Lessons differ by time: " + oldLesson.lessonStartTime + " vs " + newLesson.lessonStartTime);
             return false;
         }
 
-        List<LessonItem> oldItems = oldLesson.getItems();
-        List<LessonItem> newItems = newLesson.getItems();
+        List<LessonItem> oldItems = oldLesson.items;
+        List<LessonItem> newItems = newLesson.items;
 
         if (oldItems.size() != newItems.size()) {
             Log.d("ScheduleCheckWorker", "Lessons differ by item count: " + oldItems.size() + " vs " + newItems.size());
@@ -270,13 +270,13 @@ public class ScheduleCheckWorker extends Worker {
             LessonItem oldItem = oldItems.get(i);
             LessonItem newItem = newItems.get(i);
 
-            if (!Objects.equals(oldItem.getLessonName(), newItem.getLessonName()) ||
-                    !Objects.equals(oldItem.getTeacherName(), newItem.getTeacherName()) ||
-                    !Objects.equals(oldItem.getClassroom(), newItem.getClassroom()) ||
-                    !Objects.equals(oldItem.getComment(), newItem.getComment()) ||
-                    !Objects.equals(oldItem.getSubgroup(), newItem.getSubgroup()) ||
-                    !Objects.equals(oldItem.getWeekType(), newItem.getWeekType())) {
-                Log.d("ScheduleCheckWorker", "Lesson items differ: " + oldItem.getLessonName() + " vs " + newItem.getLessonName());
+            if (!Objects.equals(oldItem.lessonName, newItem.lessonName) ||
+                    !Objects.equals(oldItem.teacherName, newItem.teacherName) ||
+                    !Objects.equals(oldItem.classroom, newItem.classroom) ||
+                    !Objects.equals(oldItem.comment, newItem.comment) ||
+                    !Objects.equals(oldItem.subgroup, newItem.subgroup) ||
+                    !Objects.equals(oldItem.weekType, newItem.weekType)) {
+                Log.d("ScheduleCheckWorker", "Lesson items differ: " + oldItem.lessonName + " vs " + newItem.lessonName);
                 return false;
             }
         }

@@ -41,12 +41,12 @@ import java.util.Set;
 
 public class ExportToExcelTask extends AsyncTask<Void, Map<String, Integer>, File> {
     private ExportActivity activity;
-    private List<PerformanceResponse.Plan> allPlans;
-    private String selectedSemester;
-    private boolean exportSubjects;
-    private boolean exportLessons;
-    private boolean exportTeachers;
-    private boolean exportAttestation;
+    private final List<PerformanceResponse.Plan> allPlans;
+    private final String selectedSemester;
+    private final boolean exportSubjects;
+    private final boolean exportLessons;
+    private final boolean exportTeachers;
+    private final boolean exportAttestation;
     private Bitmap chartBitmap;
 
     public ExportToExcelTask(ExportActivity activity, List<PerformanceResponse.Plan> allPlans, String selectedSemester,
@@ -243,10 +243,10 @@ public class ExportToExcelTask extends AsyncTask<Void, Map<String, Integer>, Fil
                 subjectsHeader.getCell(0).setCellStyle(headerStyle);
                 Set<String> subjects = new HashSet<>();
                 for (PerformanceResponse.Plan plan : allPlans) {
-                    for (PerformanceResponse.Plan.Period period : plan.getPeriods()) {
-                        if (selectedSemester.isEmpty() || period.getName().equals(selectedSemester)) {
-                            for (PerformanceResponse.Plan.Period.PlanCell cell : period.getPlanCells()) {
-                                String subject = cell.getRowName() != null ? cell.getRowName() : "-";
+                    for (PerformanceResponse.Plan.Period period : plan.periods) {
+                        if (selectedSemester.isEmpty() || period.name.equals(selectedSemester)) {
+                            for (PerformanceResponse.Plan.Period.PlanCell cell : period.planCells) {
+                                String subject = cell.rowName != null ? cell.rowName : "-";
                                 subjects.add(subject);
                             }
                         }
@@ -270,36 +270,36 @@ public class ExportToExcelTask extends AsyncTask<Void, Map<String, Integer>, Fil
                 Map<String, Map<String, String>> subjectDateMarks = new HashMap<>();
 
                 for (PerformanceResponse.Plan plan : allPlans) {
-                    for (PerformanceResponse.Plan.Period period : plan.getPeriods()) {
-                        if (selectedSemester.isEmpty() || period.getName().equals(selectedSemester)) {
-                            for (PerformanceResponse.Plan.Period.PlanCell cell : period.getPlanCells()) {
-                                String subject = cell.getRowName() != null ? cell.getRowName() : "-";
+                    for (PerformanceResponse.Plan.Period period : plan.periods) {
+                        if (selectedSemester.isEmpty() || period.name.equals(selectedSemester)) {
+                            for (PerformanceResponse.Plan.Period.PlanCell cell : period.planCells) {
+                                String subject = cell.rowName != null ? cell.rowName : "-";
 
-                                for (PerformanceResponse.Plan.Period.PlanCell.Sheet sheet : cell.getSheets()) {
-                                    String teacher = sheet.getTeacherName() != null ? sheet.getTeacherName() : "-";
+                                for (PerformanceResponse.Plan.Period.PlanCell.Sheet sheet : cell.sheets) {
+                                    String teacher = sheet.teacherName != null ? sheet.teacherName : "-";
                                     String subjectKey = subject + " (" + teacher + ")";
 
                                     if (!subjectDateMarks.containsKey(subjectKey)) {
                                         subjectDateMarks.put(subjectKey, new HashMap<>());
                                     }
 
-                                    for (PerformanceResponse.Plan.Period.PlanCell.Sheet.Lesson lesson : sheet.getLessons()) {
+                                    for (PerformanceResponse.Plan.Period.PlanCell.Sheet.Lesson lesson : sheet.lessons) {
                                         String formattedDate = "";
                                         try {
                                             SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
                                             SimpleDateFormat outputFormat = new SimpleDateFormat("dd.MM.yyyy");
                                             // Убираем время из форматированной даты
                                             formattedDate = outputFormat.format(inputFormat.parse(
-                                                    lesson.getLessonDate() != null ? lesson.getLessonDate() : "1970-01-01 00:00:00.000"));
+                                                    lesson.lessonDate != null ? lesson.lessonDate : "1970-01-01 00:00:00.000"));
                                         } catch (Exception e) {
                                             // В случае ошибки, используем только часть строки до пробела (если есть)
-                                            String rawDate = lesson.getLessonDate() != null ? lesson.getLessonDate() : "-";
+                                            String rawDate = lesson.lessonDate != null ? lesson.lessonDate : "-";
                                             formattedDate = rawDate.contains(" ") ? rawDate.split(" ")[0] : rawDate;
                                         }
 
                                         allDates.add(formattedDate);
                                         subjectDateMarks.get(subjectKey).put(formattedDate,
-                                                lesson.getMarkName() != null ? lesson.getMarkName() : "-");
+                                                lesson.markName != null ? lesson.markName : "-");
                                     }
                                 }
                             }
@@ -384,14 +384,14 @@ public class ExportToExcelTask extends AsyncTask<Void, Map<String, Integer>, Fil
                 for (int i = 0; i < 3; i++) attestationHeader.getCell(i).setCellStyle(headerStyle);
                 int attestationRowIdx = 1;
                 for (PerformanceResponse.Plan plan : allPlans) {
-                    for (PerformanceResponse.Plan.Period period : plan.getPeriods()) {
-                        if (selectedSemester.isEmpty() || period.getName().equals(selectedSemester)) {
-                            for (PerformanceResponse.Plan.Period.PlanCell cell : period.getPlanCells()) {
+                    for (PerformanceResponse.Plan.Period period : plan.periods) {
+                        if (selectedSemester.isEmpty() || period.name.equals(selectedSemester)) {
+                            for (PerformanceResponse.Plan.Period.PlanCell cell : period.planCells) {
                                 Row row = attestationSheet.createRow(attestationRowIdx++);
-                                row.createCell(0).setCellValue(cell.getRowName() != null ? cell.getRowName() : "-");
-                                row.createCell(1).setCellValue(period.getName());
+                                row.createCell(0).setCellValue(cell.rowName != null ? cell.rowName : "-");
+                                row.createCell(1).setCellValue(period.name);
                                 Cell markCell = row.createCell(2);
-                                String mark = cell.getAttestation() != null ? cell.getAttestation().getMarkName() : "-";
+                                String mark = cell.attestation != null ? cell.attestation.markName : "-";
                                 markCell.setCellValue(mark);
                                 // Применяем стиль в зависимости от оценки
                                 if ("Н".equalsIgnoreCase(mark)) {
@@ -450,12 +450,12 @@ public class ExportToExcelTask extends AsyncTask<Void, Map<String, Integer>, Fil
         counts.put("НУ", 0);
 
         for (PerformanceResponse.Plan plan : allPlans) {
-            for (PerformanceResponse.Plan.Period period : plan.getPeriods()) {
-                if (selectedSemester.isEmpty() || period.getName().equals(selectedSemester)) {
-                    for (PerformanceResponse.Plan.Period.PlanCell cell : period.getPlanCells()) {
-                        for (PerformanceResponse.Plan.Period.PlanCell.Sheet sheet : cell.getSheets()) {
-                            for (PerformanceResponse.Plan.Period.PlanCell.Sheet.Lesson lesson : sheet.getLessons()) {
-                                String mark = lesson.getMarkName();
+            for (PerformanceResponse.Plan.Period period : plan.periods) {
+                if (selectedSemester.isEmpty() || period.name.equals(selectedSemester)) {
+                    for (PerformanceResponse.Plan.Period.PlanCell cell : period.planCells) {
+                        for (PerformanceResponse.Plan.Period.PlanCell.Sheet sheet : cell.sheets) {
+                            for (PerformanceResponse.Plan.Period.PlanCell.Sheet.Lesson lesson : sheet.lessons) {
+                                String mark = lesson.markName;
                                 if (mark != null) {
                                     if (mark.matches("[2-5]")) {
                                         counts.put(mark, counts.getOrDefault(mark, 0) + 1);
@@ -477,11 +477,11 @@ public class ExportToExcelTask extends AsyncTask<Void, Map<String, Integer>, Fil
     private int calculateTotalLessons() {
         int total = 0;
         for (PerformanceResponse.Plan plan : allPlans) {
-            for (PerformanceResponse.Plan.Period period : plan.getPeriods()) {
-                if (selectedSemester.isEmpty() || period.getName().equals(selectedSemester)) {
-                    for (PerformanceResponse.Plan.Period.PlanCell cell : period.getPlanCells()) {
-                        for (PerformanceResponse.Plan.Period.PlanCell.Sheet sheet : cell.getSheets()) {
-                            total += sheet.getLessons().size();
+            for (PerformanceResponse.Plan.Period period : plan.periods) {
+                if (selectedSemester.isEmpty() || period.name.equals(selectedSemester)) {
+                    for (PerformanceResponse.Plan.Period.PlanCell cell : period.planCells) {
+                        for (PerformanceResponse.Plan.Period.PlanCell.Sheet sheet : cell.sheets) {
+                            total += sheet.lessons.size();
                         }
                     }
                 }

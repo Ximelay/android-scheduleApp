@@ -87,11 +87,11 @@ public class ExportToPdfTask extends AsyncTask<Void, Void, File> {
 
                 Map<String, String> finalMarks = new HashMap<>();
                 for (PerformanceResponse.Plan plan : allPlans) {
-                    for (PerformanceResponse.Plan.Period period : plan.getPeriods()) {
-                        if (selectedSemester.isEmpty() || period.getName().equals(selectedSemester)) {
-                            for (PerformanceResponse.Plan.Period.PlanCell cell : period.getPlanCells()) {
-                                String subject = cell.getRowName() != null ? cell.getRowName() : "-";
-                                String mark = cell.getAttestation() != null ? cell.getAttestation().getMarkName() : "-";
+                    for (PerformanceResponse.Plan.Period period : plan.periods) {
+                        if (selectedSemester.isEmpty() || period.name.equals(selectedSemester)) {
+                            for (PerformanceResponse.Plan.Period.PlanCell cell : period.planCells) {
+                                String subject = cell.rowName != null ? cell.rowName : "-";
+                                String mark = cell.attestation != null ? cell.attestation.markName : "-";
                                 if (!mark.equals("-")) {
                                     finalMarks.put(subject, mark);
                                 }
@@ -136,10 +136,10 @@ public class ExportToPdfTask extends AsyncTask<Void, Void, File> {
 
                 Set<String> subjects = new HashSet<>();
                 for (PerformanceResponse.Plan plan : allPlans) {
-                    for (PerformanceResponse.Plan.Period period : plan.getPeriods()) {
-                        if (selectedSemester.isEmpty() || period.getName().equals(selectedSemester)) {
-                            for (PerformanceResponse.Plan.Period.PlanCell cell : period.getPlanCells()) {
-                                String subject = cell.getRowName() != null ? cell.getRowName() : "-";
+                    for (PerformanceResponse.Plan.Period period : plan.periods) {
+                        if (selectedSemester.isEmpty() || period.name.equals(selectedSemester)) {
+                            for (PerformanceResponse.Plan.Period.PlanCell cell : period.planCells) {
+                                String subject = cell.rowName != null ? cell.rowName : "-";
                                 subjects.add(subject);
                             }
                         }
@@ -177,13 +177,13 @@ public class ExportToPdfTask extends AsyncTask<Void, Void, File> {
                 Map<String, List<Float>> subjectMarks = new HashMap<>();
                 Map<String, String> subjectTeachers = new HashMap<>();
                 for (PerformanceResponse.Plan plan : allPlans) {
-                    for (PerformanceResponse.Plan.Period period : plan.getPeriods()) {
-                        if (selectedSemester.isEmpty() || period.getName().equals(selectedSemester)) {
-                            for (PerformanceResponse.Plan.Period.PlanCell cell : period.getPlanCells()) {
-                                String subject = cell.getRowName() != null ? cell.getRowName() : "-";
-                                for (PerformanceResponse.Plan.Period.PlanCell.Sheet sheet : cell.getSheets()) {
-                                    for (PerformanceResponse.Plan.Period.PlanCell.Sheet.Lesson lesson : sheet.getLessons()) {
-                                        String mark = lesson.getMarkName();
+                    for (PerformanceResponse.Plan.Period period : plan.periods) {
+                        if (selectedSemester.isEmpty() || period.name.equals(selectedSemester)) {
+                            for (PerformanceResponse.Plan.Period.PlanCell cell : period.planCells) {
+                                String subject = cell.rowName != null ? cell.rowName : "-";
+                                for (PerformanceResponse.Plan.Period.PlanCell.Sheet sheet : cell.sheets) {
+                                    for (PerformanceResponse.Plan.Period.PlanCell.Sheet.Lesson lesson : sheet.lessons) {
+                                        String mark = lesson.markName;
                                         float score;
                                         if (mark != null) {
                                             if (mark.equalsIgnoreCase("зачет")) {
@@ -199,8 +199,8 @@ public class ExportToPdfTask extends AsyncTask<Void, Void, File> {
                                             }
                                             subjectMarks.computeIfAbsent(subject, k -> new ArrayList<>()).add(score);
                                         }
-                                        if (sheet.getTeacherName() != null && !subjectTeachers.containsKey(subject)) {
-                                            subjectTeachers.put(subject, sheet.getTeacherName());
+                                        if (sheet.teacherName != null && !subjectTeachers.containsKey(subject)) {
+                                            subjectTeachers.put(subject, sheet.teacherName);
                                         }
                                     }
                                 }

@@ -27,9 +27,9 @@ public class LessonIndexTest {
         List<LessonItem> items = Arrays.asList(new LessonItem());
         itemsField.set(lessonIndex, items);
 
-        assertEquals("09:00", lessonIndex.getLessonStartTime());
-        assertEquals("10:30", lessonIndex.getLessonEndTime());
-        assertEquals(items, lessonIndex.getItems());
+        assertEquals("09:00", lessonIndex.lessonStartTime);
+        assertEquals("10:30", lessonIndex.lessonEndTime);
+        assertEquals(items, lessonIndex.items);
     }
 
     @Test
@@ -44,8 +44,8 @@ public class LessonIndexTest {
         endTimeField.setAccessible(true);
         endTimeField.set(lessonIndex, null);
 
-        assertNull(lessonIndex.getLessonStartTime());
-        assertNull(lessonIndex.getLessonEndTime());
-        assertNull(lessonIndex.getItems());
+        assertNull(lessonIndex.lessonStartTime);
+        assertNull(lessonIndex.lessonEndTime);
+        assertNull(lessonIndex.items);
     }
 }

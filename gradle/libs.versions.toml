@@ -24,6 +24,16 @@ markwon = "4.6.2"
 mockito = "5.20.0"
 poi = "5.4.1"
 secrets = "2.0.1"
+kotlin = "2.2.0"
+coreKtx = "1.17.0"
+compose = "1.7.1"
+compose-ui = "1.10.0"
+activity-compose = "1.11.0"
+composeBom = "2025.12.00"
+lifecycle-viewmodel-compose = "2.8.5"
+navigation-compose = "2.9.6"
+composeCompiler = "1.5.15"
+material-icons-extended = "1.7.8"
 
 [libraries]
 core = { module = "androidx.test:core", version.ref = "core" }
@@ -55,7 +65,21 @@ mockito = { module = "org.mockito:mockito-core", version.ref = "mockito" }
 poi = { module = "org.apache.poi:poi", version.ref = "poi" }
 poi-ooxml = { module = "org.apache.poi:poi-ooxml", version.ref = "poi" }
 work-testing = { module = "androidx.work:work-testing", version.ref = "work" }
+core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
+compose-bom = { module = "androidx.compose:compose-bom", version.ref = "composeBom" }
+compose-ui = { module = "androidx.compose.ui:ui", version.ref = "compose-ui" }
+compose-ui-graphics = { module = "androidx.compose.ui:ui-graphics", version.ref = "compose-ui" }
+compose-ui-tooling-preview = { module = "androidx.compose.ui:ui-tooling-preview", version.ref = "compose-ui" }
+compose-material3 = { module = "androidx.compose.material3:material3" }
+compose-ui-tooling = { module = "androidx.compose.ui:ui-tooling" }
+compose-ui-test-manifest = { module = "androidx.compose.ui:ui-test-manifest", version.ref = "compose" }
+activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "activity-compose" }
+lifecycle-viewmodel-compose = { module = "androidx.lifecycle:lifecycle-viewmodel-compose", version.ref = "lifecycle-viewmodel-compose" }
+navigation-compose = { module = "androidx.navigation:navigation-compose", version.ref = "navigation-compose" }
+material-icons-extended = { module = "androidx.compose.material:material-icons-extended", version.ref = "material-icons-extended" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
 android-secrets = { id = "com.google.android.libraries.mapsplatform.secrets-gradle-plugin", version.ref = "secrets" }
+kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
+kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }

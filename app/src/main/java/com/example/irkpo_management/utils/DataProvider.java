@@ -39,7 +39,7 @@ public class DataProvider {
                 if (response.isSuccessful() && response.body() != null) {
                     Map<String, Integer> groupIdMap = new HashMap<>();
                     for (Group group : response.body()) {
-                        groupIdMap.put(group.name_group, group.id_group);
+                        groupIdMap.put(group.getName_group(), group.getId_group());
                     }
                     Log.d(TAG, "Successfully loaded " + groupIdMap.size() + " groups from Supabase");
                     callback.onSuccess(groupIdMap);
@@ -77,7 +77,7 @@ public class DataProvider {
                 if (response.isSuccessful() && response.body() != null) {
                     Map<String, String> teacherIdMap = new HashMap<>();
                     for (Teacher teacher : response.body()) {
-                        teacherIdMap.put(teacher.name, teacher.id_teacher);
+                        teacherIdMap.put(teacher.getName(), teacher.getId_teacher());
                     }
                     Log.d(TAG, "Successfully loaded " + teacherIdMap.size() + " teachers from Supabase");
                     callback.onSuccess(teacherIdMap);

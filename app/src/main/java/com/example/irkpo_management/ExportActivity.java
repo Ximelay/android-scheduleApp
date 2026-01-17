@@ -180,8 +180,8 @@ public class ExportActivity extends AppCompatActivity {
         if (cachedData != null && !cachedData.isEmpty()) {
             try {
                 PerformanceResponse cachedResponse = new Gson().fromJson(cachedData, PerformanceResponse.class);
-                if (cachedResponse != null && cachedResponse.getPlans() != null) {
-                    allPlans = cachedResponse.getPlans();
+                if (cachedResponse != null && cachedResponse.plans != null) {
+                    allPlans = cachedResponse.plans;
                     setupSemesterSpinner(allPlans);
                     btnRetry.setVisibility(View.GONE);
                     Toast.makeText(this, "Загружены кэшированные данные", Toast.LENGTH_SHORT).show();
@@ -210,8 +210,8 @@ public class ExportActivity extends AppCompatActivity {
             public void onResponse(Call<PerformanceResponse> call, Response<PerformanceResponse> response) {
                 hideProgressBar();
                 Log.d("ExportActivity", "HTTP Response Code: " + response.code());
-                if (response.isSuccessful() && response.body() != null && response.body().getPlans() != null) {
-                    allPlans = response.body().getPlans();
+                if (response.isSuccessful() && response.body() != null && response.body().plans != null) {
+                    allPlans = response.body().plans;
                     preferenceManager.setPerformanceCache(new Gson().toJson(response.body()));
                     preferenceManager.setLastCacheTime(System.currentTimeMillis());
                     setupSemesterSpinner(allPlans);
@@ -228,7 +228,7 @@ public class ExportActivity extends AppCompatActivity {
                         }
                     } else if (response.body() == null) {
                         errorMsg += ": пустой ответ";
-                    } else if (response.body().getPlans() == null) {
+                    } else if (response.body().plans == null) {
                         errorMsg += ": нет данных об успеваемости";
                     }
                     Toast.makeText(ExportActivity.this, errorMsg, Toast.LENGTH_LONG).show();
@@ -265,8 +265,8 @@ public class ExportActivity extends AppCompatActivity {
         Set<String> names = new HashSet<>();
         if (plans != null) {
             for (PerformanceResponse.Plan plan : plans) {
-                for (PerformanceResponse.Plan.Period period : plan.getPeriods()) {
-                    names.add(period.getName());
+                for (PerformanceResponse.Plan.Period period : plan.periods) {
+                    names.add(period.name);
                 }
             }
         }

@@ -58,14 +58,14 @@ public class NoteEntityTest {
     public void testSettersAndGetters() {
         NoteEntity note = new NoteEntity("Math101", "Homework", 1633024800000L);
 
-        note.setLessonKey("Physic201");
-        note.setText("Lab report");
-        note.setCreateAt(1234567890L);
-        note.setRemindAtMillis(9876543210L);
+        note.lessonKey = "Physic201";
+        note.text = "Lab report";
+        note.createAt = 1234567890L;
+        note.remindAtMillis = 9876543210L;
 
-        assertEquals("Physic201", note.getLessonKey());
-        assertEquals("Lab report", note.getText());
-        assertEquals(1234567890L, note.getCreateAt());
-        assertEquals(9876543210L, note.getRemindAtMillis());
+        assertEquals("Physic201", note.lessonKey);
+        assertEquals("Lab report", note.text);
+        assertEquals(1234567890L, note.createAt);
+        assertEquals(9876543210L, note.remindAtMillis);
     }
 }

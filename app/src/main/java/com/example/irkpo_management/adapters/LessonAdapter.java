@@ -57,10 +57,10 @@ public class LessonAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         this.isTeacherSchedule = isTeacherSchedule;
 
         for (DisplayLessonItem item : lessonList) {
-            if (item.getType() == DisplayLessonItem.TYPE_HEADER || item.isVisible()) {
-                if (item.getType() == DisplayLessonItem.TYPE_LESSON) {
+            if (item.type == DisplayLessonItem.TYPE_HEADER || item.isVisible()) {
+                if (item.type == DisplayLessonItem.TYPE_LESSON) {
                     String key = getLessonKey(item);
-                    item.setNote(noteRepository.loadNote(key));
+                    item.note = noteRepository.loadNote(key);
                 }
                 visibleItems.add(item);
             }
@@ -74,7 +74,7 @@ public class LessonAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
     @Override
     public int getItemViewType(int position) {
-        return visibleItems.get(position).getType();
+        return visibleItems.get(position).type;
     }
 
     @NonNull
@@ -84,7 +84,7 @@ public class LessonAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
         if (viewType == DisplayLessonItem.TYPE_HEADER) {
             view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_day_header, parent, false);
-            Log.d("LessonAdapter", "Inflated item_day_header");
+//            Log.d("LessonAdapter", "Inflated item_day_header");
             return new HeaderViewHolder(view);
         } else {
             try {
@@ -110,34 +110,34 @@ public class LessonAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
             if (holder instanceof HeaderViewHolder) {
                 HeaderViewHolder h = (HeaderViewHolder) holder;
-                h.tvDayHeader.setText(item.getDayId());
+                h.tvDayHeader.setText(item.dayId);
 
-                boolean isExpanded = isDayExpanded(item.getDayId());
+                boolean isExpanded = isDayExpanded(item.dayId);
                 h.ivArrow.animate().rotation(isExpanded ? 180f : 0f).setDuration(200).start();
 
                 holder.itemView.setOnClickListener(v -> {
-                    toggleDayVisibility(item.getDayId());
+                    toggleDayVisibility(item.dayId);
                     notifyDataSetChanged();
                 });
 
             } else if (holder instanceof LessonViewHolder) {
                 LessonViewHolder lessonHolder = (LessonViewHolder) holder;
 
-                String startTime = item.getStartTime() != null ? item.getStartTime() : "—";
-                String endTime = item.getEndTime() != null ? item.getEndTime() : "—";
+                String startTime = item.startTime != null ? item.startTime : "—";
+                String endTime = item.endTime != null ? item.endTime : "—";
                 Log.d("LessonAdapter", "Binding lesson at position: " + position + ", Time: " + startTime + " - " + endTime);
 
                 lessonHolder.tvTime.setText(startTime + " - " + endTime);
 
                 // Используем кэшированный текст
-                lessonHolder.tvDetails.setText(item.getCachedDetails());
+                lessonHolder.tvDetails.setText(item.cachedDetails);
 
-                if (item.getNote() != null && !item.getNote().trim().isEmpty()) {
+                if (item.note != null && !item.note.trim().isEmpty()) {
                     lessonHolder.ivNoteIcon.setVisibility(View.VISIBLE);
                     lessonHolder.ivNoteIcon.setOnClickListener(v -> {
                         new AlertDialog.Builder(v.getContext())
                                 .setTitle("Заметка")
-                                .setMessage(item.getNote())
+                                .setMessage(item.note)
                                 .setPositiveButton("ОК", null)
                                 .show();
                     });
@@ -158,7 +158,7 @@ public class LessonAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                     Button btnPickTime = dialogView.findViewById(R.id.btnPickTime);
                     TextView tvSelectedTime = dialogView.findViewById(R.id.tvSelectedTime);
 
-                    etNote.setText(item.getNote());
+                    etNote.setText(item.note);
 
                     final Calendar calendar = Calendar.getInstance();
                     final long[] remindAt = {0};
@@ -202,16 +202,16 @@ public class LessonAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                             return;
                         }
 
-                        item.setNote(note);
+                        item.note = note;
                         noteRepository.saveNote(getLessonKey(item), note, remindAt[0]);
 
                         if (remindAt[0] > 0) {
                             String lessonName = "Занятие";
-                            if (!item.getLessons().isEmpty()) {
-                                LessonItem firstLesson = item.getLessons().get(0);
-                                lessonName = firstLesson.getLessonName() != null ? firstLesson.getLessonName() : "—";
+                            if (!item.lessons.isEmpty()) {
+                                LessonItem firstLesson = item.lessons.get(0);
+                                lessonName = firstLesson.lessonName != null ? firstLesson.lessonName : "—";
                             }
-                            String lessonTime = item.getStartTime() + " - " + item.getEndTime();
+                            String lessonTime = item.startTime + " - " + item.endTime;
 
                             ReminderScheduler.scheduleReminder(context,
                                     getLessonKey(item),
@@ -241,7 +241,7 @@ public class LessonAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         boolean shouldExpand = false;
 
         for (DisplayLessonItem item : allItems) {
-            if (item.getType() == DisplayLessonItem.TYPE_LESSON && item.getDayId().equals(dayId)) {
+            if (item.type == DisplayLessonItem.TYPE_LESSON && item.dayId.equals(dayId)) {
                 if (!item.isVisible()) {
                     shouldExpand = true;
                     break;
@@ -253,10 +253,10 @@ public class LessonAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         visibleItems.clear();
 
         for (DisplayLessonItem item : allItems) {
-            if (item.getType() == DisplayLessonItem.TYPE_LESSON && item.getDayId().equals(dayId)) {
+            if (item.type == DisplayLessonItem.TYPE_LESSON && item.dayId.equals(dayId)) {
                 item.setVisible(shouldExpand);
             }
-            if (item.getType() == DisplayLessonItem.TYPE_HEADER || item.isVisible()) {
+            if (item.type == DisplayLessonItem.TYPE_HEADER || item.isVisible()) {
                 visibleItems.add(item);
             }
         }
@@ -267,7 +267,7 @@ public class LessonAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
     private boolean isDayExpanded(String dayId) {
         for (DisplayLessonItem item : allItems) {
-            if (item.getType() == DisplayLessonItem.TYPE_LESSON && item.getDayId().equals(dayId)) {
+            if (item.type == DisplayLessonItem.TYPE_LESSON && item.dayId.equals(dayId)) {
                 return item.isVisible();
             }
         }
@@ -275,7 +275,7 @@ public class LessonAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
     }
 
     private String getLessonKey(DisplayLessonItem item) {
-        return item.getDayId() + "_" + item.getStartTime() + "_" + item.getEndTime();
+        return item.dayId + "_" + item.startTime + "_" + item.endTime;
     }
 
     public void updateData(List<DisplayLessonItem> newItems, boolean isTeacherSchedule) {
@@ -284,12 +284,12 @@ public class LessonAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         this.visibleItems.clear();
 
         for (DisplayLessonItem item : newItems) {
-            if (item.getType() == DisplayLessonItem.TYPE_HEADER || item.isVisible()) {
-                if (item.getType() == DisplayLessonItem.TYPE_LESSON) {
+            if (item.type == DisplayLessonItem.TYPE_HEADER || item.isVisible()) {
+                if (item.type == DisplayLessonItem.TYPE_LESSON) {
                     String key = getLessonKey(item);
-                    item.setNote(noteRepository.loadNote(key));
+                    item.note = noteRepository.loadNote(key);
                     // Форматируем текст заранее
-                    item.setCachedDetails(formatLessonDetails(item));
+                    item.cachedDetails = formatLessonDetails(item);
                 }
                 visibleItems.add(item);
             }
@@ -300,28 +300,28 @@ public class LessonAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
     private SpannableString formatLessonDetails(DisplayLessonItem item) {
         StringBuilder builder = new StringBuilder();
-        if (item.getLessons() != null) {
-            for (int i = 0; i < item.getLessons().size(); i++) {
-                LessonItem lesson = item.getLessons().get(i);
-                builder.append("Предмет: ").append(lesson.getLessonName() != null ? lesson.getLessonName() : "—").append("\n");
-                builder.append("").append(lesson.getTeacherName() != null ? lesson.getTeacherName() : "—").append("\n")
-                        .append("").append(lesson.getClassroom() != null ? lesson.getClassroom() : "—")
-                        .append(lesson.getLocation() != null ? " (" + lesson.getLocation() + ")" : "");
+        if (item.lessons != null) {
+            for (int i = 0; i < item.lessons.size(); i++) {
+                LessonItem lesson = item.lessons.get(i);
+                builder.append("Предмет: ").append(lesson.lessonName != null ? lesson.lessonName : "—").append("\n");
+                builder.append("").append(lesson.teacherName != null ? lesson.teacherName : "—").append("\n")
+                        .append("").append(lesson.classroom != null ? lesson.classroom : "—")
+                        .append(lesson.location != null ? " (" + lesson.location + ")" : "");
                 if (isTeacherSchedule) {
-                    builder.append("\nГруппа: ").append(lesson.getGroupName() != null ? lesson.getGroupName() : "—");
+                    builder.append("\nГруппа: ").append(lesson.groupName != null ? lesson.groupName : "—");
                 }
 
-                boolean hasExtras = lesson.getComment() != null || lesson.getSubgroup() != null;
-                if (hasExtras || lesson.getWeekType() != null) {
+                boolean hasExtras = lesson.comment != null || lesson.subgroup != null;
+                if (hasExtras || lesson.weekType != null) {
                     builder.append("\n⚙️ ");
-                    if (lesson.getSubgroup() != null) builder.append("подгр. ").append(lesson.getSubgroup()).append(" ");
-                    if (lesson.getComment() != null) builder.append(lesson.getComment()).append(" ");
-                    if (lesson.getWeekType() != null) {
+                    if (lesson.subgroup != null) builder.append("подгр. ").append(lesson.subgroup).append(" ");
+                    if (lesson.comment != null) builder.append(lesson.comment).append(" ");
+                    if (lesson.weekType != null) {
                         builder.append("[ICON]");
                     }
                 }
 
-                if (i < item.getLessons().size() - 1) {
+                if (i < item.lessons.size() - 1) {
                     builder.append("\n\n-----\n\n");
                 } else {
                     builder.append("\n\n");
@@ -347,10 +347,10 @@ public class LessonAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         }
 
         startIndex = 0;
-        int currentWeekType = item.getCurrentWeekType();
-        for (int i = 0; i < item.getLessons().size(); i++) {
-            LessonItem lesson = item.getLessons().get(i);
-            Integer weekType = lesson.getWeekType();
+        int currentWeekType = item.currentWeekType;
+        for (int i = 0; i < item.lessons.size(); i++) {
+            LessonItem lesson = item.lessons.get(i);
+            Integer weekType = lesson.weekType;
             if (weekType != null) {
                 int iconIndex = text.indexOf("[ICON]", startIndex);
                 if (iconIndex != -1) {

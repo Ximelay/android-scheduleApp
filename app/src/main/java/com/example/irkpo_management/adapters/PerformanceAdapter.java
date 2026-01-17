@@ -51,33 +51,33 @@ public class PerformanceAdapter extends RecyclerView.Adapter<PerformanceAdapter.
         PerformanceResponse.Plan.Period.PlanCell planCell = planCells.get(position);
 
         // Название предмета
-        holder.subjectName.setText(planCell.getRowName());
+        holder.subjectName.setText(planCell.rowName);
 
         double percentage = 0;
-        if (planCell.getSheets() != null && !planCell.getSheets().isEmpty()) {
-            List<PerformanceResponse.Plan.Period.PlanCell.Sheet.Lesson> lessons = planCell.getSheets().get(0).getLessons();
+        if (planCell.sheets != null && !planCell.sheets.isEmpty()) {
+            List<PerformanceResponse.Plan.Period.PlanCell.Sheet.Lesson> lessons = planCell.sheets.get(0).lessons;
             percentage = calculatePerformancePercentage(lessons);
         }
         holder.percentageTextView.setText(String.format("%.2f%%", percentage));
 
         // Обработка всех преподавателей
-        String teacherNames = getTeacherNames(planCell.getSheets());
+        String teacherNames = getTeacherNames(planCell.sheets);
         holder.subjectCodeTextView.setText(teacherNames.isEmpty() ? "Неизвестен" : teacherNames);
 
         // Логика для аттестации: проверяем все листы на наличие аттестации
         String attestationText;
         boolean isAttested = false;
-        if (planCell.getSheets() != null && !planCell.getSheets().isEmpty()) {
-            for (PerformanceResponse.Plan.Period.PlanCell.Sheet sheet : planCell.getSheets()) {
-                String currentAttestation = sheet.getCurrentAttestationMarkName();
-                String sheetAttestation = sheet.getSheetAttestationMarkName();
+        if (planCell.sheets != null && !planCell.sheets.isEmpty()) {
+            for (PerformanceResponse.Plan.Period.PlanCell.Sheet sheet : planCell.sheets) {
+                String currentAttestation = sheet.currentAttestationMarkName;
+                String sheetAttestation = sheet.sheetAttestationMarkName;
                 if ((currentAttestation != null && !currentAttestation.isEmpty()) ||
                         (sheetAttestation != null && !sheetAttestation.isEmpty())) {
                     isAttested = true;
                     break; // Выходим из цикла, как только находим аттестацию
                 }
             }
-            String finalMark = planCell.getAttestation() != null ? planCell.getAttestation().getMarkName() : null;
+            String finalMark = planCell.attestation != null ? planCell.attestation.markName : null;
             attestationText = "Итог: " + (finalMark != null && !finalMark.isEmpty() ? finalMark : "-");
         } else {
             attestationText = "Итог: отсутствует";
@@ -96,7 +96,7 @@ public class PerformanceAdapter extends RecyclerView.Adapter<PerformanceAdapter.
         Set<String> uniqueTeachers = new HashSet<>();
 
         for (PerformanceResponse.Plan.Period.PlanCell.Sheet sheet : sheets) {
-            String teacherName = sheet.getTeacherName();
+            String teacherName = sheet.teacherName;
             if (teacherName != null && !teacherName.isEmpty() && !uniqueTeachers.contains(teacherName)) {
                 if (teacherNames.length() > 0) teacherNames.append(", ");
                 teacherNames.append(teacherName);
@@ -133,13 +133,13 @@ public class PerformanceAdapter extends RecyclerView.Adapter<PerformanceAdapter.
         TextView attestation = dialogView.findViewById(R.id.attestationTextView);
         LinearLayout lessonsContainer = dialogView.findViewById(R.id.lessonsContainer);
 
-        subjectName.setText(planCell.getRowIndex() + " " + planCell.getRowName());
-        teacherName.setText("Преподаватели: " + getTeacherNames(planCell.getSheets()));
+        subjectName.setText(planCell.rowIndex + " " + planCell.rowName);
+        teacherName.setText("Преподаватели: " + getTeacherNames(planCell.sheets));
 
         // Логика аттестации
-        String currentAttestation = planCell.getSheets() != null && !planCell.getSheets().isEmpty()
-                ? planCell.getSheets().get(0).getCurrentAttestationMarkName() : null;
-        String finalMark = planCell.getAttestation() != null ? planCell.getAttestation().getMarkName() : null;
+        String currentAttestation = planCell.sheets != null && !planCell.sheets.isEmpty()
+                ? planCell.sheets.get(0).currentAttestationMarkName : null;
+        String finalMark = planCell.attestation != null ? planCell.attestation.markName : null;
         attestation.setText("Текущая аттестация: " + (currentAttestation != null ? currentAttestation : "-") +
                 " | Итог: " + (finalMark != null ? finalMark : "-"));
 
@@ -149,10 +149,10 @@ public class PerformanceAdapter extends RecyclerView.Adapter<PerformanceAdapter.
         List<PerformanceResponse.Plan.Period.PlanCell.Sheet.Lesson> educationPracticeLessons = new ArrayList<>();
         List<PerformanceResponse.Plan.Period.PlanCell.Sheet.Lesson> industrialPracticeLessons = new ArrayList<>();
 
-        for (PerformanceResponse.Plan.Period.PlanCell.Sheet sheet : planCell.getSheets()) {
-            if (sheet.getLessons() == null) continue;
-            for (PerformanceResponse.Plan.Period.PlanCell.Sheet.Lesson lesson : sheet.getLessons()) {
-                String lessonType = lesson.getLessonTypeName() != null ? lesson.getLessonTypeName() : "";
+        for (PerformanceResponse.Plan.Period.PlanCell.Sheet sheet : planCell.sheets) {
+            if (sheet.lessons == null) continue;
+            for (PerformanceResponse.Plan.Period.PlanCell.Sheet.Lesson lesson : sheet.lessons) {
+                String lessonType = lesson.lessonTypeName != null ? lesson.lessonTypeName : "";
                 if (lessonType.contains("Практическое занятие")) {
                     practicalLessons.add(lesson);
                 } else if (lessonType.contains("Лекционное занятие")) {
@@ -277,8 +277,8 @@ public class PerformanceAdapter extends RecyclerView.Adapter<PerformanceAdapter.
 
         TextView lessonView = new TextView(context);
         lessonView.setTextSize(16);
-        String lessonDate = lesson.getLessonDate();
-        String themePlanName = lesson.getThemePlanName();
+        String lessonDate = lesson.lessonDate;
+        String themePlanName = lesson.themePlanName;
 
         String lessonText = "📅 " + formatDate(lessonDate) + "\n" + "📚 " + themePlanName;
 
@@ -295,7 +295,7 @@ public class PerformanceAdapter extends RecyclerView.Adapter<PerformanceAdapter.
 
         TextView markView = new TextView(context);
         markView.setTextSize(16);
-        String mark = lesson.getMarkName() != null ? lesson.getMarkName() : "-";
+        String mark = lesson.markName != null ? lesson.markName : "-";
         String markText = "📝 Оценка: " + mark;
 
         // SpannableString для markView
@@ -330,7 +330,7 @@ public class PerformanceAdapter extends RecyclerView.Adapter<PerformanceAdapter.
         int attendedCount = 0;
 
         for (PerformanceResponse.Plan.Period.PlanCell.Sheet.Lesson lesson : lessons) {
-            String markName = lesson.getMarkName();
+            String markName = lesson.markName;
 
             if ("НУ".equalsIgnoreCase(markName)) {
                 continue;

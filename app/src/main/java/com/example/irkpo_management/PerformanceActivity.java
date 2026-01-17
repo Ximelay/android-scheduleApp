@@ -155,7 +155,7 @@ public class PerformanceActivity extends AppCompatActivity {
                 hideProgressBar();
                 if (response.isSuccessful()) {
                     PerformanceResponse performance = response.body();
-                    allPlans = performance.getPlans();
+                    allPlans = performance.plans;
                     updateRecyclerView(performance);
                     setupSemesterSpinner(allPlans);
                     // Показываем semesterInputLayout только после успешного получения данных
@@ -176,10 +176,10 @@ public class PerformanceActivity extends AppCompatActivity {
     }
 
     private void updateRecyclerView(PerformanceResponse performance) {
-        if (performance != null && performance.getPlans() != null) {
+        if (performance != null && performance.plans != null) {
             List<PerformanceResponse.Plan.Period.PlanCell> planCells = new ArrayList<>();
-            for (PerformanceResponse.Plan plan : performance.getPlans()) {
-                for (PerformanceResponse.Plan.Period period : plan.getPeriods()) {
+            for (PerformanceResponse.Plan plan : performance.plans) {
+                for (PerformanceResponse.Plan.Period period : plan.periods) {
                     planCells.addAll(getPlanCellsFromPeriod(period));
                 }
             }
@@ -204,8 +204,8 @@ public class PerformanceActivity extends AppCompatActivity {
     private void filterBySemester(List<PerformanceResponse.Plan> allPlans, String semesterName) {
         List<PerformanceResponse.Plan.Period.PlanCell> filteredPlanCells = new ArrayList<>();
         for (PerformanceResponse.Plan plan : allPlans) {
-            for (PerformanceResponse.Plan.Period period : plan.getPeriods()) {
-                if (period.getName().equals(semesterName)) {
+            for (PerformanceResponse.Plan.Period period : plan.periods) {
+                if (period.name.equals(semesterName)) {
                     filteredPlanCells.addAll(getPlanCellsFromPeriod(period));
                 }
             }
@@ -228,7 +228,7 @@ public class PerformanceActivity extends AppCompatActivity {
 
     private List<PerformanceResponse.Plan.Period.PlanCell> getPlanCellsFromPeriod(PerformanceResponse.Plan.Period period) {
         List<PerformanceResponse.Plan.Period.PlanCell> planCells = new ArrayList<>();
-        for (PerformanceResponse.Plan.Period.PlanCell planCell : period.getPlanCells()) {
+        for (PerformanceResponse.Plan.Period.PlanCell planCell : period.planCells) {
             planCells.add(planCell);
         }
         return planCells;
@@ -260,8 +260,8 @@ public class PerformanceActivity extends AppCompatActivity {
     private List<String> getSemesterNames(List<PerformanceResponse.Plan> plans) {
         Set<String> semesterNames = new HashSet<>();
         for (PerformanceResponse.Plan plan : plans) {
-            for (PerformanceResponse.Plan.Period period : plan.getPeriods()) {
-                semesterNames.add(period.getName());
+            for (PerformanceResponse.Plan.Period period : plan.periods) {
+                semesterNames.add(period.name);
             }
         }
         return new ArrayList<>(semesterNames);
